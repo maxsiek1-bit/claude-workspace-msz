@@ -205,6 +205,33 @@ dialog h2 { font-size: 18px; margin-bottom: 12px; }
 .btn { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 8px; padding: 7px 14px; cursor: pointer; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 600; }
 
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: -1px; }
+.tabs button { border: 0; background: none; padding: 8px 12px 10px; cursor: pointer; color: var(--ink-2); font-weight: 500; border-bottom: 2px solid transparent; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.tabs button:hover { color: var(--ink); }
+
+/* Call log */
+.log-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; align-items: center; }
+.log-filters input[type="search"] { flex: 1 1 240px; min-width: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+table.log td { white-space: nowrap; text-align: left; vertical-align: top; }
+table.log th { text-align: left; }
+table.log tbody tr { cursor: default; }
+table.log td.n, table.log th.n { text-align: right; }
+table.log tr.day td { background: var(--surface-2); font-weight: 600; font-size: 12.5px; color: var(--ink-2); padding: 7px 10px; }
+table.log tr.day td span { font-weight: 400; color: var(--muted); }
+.dir { font-family: var(--f-data); font-size: 12px; color: var(--muted); }
+.dir.in { color: var(--accent); }
+.contact .cn { font-weight: 500; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+.contact .num { font-family: var(--f-data); font-size: 12px; color: var(--muted); user-select: all; }
+td.note { white-space: normal !important; min-width: 180px; max-width: 320px; font-size: 12.5px; color: var(--ink-2); }
+.chip.neutral { color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line); }
+a.rec { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 12.5px; }
+a.rec:hover { text-decoration: underline; }
+.more { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+#toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 60; }
+#csvBox { width: 100%; height: 120px; margin-top: 10px; font: 11px var(--f-data); border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); }
+
 .loading { padding: 48px 0; text-align: center; color: var(--muted); }
 .empty { color: var(--muted); font-size: 13px; padding: 16px 0; }
 
@@ -239,15 +266,42 @@ dialog h2 { font-size: 18px; margin-bottom: 12px; }
         <button class="icon-btn" id="settingsBtn" type="button">Ustawienia</button>
       </div>
     </div>
+    <nav class="tabs" role="tablist" aria-label="Widok">
+      <button role="tab" data-view="przeglad" aria-selected="true">Przegląd</button>
+      <button role="tab" data-view="historia" aria-selected="false">Historia połączeń</button>
+    </nav>
   </div>
 </header>
 
 <div class="wrap">
   <div id="notice"></div>
+</div>
+<div class="wrap" id="overView">
   <main id="app"><div class="loading" id="loading">Pobieram dane z JustCall… Pierwsze uruchomienie może potrwać 2–3 minuty, kolejne są natychmiastowe.</div></main>
 </div>
 
+<div class="wrap" id="logView" hidden>
+  <main>
+    <section class="panel">
+      <div class="panel-head"><h2>Historia połączeń</h2><span class="hint" id="logCount"></span></div>
+      <div class="log-filters">
+        <input type="search" id="logQ" placeholder="Szukaj: kontakt, numer, notatka, linia" aria-label="Szukaj w historii">
+        <select class="ctl" id="logDir" aria-label="Kierunek"><option value="">Wszystkie kierunki</option><option value="O">Wychodzące</option><option value="I">Przychodzące</option></select>
+        <select class="ctl" id="logRes" aria-label="Wynik">
+          <option value="">Każdy wynik</option><option value="conv">Rozmowy</option><option value="q">Rozmowy jakościowe</option><option value="s">Krótkie / poczta głosowa</option><option value="n">Wychodzące bez odpowiedzi</option><option value="lost">Przychodzące stracone</option><option value="rec">Z nagraniem</option><option value="note">Z notatką</option>
+        </select>
+        <select class="ctl" id="logMin" aria-label="Minimalny czas rozmowy"><option value="0">Dowolna długość</option><option value="30">Od 30 s</option><option value="60">Od 1 min</option><option value="120">Od 2 min</option><option value="300">Od 5 min</option><option value="600">Od 10 min</option></select>
+        <button class="icon-btn" id="logCopy" type="button">Kopiuj jako CSV</button>
+      </div>
+      <div class="scroll"><table class="log"><thead><tr><th>Godzina</th><th>Handlowiec</th><th>Kierunek</th><th>Kontakt</th><th>Wynik</th><th class="n">Rozmowa</th><th class="n">Dzwonienie</th><th>Linia</th><th>Notatka</th><th>Nagranie</th></tr></thead><tbody id="logBody"></tbody></table></div>
+      <div class="more"><span class="small" id="logShown"></span><button class="btn" id="logMore" type="button">Pokaż kolejne 100</button></div>
+      <textarea id="csvBox" hidden readonly aria-label="Dane CSV do skopiowania"></textarea>
+    </section>
+  </main>
+</div>
+
 <div id="tip" hidden></div>
+<div id="toast" hidden></div>
 
 <dialog id="settings">
   <form class="form" id="settingsForm" method="dialog">
@@ -286,6 +340,8 @@ const S = {
   f: Object.assign({ preset: "7d", from: "", to: "", group: "", agent: "" }, store.get("filter", {})),
   sort: store.get("sort", { key: "conv", dir: -1 }),
   loaded: { from: "", to: "" },
+  view: location.hash === "#historia" ? "historia" : "przeglad",
+  log: { q: "", dir: "", res: "", min: 0, limit: 100 },
 };
 const $ = (s) => document.querySelector(s);
 const nf = new Intl.NumberFormat("pl-PL");
@@ -735,6 +791,96 @@ function scopeLabel() {
   return "Cały zespół";
 }
 
+// ---------- Call log ----------
+function callResult(r) {
+  const st = S.settings;
+  if (r.d === "O") {
+    if (r.ty === "answered") return r.cv >= st.qualitySec ? ["good", "Rozmowa jakościowa"] : r.cv >= st.connectSec ? ["info", "Rozmowa"] : ["neutral", "Krótka / poczta"];
+    return { unanswered: ["neutral", "Nieodebrane"], busy: ["neutral", "Zajęte"], failed: ["warn", "Błąd połączenia"], restricted: ["warn", "Zablokowane"] }[r.ty] || ["neutral", r.ty || "—"];
+  }
+  return { answered: ["good", "Odebrane"], voicemail: ["warn", "Poczta głosowa"], abandoned: ["crit", "Klient się rozłączył"], missed: ["crit", "Nieodebrane"] }[r.ty] || ["neutral", r.ty || "—"];
+}
+function contactName(r) {
+  const n = (r.cn || "").replace(/\+?\d[\d\s-]{6,}$/, "").trim();
+  return n || "Nieznany kontakt";
+}
+const fmtNum = (n) => n ? (n.startsWith("+") ? n : "+" + n) : "";
+const recUrl = (r) => r.rt ? (r.rs ? r.rt.replace("{sid}", r.rs) : r.rt) : "";
+function logRows() {
+  const { from, to } = S.f, L = S.log, st = S.settings;
+  const q = L.q.trim().toLowerCase(), qd = q.replace(/\D/g, "");
+  const out = [];
+  for (let i = S.calls.length - 1; i >= 0; i--) {
+    const r = S.calls[i];
+    if (r.day < from || r.day > to || !inScope(r.a)) continue;
+    if (L.dir && r.d !== L.dir) continue;
+    if (L.min && r.cv < L.min) continue;
+    if (L.res) {
+      const o = outcome(r, st);
+      if (L.res === "conv" && !(o === "q" || o === "c" || (r.d === "I" && r.ty === "answered" && r.cv >= st.connectSec))) continue;
+      if (L.res === "q" && r.cv < st.qualitySec) continue;
+      if ((L.res === "s" || L.res === "n") && o !== L.res) continue;
+      if (L.res === "lost" && !(r.d === "I" && MISSED_IN.has(r.ty))) continue;
+      if (L.res === "rec" && !r.rec) continue;
+      if (L.res === "note" && !r.nt) continue;
+    }
+    if (q) {
+      const hay = `${r.cn} ${r.nt} ${r.ln} ${nameOf(r.a)}`.toLowerCase();
+      if (!hay.includes(q) && !(qd.length >= 3 && String(r.num).includes(qd))) continue;
+    }
+    out.push(r);
+  }
+  return out;
+}
+function renderLog() {
+  if (!S.raw || S.view !== "historia") return;
+  const rows = logRows(), shown = rows.slice(0, S.log.limit);
+  const perDay = new Map(); for (const r of rows) perDay.set(r.day, (perDay.get(r.day) || 0) + 1);
+  let html = "", day = "";
+  for (const r of shown) {
+    if (r.day !== day) {
+      day = r.day;
+      html += `<tr class="day"><td colspan="10">${WD_PL[weekdayOf(day)]} ${shortDate(day)}.${day.slice(0, 4)} <span>· ${nf.format(perDay.get(day))} ${plural(perDay.get(day), "połączenie", "połączenia", "połączeń")}</span></td></tr>`;
+    }
+    const [k, label] = callResult(r), url = recUrl(r);
+    html += `<tr>
+      <td class="mono">${hm(r.mins)}</td>
+      <td>${esc(nameOf(r.a))}</td>
+      <td><span class="dir ${r.d === "I" ? "in" : ""}">${r.d === "O" ? "↗ wychodzące" : "↙ przychodzące"}</span></td>
+      <td class="contact"><div class="cn" title="${esc(r.cn)}">${esc(contactName(r))}</div><div class="num">${esc(fmtNum(r.num))}</div></td>
+      <td><span class="chip ${k}">${esc(label)}</span>${r.mr ? `<div class="small">${esc(r.mr)}</div>` : ""}</td>
+      <td class="n mono">${r.cv ? dur(r.cv) : "—"}</td>
+      <td class="n mono">${r.rg ? dur(r.rg) : "—"}</td>
+      <td class="small">${esc(r.ln)}</td>
+      <td class="note">${esc(r.nt || r.dp || "")}</td>
+      <td>${url ? `<a class="rec" href="${esc(url)}" target="_blank" rel="noopener">▶ Odsłuchaj</a>` : ""}</td></tr>`;
+  }
+  $("#logBody").innerHTML = html || `<tr><td colspan="10" class="empty">Brak połączeń dla wybranych filtrów.</td></tr>`;
+  const talk = rows.reduce((s, r) => s + r.cv, 0);
+  $("#logCount").textContent = `${scopeLabel()} · ${shortDate(S.f.from)}${S.f.from !== S.f.to ? "–" + shortDate(S.f.to) : ""} · ${nf.format(rows.length)} ${plural(rows.length, "połączenie", "połączenia", "połączeń")} · ${durShort(talk)} rozmów · od najnowszych`;
+  $("#logShown").textContent = rows.length ? `Wyświetlono ${nf.format(shown.length)} z ${nf.format(rows.length)}` : "";
+  $("#logMore").hidden = shown.length >= rows.length;
+}
+function plural(n, one, few, many) {
+  if (n === 1) return one;
+  const d = n % 10, t = n % 100;
+  return d >= 2 && d <= 4 && (t < 12 || t > 14) ? few : many;
+}
+function logCsv() {
+  const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const head = ["Data", "Godzina", "Handlowiec", "Kierunek", "Kontakt", "Numer", "Wynik", "Rozmowa (s)", "Dzwonienie (s)", "Linia", "Notatka", "Nagranie"];
+  const lines = logRows().map((r) => [r.day, hm(r.mins), nameOf(r.a), r.d === "O" ? "wychodzące" : "przychodzące", contactName(r), fmtNum(r.num), callResult(r)[1], r.cv, r.rg, r.ln, r.nt, recUrl(r)].map(q).join(";"));
+  return [head.map(q).join(";"), ...lines].join("\n");
+}
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 2500); }
+function setView(v) {
+  S.view = v;
+  document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.view === v)));
+  $("#overView").hidden = v !== "przeglad"; $("#logView").hidden = v !== "historia";
+  try { history.replaceState(null, "", "#" + v); } catch {}
+  if (v === "historia") renderLog(); else if (S.last) drawDaily(S.last);
+}
+
 // ---------- Main render ----------
 function syncControls() {
   document.querySelectorAll("#presets button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.p === S.f.preset)));
@@ -763,6 +909,7 @@ function render() {
     `<div class="grid-2">${renderDaily(cur, from, to)}${renderMix(cur)}</div>` + renderHeat(cur) + renderDiscipline(cur, from, to) + renderInbound(cur);
   S.last = cur;
   drawDaily(cur);
+  renderLog();
   store.set("filter", S.f); store.set("sort", S.sort);
 }
 
@@ -790,6 +937,17 @@ $("#app").addEventListener("click", (e) => {
   if (th) { const k = th.dataset.sort; S.sort = { key: k, dir: S.sort.key === k ? -S.sort.dir : (k === "name" || k === "first" ? 1 : -1) }; render(); return; }
   const row = e.target.closest("[data-agent]");
   if (row) { const id = row.dataset.agent; S.f.agent = S.f.agent === id ? "" : id; render(); }
+});
+
+document.querySelector(".tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-view]"); if (b) setView(b.dataset.view); });
+let qT;
+$("#logQ").addEventListener("input", (e) => { clearTimeout(qT); qT = setTimeout(() => { S.log.q = e.target.value; S.log.limit = 100; renderLog(); }, 150); });
+for (const [id, key] of [["#logDir", "dir"], ["#logRes", "res"], ["#logMin", "min"]]) $(id).addEventListener("change", (e) => { S.log[key] = key === "min" ? +e.target.value : e.target.value; S.log.limit = 100; renderLog(); });
+$("#logMore").addEventListener("click", () => { S.log.limit += 100; renderLog(); });
+$("#logCopy").addEventListener("click", () => {
+  const csv = logCsv(), n = csv.split("\n").length - 1, box = $("#csvBox");
+  const fallback = () => { box.hidden = false; box.value = csv; box.focus(); box.select(); toast("Zaznaczono dane. Skopiuj je skrótem Ctrl+C / Cmd+C."); };
+  try { navigator.clipboard.writeText(csv).then(() => { box.hidden = true; toast(`Skopiowano ${nf.format(n)} wierszy. Wklej je do Excela lub Arkuszy.`); }, fallback); } catch { fallback(); }
 });
 
 const tip = $("#tip");
@@ -838,6 +996,7 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => rend
     }
     if (S.snapshot && S.f.preset === "custom" && S.f.from < S.minDay) S.f.preset = "7d";
     render();
+    setView(S.view);
   } catch (e) { showError(e); }
 })();
 })();

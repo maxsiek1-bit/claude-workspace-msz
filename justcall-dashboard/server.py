@@ -188,6 +188,11 @@ def slim_call(c):
         "mr": info.get("missed_call_reason") or "",
         "dp": info.get("disposition") or "",
         "rec": 1 if info.get("recording") else 0,
+        # call log fields
+        "cn": c.get("contact_name") or "",
+        "num": str(c.get("contact_number") or ""),
+        "nt": (info.get("notes") or "")[:500],
+        "ru": info.get("recording") or "",
     }
 
 
@@ -211,11 +216,12 @@ KINDS = {"calls": slim_call, "texts": slim_text}
 mem_cache = {}
 mem_lock = threading.Lock()
 RECENT_TTL = 90
+CACHE_VERSION = 2  # bump when slim_call/slim_text change shape
 
 
 def fetch_day(kind, day):
     today = dt.datetime.now(dt.timezone.utc).date()
-    disk = CACHE_DIR / kind / f"{day.isoformat()}.json"
+    disk = CACHE_DIR / f"{kind}-v{CACHE_VERSION}" / f"{day.isoformat()}.json"
     settled = day <= today - dt.timedelta(days=2)
     if settled and disk.exists():
         return json.loads(disk.read_text(encoding="utf-8"))
@@ -299,7 +305,16 @@ def pack(rows, cols, index_cols=()):
     return {"cols": cols, "rows": packed, "dict": dicts}
 
 
-CALL_COLS = ["t", "a", "d", "ty", "cv", "rg", "c", "ln", "mr", "dp", "rec"]
+CALL_COLS = ["id", "t", "a", "d", "ty", "cv", "rg", "c", "ln", "mr", "dp", "rec", "cn", "num", "nt", "rt", "rs"]
+
+
+def split_recording(rows):
+    """Recording links differ only by recSid; ship the shared template once."""
+    for r in rows:
+        url = r.get("ru") or ""
+        sid = urllib.parse.parse_qs(urllib.parse.urlparse(url).query).get("recSid", [""])[0]
+        r["rt"], r["rs"] = (url.replace(sid, "{sid}"), sid) if sid else (url, "")
+    return rows
 TEXT_COLS = ["t", "a", "d", "st", "c"]
 
 
@@ -318,7 +333,7 @@ def build_payload(start, end):
         "users": team["users"],
         "groups": team["groups"],
         "agent_names": {str(k): v for k, v in names.items()},
-        "calls": pack(calls, CALL_COLS, ("ty", "ln", "mr", "dp")),
+        "calls": pack(split_recording(calls), CALL_COLS, ("ty", "ln", "mr", "dp", "rt")),
         "texts": pack(texts, TEXT_COLS, ("st",)),
     }
 
