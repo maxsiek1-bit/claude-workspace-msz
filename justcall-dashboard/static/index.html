@@ -1,0 +1,844 @@
+<title>Puls zespołu PureClave</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a dispatch board. Live agent lamps up top, headline numbers, then the
+   ranking as the centrepiece, with time-of-day and discipline views below. */
+:root {
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --surface-2: #f8f9fb;
+  --ink: #141821;
+  --ink-2: #4d5466;
+  --muted: #7a8194;
+  --line: #e2e5eb;
+  --line-strong: #cdd2dc;
+  --accent: #1f5fd1;
+  --accent-soft: #e6eefc;
+  --seq-1: #cde2fb;
+  --seq-2: #9ec5f4;
+  --seq-3: #5598e7;
+  --seq-4: #2a78d6;
+  --seq-5: #1c5cab;
+  --seq-6: #104281;
+  --none: #d6d9e0;
+  --good: #0ca30c;
+  --good-ink: #0a7a0a;
+  --warn: #fab219;
+  --warn-ink: #8a5b00;
+  --crit: #d03b3b;
+  --crit-ink: #b42f2f;
+  --shadow: 0 1px 2px rgba(20, 24, 33, .05), 0 4px 16px rgba(20, 24, 33, .04);
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1015; --surface: #171a21; --surface-2: #1c2029; --ink: #eceef3; --ink-2: #b5bbc9;
+    --muted: #8c93a5; --line: #262b35; --line-strong: #353b48; --accent: #6fa3f2; --accent-soft: #1b2a45;
+    --seq-1: #1a2b44; --seq-2: #184f95; --seq-3: #256abf; --seq-4: #3987e5; --seq-5: #6da7ec; --seq-6: #b7d3f6;
+    --none: #343946; --good-ink: #4cc74c; --warn-ink: #f2c04d; --crit-ink: #ec7a7a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1015; --surface: #171a21; --surface-2: #1c2029; --ink: #eceef3; --ink-2: #b5bbc9;
+  --muted: #8c93a5; --line: #262b35; --line-strong: #353b48; --accent: #6fa3f2; --accent-soft: #1b2a45;
+  --seq-1: #1a2b44; --seq-2: #184f95; --seq-3: #256abf; --seq-4: #3987e5; --seq-5: #6da7ec; --seq-6: #b7d3f6;
+  --none: #343946; --good-ink: #4cc74c; --warn-ink: #f2c04d; --crit-ink: #ec7a7a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.5 var(--f-body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.wrap { max-width: 1440px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.num, td.n, .mono { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+h1, h2 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Header */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 12px; }
+.brand { display: flex; align-items: baseline; gap: 10px; margin-right: auto; min-width: 0; }
+.brand h1 { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.brand .sub { color: var(--muted); font-size: 12.5px; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 2px; flex-wrap: wrap; }
+.seg button { border: 0; background: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; color: var(--ink-2); font-size: 13px; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); font-weight: 600; }
+.ctl { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 5px 8px; font-size: 13px; }
+.ctl-date { display: inline-flex; align-items: center; gap: 4px; }
+.ctl-date input { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 4px 6px; font-size: 13px; }
+.icon-btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 13px; color: var(--ink-2); }
+.icon-btn:hover, .seg button:hover { color: var(--ink); }
+
+.notice { margin-top: 12px; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--ink-2); font-size: 13px; }
+.notice.err { background: color-mix(in srgb, var(--crit) 14%, var(--surface)); color: var(--ink); }
+
+main { display: grid; gap: 20px; padding-block: 20px 48px; }
+section.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; min-width: 0; }
+.panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.panel-head h2 { font-size: 17px; font-weight: 700; }
+.panel-head .hint { color: var(--muted); font-size: 12.5px; }
+.eyebrow { text-transform: uppercase; letter-spacing: .07em; font-size: 11px; color: var(--muted); font-weight: 600; }
+
+/* Live lamps */
+.live { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.live .eyebrow { margin-right: 4px; }
+.lamp { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 13px; cursor: pointer; }
+.lamp[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.lamp i { width: 9px; height: 9px; border-radius: 50%; background: var(--none); flex: none; }
+.lamp.on-call i { background: var(--crit); box-shadow: 0 0 0 3px color-mix(in srgb, var(--crit) 25%, transparent); }
+.lamp.avail i { background: var(--good); }
+.lamp small { color: var(--muted); }
+
+/* KPI tiles */
+.kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 10px; display: grid; gap: 4px; min-width: 0; }
+.kpi .label { font-size: 12.5px; color: var(--ink-2); font-weight: 500; }
+.kpi .value { font-family: var(--f-display); font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.kpi .meta { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.delta { font-family: var(--f-data); font-size: 12px; font-weight: 500; }
+.delta.up { color: var(--good-ink); } .delta.down { color: var(--crit-ink); } .delta.flat { color: var(--muted); }
+.kpi svg { width: 100%; height: 30px; display: block; margin-top: 4px; }
+
+/* Insights */
+.insights { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+.ins { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); font-size: 13.5px; }
+.ins b { font-weight: 600; }
+.chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; letter-spacing: .03em; padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
+.chip.good { color: var(--good-ink); background: color-mix(in srgb, var(--good) 14%, transparent); }
+.chip.warn { color: var(--warn-ink); background: color-mix(in srgb, var(--warn) 20%, transparent); }
+.chip.crit { color: var(--crit-ink); background: color-mix(in srgb, var(--crit) 14%, transparent); }
+.chip.info { color: var(--accent); background: var(--accent-soft); }
+
+/* Ranking table */
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th { text-align: right; font-weight: 600; font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding: 8px 10px; border-bottom: 1px solid var(--line-strong); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th[data-sort] { cursor: pointer; user-select: none; }
+th[data-sort]:hover { color: var(--ink); }
+th.sorted { color: var(--accent); }
+th.sorted::after { content: " ↓"; } th.sorted.asc::after { content: " ↑"; }
+td { padding: 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; vertical-align: middle; }
+td.n { font-size: 13px; }
+tbody tr { cursor: pointer; }
+tbody tr:hover td { background: var(--surface-2); }
+tbody tr.sel td { background: var(--accent-soft); }
+tbody tr.idle td { color: var(--muted); }
+tfoot td { font-weight: 600; border-bottom: 0; border-top: 1px solid var(--line-strong); }
+.agent { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 11.5px; font-weight: 600; background: var(--accent-soft); color: var(--accent); flex: none; position: relative; }
+.avatar i { position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surface); background: var(--none); }
+.avatar i.on-call { background: var(--crit); } .avatar i.avail { background: var(--good); }
+.agent .nm { font-weight: 600; } .agent .gr { font-size: 11.5px; color: var(--muted); }
+.cell-bar { display: grid; gap: 3px; justify-items: end; }
+.bar { width: 84px; height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--seq-4); border-radius: 3px; }
+.bar.goal span { background: var(--good); } .bar.goal.low span { background: var(--warn); } .bar.goal.crit span { background: var(--crit); }
+.small { font-size: 11.5px; color: var(--muted); }
+
+/* Charts */
+.grid-2 { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 20px; }
+.chart { position: relative; width: 100%; }
+.chart svg { display: block; width: 100%; overflow: visible; }
+.chart text { fill: var(--muted); font: 11px var(--f-data); }
+.chart .grid line { stroke: var(--line); }
+.chart .axis line { stroke: var(--line-strong); }
+.s-q { fill: var(--seq-5); } .s-c { fill: var(--seq-3); } .s-s { fill: var(--seq-2); } .s-n { fill: var(--none); }
+.chart rect.hit { fill: transparent; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); margin-top: 10px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.legend .q { background: var(--seq-5); } .legend .c { background: var(--seq-3); } .legend .s { background: var(--seq-2); } .legend .n { background: var(--none); }
+
+.mix { display: grid; gap: 10px; }
+.mix-row { display: grid; grid-template-columns: 130px minmax(0, 1fr) 48px; gap: 10px; align-items: center; font-size: 13px; }
+.mix-row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stack { display: flex; height: 16px; gap: 2px; border-radius: 4px; overflow: hidden; }
+.stack span { display: block; height: 100%; }
+
+.heat { display: grid; gap: 3px; font-size: 11px; }
+.heat .hd { color: var(--muted); font-family: var(--f-data); text-align: center; }
+.heat .rl { color: var(--ink-2); font-size: 12px; padding-right: 6px; align-self: center; }
+.heat .cell { height: 28px; border-radius: 4px; background: var(--surface-2); display: grid; place-items: center; font-family: var(--f-data); font-size: 10.5px; color: var(--ink); }
+.heat .cell.thin { background: repeating-linear-gradient(135deg, var(--surface-2) 0 4px, var(--line) 4px 5px); color: var(--muted); }
+.heat .cell.dk, .heat .cell.lt, .disc .d.lt { color: #0e1015; }
+.scale { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--muted); margin-top: 10px; flex-wrap: wrap; }
+.scale .ramp { display: flex; gap: 2px; } .scale .ramp i { width: 22px; height: 10px; border-radius: 2px; }
+
+.disc { border-collapse: separate; border-spacing: 3px; width: auto; }
+.disc th { font-size: 10.5px; padding: 2px; border: 0; text-align: center; letter-spacing: 0; text-transform: none; font-family: var(--f-data); font-weight: 400; }
+.disc th.we { color: var(--line-strong); }
+.disc td { padding: 0; border: 0; }
+.disc td.nm { text-align: left; padding-right: 10px; font-size: 13px; white-space: nowrap; }
+.disc .d { width: 30px; height: 26px; border-radius: 4px; display: grid; place-items: center; font: 10.5px var(--f-data); background: var(--surface-2); color: var(--ink); }
+.disc .d.dk { color: #fff; }
+.disc .d.zero { background: transparent; border: 1px dashed var(--line-strong); color: var(--muted); }
+.disc .d.we.zero { border-color: transparent; }
+
+.split { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.mini { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.mini .v { font-family: var(--f-display); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mini .l { font-size: 12px; color: var(--ink-2); }
+.reasons { display: grid; gap: 6px; font-size: 13px; }
+.reasons div { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px dashed var(--line); padding-bottom: 6px; }
+
+#tip { position: fixed; z-index: 50; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12px; line-height: 1.45; padding: 8px 10px; border-radius: 8px; max-width: 260px; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+#tip b { font-weight: 600; }
+#tip .r { display: flex; justify-content: space-between; gap: 14px; font-family: var(--f-data); font-size: 11.5px; }
+
+dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); padding: 20px 22px; width: min(460px, calc(100vw - 32px)); }
+dialog::backdrop { background: rgba(10, 12, 18, .45); }
+dialog h2 { font-size: 18px; margin-bottom: 12px; }
+.form { display: grid; gap: 12px; }
+.form label { display: grid; gap: 4px; font-size: 13px; color: var(--ink-2); }
+.form input, .form select { border: 1px solid var(--line-strong); border-radius: 8px; padding: 7px 9px; background: var(--surface); }
+.form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.btn { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 8px; padding: 7px 14px; cursor: pointer; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 600; }
+
+.loading { padding: 48px 0; text-align: center; color: var(--muted); }
+.empty { color: var(--muted); font-size: 13px; padding: 16px 0; }
+
+@media (max-width: 1100px) {
+  .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-2 { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .split { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi .value { font-size: 24px; }
+  .mix-row { grid-template-columns: 90px minmax(0, 1fr) 40px; }
+  section.panel { padding: 14px; }
+  .brand .sub { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bar span, .stack span { transition: width .3s ease; }
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="brand"><h1>Puls zespołu</h1><span class="sub" id="sub">JustCall · ładowanie…</span></div>
+      <div class="filters">
+        <div class="seg" id="presets" role="group" aria-label="Okres">
+          <button data-p="today">Dziś</button><button data-p="yesterday">Wczoraj</button><button data-p="7d">7 dni</button><button data-p="30d">30 dni</button><button data-p="month">Ten miesiąc</button><button data-p="prevmonth">Poprz. miesiąc</button>
+        </div>
+        <span class="ctl-date"><input type="date" id="from" aria-label="Od"><span class="small">–</span><input type="date" id="to" aria-label="Do"></span>
+        <select class="ctl" id="group" aria-label="Zespół"><option value="">Wszystkie zespoły</option></select>
+        <select class="ctl" id="agent" aria-label="Handlowiec"><option value="">Cały zespół</option></select>
+        <button class="icon-btn" id="settingsBtn" type="button">Ustawienia</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="notice"></div>
+  <main id="app"><div class="loading" id="loading">Pobieram dane z JustCall… Pierwsze uruchomienie może potrwać 2–3 minuty, kolejne są natychmiastowe.</div></main>
+</div>
+
+<div id="tip" hidden></div>
+
+<dialog id="settings">
+  <form class="form" id="settingsForm" method="dialog">
+    <h2>Ustawienia panelu</h2>
+    <div class="row">
+      <label for="sConnect">Rozmowa liczy się od (s)<input id="sConnect" type="number" min="5" max="600" step="5"></label>
+      <label for="sQuality">Rozmowa jakościowa od (s)<input id="sQuality" type="number" min="30" max="1800" step="10"></label>
+    </div>
+    <div class="row">
+      <label for="sDials">Cel: połączeń dziennie<input id="sDials" type="number" min="1" max="1000"></label>
+      <label for="sTalk">Cel: minut rozmów dziennie<input id="sTalk" type="number" min="1" max="600"></label>
+    </div>
+    <label for="sTz">Strefa czasowa panelu
+      <select id="sTz"><option>Europe/Warsaw</option><option>Europe/Amsterdam</option><option>Europe/London</option><option>America/New_York</option><option>America/Chicago</option><option>America/Los_Angeles</option><option>UTC</option></select>
+    </label>
+    <p class="small">Ustawienia zapisują się w tej przeglądarce. Połączenie wychodzące odebrane, ale krótsze niż próg rozmowy, liczymy jako „krótkie / poczta głosowa”.</p>
+    <div class="actions"><button class="btn" value="cancel" type="submit">Anuluj</button><button class="btn primary" value="save" type="submit" id="saveSettings">Zapisz</button></div>
+  </form>
+</dialog>
+
+<script id="snapshot" type="application/json">null</script>
+<script>
+(() => {
+"use strict";
+
+// ---------- State ----------
+const DEFAULTS = { connectSec: 30, qualitySec: 120, dialTarget: 80, talkTarget: 60, tz: "" };
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("jcdash." + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("jcdash." + k, JSON.stringify(v)); } catch {} },
+};
+const S = {
+  snapshot: JSON.parse(document.getElementById("snapshot").textContent),
+  raw: null, calls: [], texts: [], users: [], agentNames: {},
+  settings: Object.assign({}, DEFAULTS, store.get("settings", {})),
+  f: Object.assign({ preset: "7d", from: "", to: "", group: "", agent: "" }, store.get("filter", {})),
+  sort: store.get("sort", { key: "conv", dir: -1 }),
+  loaded: { from: "", to: "" },
+};
+const $ = (s) => document.querySelector(s);
+const nf = new Intl.NumberFormat("pl-PL");
+const pf = new Intl.NumberFormat("pl-PL", { style: "percent", maximumFractionDigits: 0 });
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// ---------- Time helpers (all day keys are YYYY-MM-DD in the panel time zone) ----------
+const WD = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+const WD_PL = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Nd"];
+let fmtParts, bucketMemo;
+function setTz(tz) {
+  fmtParts = new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", weekday: "short", hourCycle: "h23" });
+  bucketMemo = new Map();
+}
+function localOf(t) {
+  const b = Math.floor(t / 900);
+  let p = bucketMemo.get(b);
+  if (!p) {
+    const o = {};
+    for (const x of fmtParts.formatToParts(new Date(b * 900000))) o[x.type] = x.value;
+    p = { day: `${o.year}-${o.month}-${o.day}`, mins: (+o.hour) * 60 + (+o.minute), wd: WD[o.weekday] };
+    bucketMemo.set(b, p);
+  }
+  const mins = p.mins + Math.floor((t % 900) / 60);
+  return { day: p.day, mins, hour: Math.floor(mins / 60), wd: p.wd };
+}
+const dayNum = (k) => Date.UTC(+k.slice(0, 4), +k.slice(5, 7) - 1, +k.slice(8, 10)) / 86400000;
+const numDay = (n) => new Date(n * 86400000).toISOString().slice(0, 10);
+const addDays = (k, n) => numDay(dayNum(k) + n);
+const daysBetween = (a, b) => { const out = []; for (let n = dayNum(a); n <= dayNum(b); n++) out.push(numDay(n)); return out; };
+const weekdayOf = (k) => (new Date(dayNum(k) * 86400000).getUTCDay() + 6) % 7;
+const todayKey = () => localOf(Math.floor(Date.now() / 1000)).day;
+const shortDate = (k) => `${+k.slice(8, 10)}.${k.slice(5, 7)}`;
+const hm = (m) => `${Math.floor(m / 60)}:${String(Math.round(m % 60)).padStart(2, "0")}`;
+function dur(sec) {
+  sec = Math.round(sec);
+  if (sec < 60) return `${sec} s`;
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+  return h ? `${h} h ${String(m).padStart(2, "0")} min` : `${m} min ${String(s).padStart(2, "0")} s`;
+}
+const durShort = (sec) => { const h = Math.floor(sec / 3600), m = Math.round((sec % 3600) / 60); return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m`; };
+
+function presetRange(p) {
+  const t = todayKey();
+  switch (p) {
+    case "today": return [t, t];
+    case "yesterday": return [addDays(t, -1), addDays(t, -1)];
+    case "30d": return [addDays(t, -29), t];
+    case "month": return [t.slice(0, 8) + "01", t];
+    case "prevmonth": { const first = t.slice(0, 8) + "01"; const end = addDays(first, -1); return [end.slice(0, 8) + "01", end]; }
+    default: return [addDays(t, -6), t];
+  }
+}
+
+// ---------- Data ----------
+function unpack(block, dicts) {
+  const cols = block.cols, D = block.dict || {};
+  return block.rows.map((r) => { const o = {}; cols.forEach((c, i) => { o[c] = D[c] ? D[c][r[i]] : r[i]; }); return o; });
+}
+function ingest(raw) {
+  S.raw = raw;
+  S.users = raw.users;
+  S.agentNames = raw.agent_names;
+  S.groups = raw.groups;
+  decorate();
+}
+function decorate() {
+  setTz(S.settings.tz || S.raw.tz || "Europe/Warsaw");
+  const calls = unpack(S.raw.calls), texts = unpack(S.raw.texts);
+  for (const r of calls) Object.assign(r, localOf(r.t));
+  for (const r of texts) Object.assign(r, localOf(r.t));
+  S.calls = calls; S.texts = texts;
+  // first full local day covered by the fetched UTC range
+  S.minDay = addDays(S.raw.range.from, 1);
+}
+async function fetchJSON(url) {
+  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.error || `Błąd serwera ${res.status}`);
+  return body;
+}
+async function ensureRange(from, to) {
+  if (S.snapshot) return;
+  const span = dayNum(to) - dayNum(from) + 1;
+  const need = addDays(from, -span - 1);
+  if (S.loaded.from && S.loaded.from <= need && S.loaded.to >= to) return;
+  const reqFrom = S.loaded.from && S.loaded.from < need ? S.loaded.from : addDays(need, -1);
+  const reqTo = addDays(todayKey(), 1);
+  ingest(await fetchJSON(`/api/data?from=${reqFrom}&to=${reqTo}`));
+  S.loaded = { from: reqFrom, to: reqTo };
+}
+async function refreshRecent() {
+  if (S.snapshot || !S.raw) return;
+  const from = addDays(todayKey(), -2);
+  const fresh = await fetchJSON(`/api/data?from=${from}&to=${addDays(todayKey(), 1)}`);
+  const cut = Date.parse(from + "T00:00:00Z") / 1000;
+  const merge = (oldB, newB) => {
+    const oldRows = unpack(oldB).filter((r) => r.t < cut), newRows = unpack(newB);
+    const all = oldRows.concat(newRows);
+    const dict = {}; const cols = oldB.cols;
+    for (const c of Object.keys(oldB.dict || {})) dict[c] = [];
+    const idx = {}; for (const c in dict) idx[c] = new Map();
+    const rows = all.map((o) => cols.map((c) => { if (!dict[c]) return o[c]; let i = idx[c].get(o[c]); if (i === undefined) { i = dict[c].length; dict[c].push(o[c]); idx[c].set(o[c], i); } return i; }));
+    return { cols, rows, dict };
+  };
+  S.raw.calls = merge(S.raw.calls, fresh.calls);
+  S.raw.texts = merge(S.raw.texts, fresh.texts);
+  S.raw.users = fresh.users; S.users = fresh.users; S.raw.generated_at = fresh.generated_at;
+  Object.assign(S.agentNames, fresh.agent_names);
+  decorate();
+  render();
+}
+
+// ---------- Aggregation ----------
+const MISSED_IN = new Set(["missed", "voicemail", "abandoned"]);
+function userById(id) { return S.users.find((u) => u.id === id); }
+function agentGroups(id) { const u = userById(id); return u ? u.groups : []; }
+function inScope(agentId) {
+  if (S.f.agent && String(agentId) !== S.f.agent) return false;
+  if (S.f.group && !agentGroups(agentId).includes(S.f.group)) return false;
+  return true;
+}
+function outcome(r, st) {
+  if (r.d !== "O") return null;
+  if (r.ty !== "answered") return "n";
+  if (r.cv >= st.qualitySec) return "q";
+  if (r.cv >= st.connectSec) return "c";
+  return "s";
+}
+function blank() {
+  return { dials: 0, answered: 0, conv: 0, quality: 0, talk: 0, convTalk: 0, convN: 0, contacts: new Set(), reached: new Set(),
+    inTotal: 0, inAns: 0, inMissed: 0, smsOut: 0, smsIn: 0, smsFail: 0, days: new Map(), out: { q: 0, c: 0, s: 0, n: 0 } };
+}
+function addCall(a, r, st) {
+  const day = a.days.get(r.day) || { dials: 0, conv: 0, talk: 0, first: 1e9, last: -1, sms: 0 };
+  a.days.set(r.day, day);
+  a.talk += r.cv; day.talk += r.cv;
+  if (r.cv >= st.connectSec) { a.convTalk += r.cv; a.convN++; }
+  if (r.d === "O") {
+    const o = outcome(r, st);
+    a.dials++; day.dials++; a.out[o]++;
+    if (r.c) a.contacts.add(r.c);
+    if (r.ty === "answered") a.answered++;
+    if (o === "q" || o === "c") { a.conv++; day.conv++; if (r.c) a.reached.add(r.c); }
+    if (o === "q") a.quality++;
+    day.first = Math.min(day.first, r.mins); day.last = Math.max(day.last, r.mins);
+  } else {
+    a.inTotal++;
+    if (r.ty === "answered") a.inAns++;
+    else if (MISSED_IN.has(r.ty)) a.inMissed++;
+  }
+}
+function addText(a, r) {
+  if (r.d === "O") {
+    a.smsOut++; if (r.st === "undelivered") a.smsFail++;
+    const day = a.days.get(r.day) || { dials: 0, conv: 0, talk: 0, first: 1e9, last: -1, sms: 0 };
+    day.sms++; a.days.set(r.day, day);
+  } else a.smsIn++;
+}
+function finish(a) {
+  const active = [...a.days.values()].filter((d) => d.dials > 0 || d.sms > 0);
+  const worked = [...a.days.values()].filter((d) => d.dials > 0);
+  a.activeDays = active.length;
+  a.rate = a.dials ? a.conv / a.dials : 0;
+  a.avgConv = a.convN ? a.convTalk / a.convN : 0;
+  a.dialsPerDay = a.activeDays ? a.dials / a.activeDays : 0;
+  a.talkPerDay = a.activeDays ? a.talk / a.activeDays : 0;
+  a.first = worked.length ? worked.reduce((s, d) => s + d.first, 0) / worked.length : null;
+  a.last = worked.length ? worked.reduce((s, d) => s + d.last, 0) / worked.length : null;
+  a.inRate = a.inTotal ? a.inAns / a.inTotal : null;
+  a.uniq = a.contacts.size; a.reachedN = a.reached.size;
+  return a;
+}
+function aggregate(from, to, scopeFn = inScope) {
+  const st = S.settings, team = blank(), agents = new Map(), byDay = new Map(), heat = new Map(), lines = new Map(), reasons = new Map();
+  const get = (id) => { if (!agents.has(id)) agents.set(id, blank()); return agents.get(id); };
+  for (const r of S.calls) {
+    if (r.day < from || r.day > to || !scopeFn(r.a)) continue;
+    addCall(team, r, st); addCall(get(r.a), r, st);
+    if (r.d === "O") {
+      const o = outcome(r, st);
+      const d = byDay.get(r.day) || { q: 0, c: 0, s: 0, n: 0 }; d[o]++; byDay.set(r.day, d);
+      const hk = r.wd * 24 + r.hour; const h = heat.get(hk) || { dials: 0, conv: 0 }; h.dials++; if (o === "q" || o === "c") h.conv++; heat.set(hk, h);
+      const l = lines.get(r.ln) || { dials: 0, conv: 0, inbound: 0, missed: 0 }; l.dials++; if (o === "q" || o === "c") l.conv++; lines.set(r.ln, l);
+    } else {
+      const l = lines.get(r.ln) || { dials: 0, conv: 0, inbound: 0, missed: 0 }; l.inbound++; if (MISSED_IN.has(r.ty)) l.missed++; lines.set(r.ln, l);
+      if (r.ty !== "answered") { const k = r.mr || ({ voicemail: "Poczta głosowa", abandoned: "Klient się rozłączył", missed: "Nieodebrane" }[r.ty] || r.ty); reasons.set(k, (reasons.get(k) || 0) + 1); }
+    }
+  }
+  for (const r of S.texts) {
+    if (r.day < from || r.day > to || !scopeFn(r.a)) continue;
+    addText(team, r); addText(get(r.a), r);
+  }
+  finish(team); for (const a of agents.values()) finish(a);
+  return { team, agents, byDay, heat, lines, reasons };
+}
+
+// ---------- Rendering helpers ----------
+function initials(n) { return String(n || "?").split(/\s+/).filter(Boolean).slice(0, 2).map((x) => x[0]).join("").toUpperCase(); }
+function nameOf(id) { return S.agentNames[String(id)] || (id ? `Agent ${id}` : "Nieprzypisane"); }
+function statusOf(id) { const u = userById(id); if (!u) return ""; return u.on_call ? "on-call" : u.available ? "avail" : ""; }
+function statusLabel(id) { const u = userById(id); if (!u) return "Nieaktywny w JustCall"; return u.on_call ? "W trakcie rozmowy" : u.available ? "Dostępny" : `Niedostępny${u.reason ? " · " + u.reason : ""}`; }
+function delta(cur, prev, invert = false) {
+  if (prev == null || !isFinite(prev) || prev === 0) return `<span class="delta flat">brak porównania</span>`;
+  const ch = (cur - prev) / Math.abs(prev);
+  if (Math.abs(ch) < 0.005) return `<span class="delta flat">bez zmian</span>`;
+  const good = invert ? ch < 0 : ch > 0;
+  return `<span class="delta ${good ? "up" : "down"}">${ch > 0 ? "▲" : "▼"} ${pf.format(Math.abs(ch))}</span>`;
+}
+function spark(values) {
+  if (values.length < 2) return "";
+  const max = Math.max(1, ...values), w = 200, h = 30, step = w / (values.length - 1);
+  const pts = values.map((v, i) => [i * step, h - 3 - (v / max) * (h - 6)]);
+  const line = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+  const last = pts[pts.length - 1];
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><path d="${line} L${w} ${h} L0 ${h} Z" style="fill:var(--accent-soft)"/><path d="${line}" style="fill:none;stroke:var(--accent);stroke-width:1.5" vector-effect="non-scaling-stroke"/><circle cx="${last[0]}" cy="${last[1]}" r="2.5" style="fill:var(--accent)"/></svg>`;
+}
+// label ink for a filled sequential cell: white on the deep light-mode steps, dark on the pale dark-mode steps
+function cellInk(step, dark) { return dark ? (step >= 5 ? "lt" : "") : (step >= 4 ? "dk" : ""); }
+
+// ---------- Sections ----------
+function renderLive() {
+  const ids = new Set(S.calls.map((r) => r.a));
+  const people = S.users.filter((u) => ids.has(u.id));
+  const at = new Date(S.raw.generated_at * 1000).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" });
+  return `<section class="live" aria-label="Status zespołu"><span class="eyebrow">${S.snapshot ? "Status o " + at : "Teraz"}</span>${people.map((u) =>
+    `<button type="button" class="lamp ${statusOf(u.id)}" data-agent="${u.id}" aria-pressed="${S.f.agent === String(u.id)}" title="${esc(statusLabel(u.id))}"><i></i>${esc(u.name)} <small>${u.on_call ? "rozmawia" : u.available ? "dostępny" : "niedostępny"}</small></button>`).join("")}</section>`;
+}
+
+function renderKpis(cur, prev, from, to, hasPrev) {
+  const days = daysBetween(from, to);
+  const series = (fn) => days.map(fn);
+  const a = cur.team, b = prev ? prev.team : null;
+  const dayCalls = new Map();
+  for (const r of S.calls) if (r.day >= from && r.day <= to && inScope(r.a) && r.d === "O") {
+    const d = dayCalls.get(r.day) || { dials: 0, conv: 0, q: 0, talk: 0 }; const o = outcome(r, S.settings);
+    d.dials++; if (o === "q" || o === "c") { d.conv++; } if (o === "q") d.q++; dayCalls.set(r.day, d);
+  }
+  for (const r of S.calls) if (r.day >= from && r.day <= to && inScope(r.a)) { const d = dayCalls.get(r.day) || { dials: 0, conv: 0, q: 0, talk: 0 }; d.talk += r.cv; dayCalls.set(r.day, d); }
+  const g = (k) => series((d) => (dayCalls.get(d) || {})[k] || 0);
+  const P = (v) => (hasPrev ? v : null);
+  const tiles = [
+    { l: "Połączenia wychodzące", v: nf.format(a.dials), m: `${nf.format(Math.round(a.dialsPerDay))} / dzień aktywny`, d: delta(a.dials, P(b?.dials)), s: g("dials") },
+    { l: "Rozmowy", v: nf.format(a.conv), m: `≥ ${S.settings.connectSec} s`, d: delta(a.conv, P(b?.conv)), s: g("conv") },
+    { l: "Wskaźnik kontaktu", v: pf.format(a.rate), m: "rozmowy / połączenia", d: delta(a.rate, P(b?.rate)), s: series((d) => { const x = dayCalls.get(d); return x && x.dials ? x.conv / x.dials : 0; }) },
+    { l: "Rozmowy jakościowe", v: nf.format(a.quality), m: `≥ ${Math.round(S.settings.qualitySec / 60)} min`, d: delta(a.quality, P(b?.quality)), s: g("q") },
+    { l: "Czas rozmów", v: durShort(a.talk), m: `śr. rozmowa ${dur(a.avgConv)}`, d: delta(a.talk, P(b?.talk)), s: g("talk") },
+    { l: "Przychodzące odebrane", v: a.inRate == null ? "—" : pf.format(a.inRate), m: `${nf.format(a.inMissed)} nieodebranych z ${nf.format(a.inTotal)}`, d: a.inRate == null ? "" : delta(a.inRate, P(b?.inRate)), s: null },
+  ];
+  return `<section class="kpis" aria-label="Najważniejsze wskaźniki">${tiles.map((t) => `<div class="kpi"><span class="label">${t.l}</span><span class="value">${t.v}</span><span class="meta">${t.d}<span>${t.m}</span></span>${t.s && days.length > 1 ? spark(t.s) : ""}</div>`).join("")}</section>`;
+}
+
+function rankingRows(cur, prevAll) {
+  const allIds = new Set(S.calls.map((r) => r.a));
+  for (const u of S.users) if (allIds.has(u.id) && inScope(u.id) && !cur.agents.has(u.id)) cur.agents.set(u.id, finish(blank()));
+  const rows = [...cur.agents.entries()].map(([id, a]) => ({ id, a, name: nameOf(id) }));
+  const k = S.sort.key, dir = S.sort.dir;
+  const val = (r) => k === "name" ? r.name : k === "first" ? (r.a.first ?? 1e9) : (r.a[k] ?? -1);
+  rows.sort((x, y) => { const a = val(x), b = val(y); return (typeof a === "string" ? a.localeCompare(b, "pl") : a - b) * dir; });
+  return rows;
+}
+
+function renderRanking(cur) {
+  const st = S.settings, rows = rankingRows(cur);
+  const maxDials = Math.max(1, ...rows.map((r) => r.a.dials));
+  const teamRate = cur.team.rate;
+  const cols = [
+    ["name", "Handlowiec"], ["dials", "Połączenia"], ["dialsPerDay", "Śr. / dzień"], ["conv", "Rozmowy"], ["rate", "Kontakt"], ["quality", "≥ 2 min"],
+    ["talk", "Czas rozmów"], ["talkPerDay", "Rozmowy / dzień"], ["avgConv", "Śr. rozmowa"], ["uniq", "Unik. kontakty"], ["inTotal", "Przychodzące"], ["smsOut", "SMS"], ["activeDays", "Dni"], ["first", "Godziny pracy"],
+  ];
+  const head = cols.map(([key, label]) => `<th data-sort="${key}" class="${S.sort.key === key ? "sorted" + (S.sort.dir > 0 ? " asc" : "") : ""}">${label === "≥ 2 min" ? `≥ ${Math.round(st.qualitySec / 60)} min` : label}</th>`).join("");
+  const goal = (v, target) => { const p = Math.min(1, v / target); return `<div class="bar goal ${p < .5 ? "crit" : p < .85 ? "low" : ""}" title="${pf.format(v / target)} celu"><span style="width:${(p * 100).toFixed(0)}%"></span></div>`; };
+  const body = rows.map(({ id, a, name }) => {
+    const idle = a.dials === 0 && a.smsOut === 0 && a.inTotal === 0;
+    const rateChip = a.dials >= 20 && teamRate > 0 ? (a.rate < teamRate * 0.7 ? ` <span class="chip warn" title="Wyraźnie poniżej średniej zespołu">▼ nisko</span>` : a.rate > teamRate * 1.25 ? ` <span class="chip good" title="Wyraźnie powyżej średniej zespołu">▲ wysoko</span>` : "") : "";
+    return `<tr data-agent="${id}" class="${S.f.agent === String(id) ? "sel" : ""} ${idle ? "idle" : ""}">
+      <td><div class="agent"><span class="avatar">${initials(name)}<i class="${statusOf(id)}" title="${esc(statusLabel(id))}"></i></span><div><div class="nm">${esc(name)}</div><div class="gr">${esc(agentGroups(id).join(" · ") || "—")}</div></div></div></td>
+      <td class="n"><div class="cell-bar">${nf.format(a.dials)}<div class="bar"><span style="width:${(a.dials / maxDials * 100).toFixed(0)}%"></span></div></div></td>
+      <td class="n"><div class="cell-bar">${a.activeDays ? nf.format(Math.round(a.dialsPerDay)) : "—"}<span class="small">cel ${st.dialTarget}</span>${a.activeDays ? goal(a.dialsPerDay, st.dialTarget) : ""}</div></td>
+      <td class="n">${nf.format(a.conv)}</td>
+      <td class="n">${a.dials ? pf.format(a.rate) : "—"}${rateChip}</td>
+      <td class="n">${nf.format(a.quality)}</td>
+      <td class="n">${durShort(a.talk)}</td>
+      <td class="n"><div class="cell-bar">${a.activeDays ? durShort(a.talkPerDay) : "—"}<span class="small">cel ${st.talkTarget}m</span>${a.activeDays ? goal(a.talkPerDay / 60, st.talkTarget) : ""}</div></td>
+      <td class="n">${a.convN ? dur(a.avgConv) : "—"}</td>
+      <td class="n">${nf.format(a.uniq)}<div class="small">${nf.format(a.reachedN)} z rozmową</div></td>
+      <td class="n">${nf.format(a.inTotal)}${a.inMissed ? `<div class="small">${nf.format(a.inMissed)} nieodebr.</div>` : ""}</td>
+      <td class="n">${nf.format(a.smsOut)}${a.smsFail ? `<div class="small">${nf.format(a.smsFail)} niedostarcz.</div>` : ""}</td>
+      <td class="n">${a.activeDays}</td>
+      <td class="n">${a.first != null ? `${hm(a.first)}–${hm(a.last)}` : "—"}</td></tr>`;
+  }).join("");
+  const t = cur.team;
+  const foot = `<tr><td>Zespół</td><td class="n">${nf.format(t.dials)}</td><td></td><td class="n">${nf.format(t.conv)}</td><td class="n">${t.dials ? pf.format(t.rate) : "—"}</td><td class="n">${nf.format(t.quality)}</td><td class="n">${durShort(t.talk)}</td><td></td><td class="n">${t.convN ? dur(t.avgConv) : "—"}</td><td class="n">${nf.format(t.uniq)}</td><td class="n">${nf.format(t.inTotal)}</td><td class="n">${nf.format(t.smsOut)}</td><td></td><td></td></tr>`;
+  return `<section class="panel"><div class="panel-head"><h2>Ranking handlowców</h2><span class="hint">Kliknij wiersz, aby przefiltrować cały panel do jednej osoby. Średnie dzienne liczone z dni, w których handlowiec pracował.</span></div>
+    <div class="scroll"><table id="rank"><thead><tr>${head}</tr></thead><tbody>${body || `<tr><td colspan="14" class="empty">Brak aktywności w wybranym okresie.</td></tr>`}</tbody><tfoot>${foot}</tfoot></table></div></section>`;
+}
+
+function renderInsights(cur, prev, hasPrev) {
+  const st = S.settings, items = [];
+  const rows = [...cur.agents.entries()].filter(([, a]) => a.dials >= 10);
+  const tr = cur.team.rate;
+  if (rows.length > 1) {
+    const best = rows.slice().sort((x, y) => y[1].quality - x[1].quality)[0];
+    if (best[1].quality) items.push(["good", "Lider", `<b>${esc(nameOf(best[0]))}</b> ma najwięcej rozmów jakościowych: ${nf.format(best[1].quality)} (≥ ${Math.round(st.qualitySec / 60)} min).`]);
+    const bestRate = rows.filter(([, a]) => a.dials >= 30).sort((x, y) => y[1].rate - x[1].rate)[0];
+    if (bestRate && bestRate[0] !== best[0]) items.push(["good", "Skuteczność", `<b>${esc(nameOf(bestRate[0]))}</b> ma najwyższy wskaźnik kontaktu: ${pf.format(bestRate[1].rate)} przy średniej zespołu ${pf.format(tr)}.`]);
+  }
+  for (const [id, a] of rows) {
+    if (a.dials >= 30 && tr > 0 && a.rate < tr * 0.7) items.push(["warn", "Kontakt", `<b>${esc(nameOf(id))}</b>: wskaźnik kontaktu ${pf.format(a.rate)} wobec ${pf.format(tr)} w zespole. Warto odsłuchać kilka nagrań i sprawdzić jakość bazy.`]);
+    if (a.activeDays && a.dialsPerDay < st.dialTarget * 0.6) items.push(["warn", "Aktywność", `<b>${esc(nameOf(id))}</b>: średnio ${nf.format(Math.round(a.dialsPerDay))} połączeń dziennie przy celu ${st.dialTarget}.`]);
+    if (a.first != null && a.first > 10.5 * 60) items.push(["info", "Start dnia", `<b>${esc(nameOf(id))}</b> zaczyna dzwonić średnio o ${hm(a.first)}.`]);
+    if (a.convN >= 10 && a.avgConv < 60) items.push(["info", "Długość rozmów", `<b>${esc(nameOf(id))}</b>: średnia rozmowa trwa tylko ${dur(a.avgConv)}.`]);
+  }
+  if (cur.team.inTotal >= 5 && cur.team.inRate < 0.8) items.push(["crit", "Przychodzące", `Odebrano tylko ${pf.format(cur.team.inRate)} połączeń przychodzących (${nf.format(cur.team.inMissed)} straconych). To klienci, którzy sami dzwonili.`]);
+  if (hasPrev && prev.team.dials > 20) {
+    const ch = (cur.team.dials - prev.team.dials) / prev.team.dials;
+    if (ch < -0.2) items.push(["warn", "Trend", `Liczba połączeń spadła o ${pf.format(-ch)} względem poprzedniego okresu.`]);
+    if (ch > 0.2) items.push(["good", "Trend", `Liczba połączeń wzrosła o ${pf.format(ch)} względem poprzedniego okresu.`]);
+  }
+  const hb = [...cur.heat.entries()].filter(([, h]) => h.dials >= 15).sort((x, y) => y[1].conv / y[1].dials - x[1].conv / x[1].dials)[0];
+  if (hb) items.push(["info", "Najlepsza pora", `Najwyższy wskaźnik kontaktu: ${WD_PL[Math.floor(hb[0] / 24)]} ${hb[0] % 24}:00–${hb[0] % 24 + 1}:00 (${pf.format(hb[1].conv / hb[1].dials)} z ${nf.format(hb[1].dials)} połączeń).`]);
+  if (!items.length) return "";
+  const order = { crit: 0, warn: 1, good: 2, info: 3 };
+  items.sort((a, b) => order[a[0]] - order[b[0]]);
+  return `<section class="panel"><div class="panel-head"><h2>Na co zwrócić uwagę</h2><span class="hint">Wnioski wyliczane automatycznie z wybranego okresu</span></div>
+    <div class="insights">${items.slice(0, 9).map(([k, label, text]) => `<div class="ins"><span class="chip ${k}">${{ crit: "■", warn: "▲", good: "●", info: "◆" }[k]} ${label}</span><span>${text}</span></div>`).join("")}</div></section>`;
+}
+
+function renderDaily(cur, from, to) {
+  return `<section class="panel"><div class="panel-head"><h2>Połączenia wychodzące dzień po dniu</h2><span class="hint">${esc(scopeLabel())}</span></div>
+    <div class="chart" id="dailyChart" data-from="${from}" data-to="${to}"></div>
+    <div class="legend"><span><i class="q"></i>Rozmowa ≥ ${Math.round(S.settings.qualitySec / 60)} min</span><span><i class="c"></i>Rozmowa ${S.settings.connectSec} s – ${Math.round(S.settings.qualitySec / 60)} min</span><span><i class="s"></i>Krótkie / poczta głosowa</span><span><i class="n"></i>Nieodebrane, zajęte, błąd</span></div></section>`;
+}
+function drawDaily(cur) {
+  const el = $("#dailyChart"); if (!el) return;
+  const days = daysBetween(el.dataset.from, el.dataset.to);
+  const W = Math.max(280, el.clientWidth), H = 240, L = 36, R = 8, T = 10, B = 24;
+  const data = days.map((d) => ({ d, ...(cur.byDay.get(d) || { q: 0, c: 0, s: 0, n: 0 }) }));
+  const max = Math.max(4, ...data.map((x) => x.q + x.c + x.s + x.n));
+  const step = Math.pow(10, Math.floor(Math.log10(max))); const nice = [1, 2, 2.5, 5, 10].map((m) => m * step).find((s) => max / s <= 5) || step * 10;
+  const top = Math.ceil(max / nice) * nice;
+  const y = (v) => T + (H - T - B) * (1 - v / top);
+  const bw = (W - L - R) / data.length, gap = Math.min(6, bw * 0.25);
+  let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Wykres dziennych połączeń">`;
+  s += `<g class="grid">`; for (let v = 0; v <= top; v += nice) s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${nf.format(v)}</text>`; s += `</g>`;
+  const every = Math.ceil(data.length / Math.max(1, Math.floor((W - L) / 46)));
+  data.forEach((x, i) => {
+    const x0 = L + i * bw + gap / 2, w = Math.max(1, bw - gap);
+    let base = 0;
+    for (const k of ["q", "c", "s", "n"]) {
+      if (!x[k]) continue;
+      const y1 = y(base + x[k]), y0 = y(base);
+      const h = Math.max(0, y0 - y1 - (base ? 2 : 0));
+      s += `<rect class="s-${k}" x="${x0}" y="${y1}" width="${w}" height="${h}" rx="${Math.min(3, w / 3)}"/>`;
+      base += x[k];
+    }
+    if (i % every === 0 || data.length <= 14) s += `<text x="${x0 + w / 2}" y="${H - 6}" text-anchor="middle">${shortDate(x.d)}</text>`;
+    const tot = x.q + x.c + x.s + x.n;
+    s += `<rect class="hit" x="${L + i * bw}" y="${T}" width="${bw}" height="${H - T - B}" data-tip="${esc(`<b>${WD_PL[weekdayOf(x.d)]} ${shortDate(x.d)}</b><div class="r"><span>Połączenia</span><span>${tot}</span></div><div class="r"><span>Rozmowy ≥ ${Math.round(S.settings.qualitySec / 60)} min</span><span>${x.q}</span></div><div class="r"><span>Rozmowy krótsze</span><span>${x.c}</span></div><div class="r"><span>Krótkie / poczta</span><span>${x.s}</span></div><div class="r"><span>Nieodebrane</span><span>${x.n}</span></div><div class="r"><span>Kontakt</span><span>${tot ? pf.format((x.q + x.c) / tot) : "—"}</span></div>`)}"/>`;
+  });
+  s += `<g class="axis"><line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}"/></g></svg>`;
+  el.innerHTML = s;
+}
+
+function renderMix(cur) {
+  const rows = [...cur.agents.entries()].filter(([, a]) => a.dials > 0).sort((x, y) => y[1].rate - x[1].rate);
+  const seg = (o, k, tot) => o[k] ? `<span class="s-${k}" style="width:${(o[k] / tot * 100).toFixed(2)}%;background:var(--${{ q: "seq-5", c: "seq-3", s: "seq-2", n: "none" }[k]})"></span>` : "";
+  const body = rows.map(([id, a]) => {
+    const t = a.dials;
+    return `<div class="mix-row" data-tip="${esc(`<b>${esc(nameOf(id))}</b><div class="r"><span>Połączenia</span><span>${t}</span></div><div class="r"><span>Rozmowy ≥ ${Math.round(S.settings.qualitySec / 60)} min</span><span>${a.out.q} · ${pf.format(a.out.q / t)}</span></div><div class="r"><span>Rozmowy krótsze</span><span>${a.out.c} · ${pf.format(a.out.c / t)}</span></div><div class="r"><span>Krótkie / poczta</span><span>${a.out.s} · ${pf.format(a.out.s / t)}</span></div><div class="r"><span>Nieodebrane</span><span>${a.out.n} · ${pf.format(a.out.n / t)}</span></div>`)}"><span class="nm">${esc(nameOf(id))}</span><div class="stack">${seg(a.out, "q", t)}${seg(a.out, "c", t)}${seg(a.out, "s", t)}${seg(a.out, "n", t)}</div><span class="num" style="text-align:right">${pf.format(a.rate)}</span></div>`;
+  }).join("");
+  return `<section class="panel"><div class="panel-head"><h2>Jakość połączeń</h2><span class="hint">Struktura wyników · liczba po prawej to wskaźnik kontaktu</span></div>
+    <div class="mix">${body || `<div class="empty">Brak połączeń wychodzących.</div>`}</div>
+    <div class="legend"><span><i class="q"></i>≥ ${Math.round(S.settings.qualitySec / 60)} min</span><span><i class="c"></i>${S.settings.connectSec} s – ${Math.round(S.settings.qualitySec / 60)} min</span><span><i class="s"></i>Krótkie / poczta</span><span><i class="n"></i>Nieodebrane</span></div></section>`;
+}
+
+function renderHeat(cur) {
+  let hMin = 23, hMax = 0;
+  for (const k of cur.heat.keys()) { const h = k % 24; if (cur.heat.get(k).dials >= 3) { hMin = Math.min(hMin, h); hMax = Math.max(hMax, h); } }
+  if (hMin > hMax) { hMin = 8; hMax = 18; }
+  const hours = []; for (let h = hMin; h <= hMax; h++) hours.push(h);
+  const rates = [...cur.heat.values()].filter((h) => h.dials >= 8).map((h) => h.conv / h.dials);
+  const lo = rates.length ? Math.min(...rates) : 0, hi = rates.length ? Math.max(...rates) : 1;
+  const norm = (r) => (hi > lo ? (r - lo) / (hi - lo) : 0.5) * 0.999;
+  const dark = isDarkTheme();
+  let g = `<div class="heat" style="grid-template-columns: 44px repeat(${hours.length}, minmax(26px, 1fr))"><span></span>${hours.map((h) => `<span class="hd">${h}</span>`).join("")}`;
+  for (let wd = 0; wd < 7; wd++) {
+    const rowHas = hours.some((h) => cur.heat.get(wd * 24 + h));
+    if (wd >= 5 && !rowHas) continue;
+    g += `<span class="rl">${WD_PL[wd]}</span>`;
+    for (const h of hours) {
+      const c = cur.heat.get(wd * 24 + h);
+      if (!c) { g += `<span class="cell"></span>`; continue; }
+      const r = c.conv / c.dials, tip = `<b>${WD_PL[wd]} ${h}:00–${h + 1}:00</b><div class="r"><span>Połączenia</span><span>${c.dials}</span></div><div class="r"><span>Rozmowy</span><span>${c.conv}</span></div><div class="r"><span>Kontakt</span><span>${pf.format(r)}</span></div>`;
+      if (c.dials < 8) { g += `<span class="cell thin" data-tip="${esc(tip + '<div>Za mało połączeń, by ocenić</div>')}">${c.dials}</span>`; continue; }
+      const x = norm(r), step = 1 + Math.floor(x * 6);
+      g += `<span class="cell ${cellInk(step, dark)}" style="background:var(--seq-${step})" data-tip="${esc(tip)}">${Math.round(r * 100)}</span>`;
+    }
+  }
+  g += `</div>`;
+  return `<section class="panel"><div class="panel-head"><h2>Kiedy klienci odbierają</h2><span class="hint">Wskaźnik kontaktu (%) wg dnia tygodnia i godziny · ${esc(S.settings.tz || S.raw.tz)}</span></div>
+    <div class="scroll">${g}</div>
+    <div class="scale"><span>${pf.format(lo)}</span><span class="ramp">${[1, 2, 3, 4, 5, 6].map((i) => `<i style="background:var(--seq-${i})"></i>`).join("")}</span><span>${pf.format(hi)}</span><span>· pola kreskowane: mniej niż 8 połączeń</span></div></section>`;
+}
+function isDarkTheme() { const t = document.documentElement.dataset.theme; return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; }
+
+function renderDiscipline(cur, from, to) {
+  const days = daysBetween(from, to).slice(-31);
+  if (days.length < 2) return "";
+  const rows = [...cur.agents.entries()].filter(([, a]) => a.dials > 0 || a.smsOut > 0).sort((x, y) => nameOf(x[0]).localeCompare(nameOf(y[0]), "pl"));
+  const target = S.settings.dialTarget, dark = isDarkTheme();
+  let h = `<table class="disc"><thead><tr><th></th>${days.map((d) => `<th class="${weekdayOf(d) >= 5 ? "we" : ""}">${shortDate(d)}</th>`).join("")}</tr></thead><tbody>`;
+  for (const [id, a] of rows) {
+    h += `<tr><td class="nm">${esc(nameOf(id))}</td>`;
+    for (const d of days) {
+      const x = a.days.get(d), we = weekdayOf(d) >= 5 ? "we" : "";
+      if (!x || (!x.dials && !x.sms)) { h += `<td><span class="d zero ${we}" data-tip="${esc(`<b>${esc(nameOf(id))} · ${WD_PL[weekdayOf(d)]} ${shortDate(d)}</b><div>Brak aktywności</div>`)}">${we ? "" : "0"}</span></td>`; continue; }
+      const step = Math.max(1, Math.min(6, Math.ceil((x.dials / target) * 5)));
+      const tip = `<b>${esc(nameOf(id))} · ${WD_PL[weekdayOf(d)]} ${shortDate(d)}</b><div class="r"><span>Połączenia</span><span>${x.dials}</span></div><div class="r"><span>Rozmowy</span><span>${x.conv}</span></div><div class="r"><span>Czas rozmów</span><span>${durShort(x.talk)}</span></div><div class="r"><span>SMS</span><span>${x.sms}</span></div>${x.dials ? `<div class="r"><span>Pierwsze / ostatnie</span><span>${hm(x.first)} / ${hm(x.last)}</span></div>` : ""}`;
+      h += `<td><span class="d ${cellInk(step, dark)}" style="background:var(--seq-${step})" data-tip="${esc(tip)}">${x.dials}</span></td>`;
+    }
+    h += `</tr>`;
+  }
+  h += `</tbody></table>`;
+  return `<section class="panel"><div class="panel-head"><h2>Dzienna aktywność</h2><span class="hint">Połączenia wychodzące dziennie · im ciemniej, tym bliżej celu ${target}${days.length === 31 ? " · ostatnie 31 dni zakresu" : ""}</span></div><div class="scroll">${rows.length ? h : `<div class="empty">Brak aktywności.</div>`}</div></section>`;
+}
+
+function renderInbound(cur) {
+  const t = cur.team;
+  const reasons = [...cur.reasons.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const lines = [...cur.lines.entries()].sort((a, b) => (b[1].dials + b[1].inbound) - (a[1].dials + a[1].inbound)).slice(0, 10);
+  return `<div class="grid-2">
+    <section class="panel"><div class="panel-head"><h2>Numery i linie</h2><span class="hint">Top 10 linii JustCall w okresie</span></div>
+      <div class="scroll"><table><thead><tr><th>Linia</th><th>Wychodzące</th><th>Kontakt</th><th>Przychodzące</th><th>Nieodebrane</th></tr></thead><tbody>
+      ${lines.map(([ln, l]) => `<tr style="cursor:default"><td>${esc(ln || "—")}</td><td class="n">${nf.format(l.dials)}</td><td class="n">${l.dials ? pf.format(l.conv / l.dials) : "—"}</td><td class="n">${nf.format(l.inbound)}</td><td class="n">${l.missed ? nf.format(l.missed) : "—"}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">Brak danych.</td></tr>`}
+      </tbody></table></div></section>
+    <section class="panel"><div class="panel-head"><h2>Połączenia przychodzące</h2></div>
+      <div class="split"><div class="mini"><div class="v">${nf.format(t.inTotal)}</div><div class="l">wszystkie</div></div><div class="mini"><div class="v">${nf.format(t.inAns)}</div><div class="l">odebrane</div></div><div class="mini"><div class="v">${nf.format(t.inMissed)}</div><div class="l">stracone</div></div><div class="mini"><div class="v">${nf.format(t.smsIn)}</div><div class="l">SMS od klientów</div></div></div>
+      <div class="eyebrow" style="margin-bottom:8px">Dlaczego połączenie nie zostało odebrane</div>
+      <div class="reasons">${reasons.map(([k, v]) => `<div><span>${esc(k)}</span><span class="num">${nf.format(v)}</span></div>`).join("") || `<span class="empty">Wszystkie połączenia przychodzące zostały odebrane.</span>`}</div></section>
+  </div>`;
+}
+
+function scopeLabel() {
+  if (S.f.agent) return nameOf(+S.f.agent);
+  if (S.f.group) return S.f.group;
+  return "Cały zespół";
+}
+
+// ---------- Main render ----------
+function syncControls() {
+  document.querySelectorAll("#presets button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.p === S.f.preset)));
+  $("#from").value = S.f.from; $("#to").value = S.f.to;
+  $("#from").min = $("#to").min = S.snapshot ? S.minDay : ""; $("#from").max = $("#to").max = todayKey();
+  const gs = $("#group"); gs.innerHTML = `<option value="">Wszystkie zespoły</option>` + (S.groups || []).map((g) => `<option ${g === S.f.group ? "selected" : ""}>${esc(g)}</option>`).join("");
+  const ids = [...new Set(S.calls.map((r) => r.a))].sort((a, b) => nameOf(a).localeCompare(nameOf(b), "pl"));
+  $("#agent").innerHTML = `<option value="">Cały zespół</option>` + ids.map((id) => `<option value="${id}" ${String(id) === S.f.agent ? "selected" : ""}>${esc(nameOf(id))}</option>`).join("");
+}
+
+function render() {
+  if (!S.raw) return;
+  if (S.f.preset !== "custom") [S.f.from, S.f.to] = presetRange(S.f.preset);
+  const { from, to } = S.f;
+  const span = dayNum(to) - dayNum(from) + 1;
+  const pFrom = addDays(from, -span), pTo = addDays(from, -1);
+  const hasPrev = pFrom >= S.minDay;
+  const cur = aggregate(from, to), prev = hasPrev ? aggregate(pFrom, pTo) : null;
+  syncControls();
+  const gen = new Date(S.raw.generated_at * 1000).toLocaleString("pl-PL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  $("#sub").textContent = `${shortDate(from)}${from !== to ? "–" + shortDate(to) : ""} · ${scopeLabel()} · ${hasPrev ? "porównanie z " + shortDate(pFrom) + "–" + shortDate(pTo) : "bez porównania"}`;
+  $("#notice").innerHTML = S.snapshot
+    ? `<div class="notice">Migawka danych z JustCall z ${gen} (zakres od ${shortDate(S.minDay)}). Wersja na żywo z odświeżaniem co 2 minuty działa po uruchomieniu serwera z repozytorium.</div>`
+    : "";
+  $("#app").innerHTML = renderLive() + renderKpis(cur, prev, from, to, hasPrev) + renderInsights(cur, prev, hasPrev) + renderRanking(cur) +
+    `<div class="grid-2">${renderDaily(cur, from, to)}${renderMix(cur)}</div>` + renderHeat(cur) + renderDiscipline(cur, from, to) + renderInbound(cur);
+  S.last = cur;
+  drawDaily(cur);
+  store.set("filter", S.f); store.set("sort", S.sort);
+}
+
+// ---------- Events ----------
+async function applyRange() {
+  try { await ensureRange(S.f.from || presetRange(S.f.preset)[0], S.f.to || todayKey()); render(); }
+  catch (e) { showError(e); }
+}
+function showError(e) { $("#notice").innerHTML = `<div class="notice err">Nie udało się pobrać danych: ${esc(e.message)}. Sprawdź klucze API w pliku .env i połączenie z internetem.</div>`; $("#loading") && ($("#loading").textContent = ""); }
+
+$("#presets").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  S.f.preset = b.dataset.p; [S.f.from, S.f.to] = presetRange(S.f.preset); applyRange();
+});
+for (const id of ["#from", "#to"]) $(id).addEventListener("change", () => {
+  let f = $("#from").value || S.f.from, t = $("#to").value || S.f.to;
+  if (f > t) [f, t] = [t, f];
+  if (S.snapshot && f < S.minDay) f = S.minDay;
+  Object.assign(S.f, { preset: "custom", from: f, to: t }); applyRange();
+});
+$("#group").addEventListener("change", (e) => { S.f.group = e.target.value; render(); });
+$("#agent").addEventListener("change", (e) => { S.f.agent = e.target.value; render(); });
+$("#app").addEventListener("click", (e) => {
+  const th = e.target.closest("th[data-sort]");
+  if (th) { const k = th.dataset.sort; S.sort = { key: k, dir: S.sort.key === k ? -S.sort.dir : (k === "name" || k === "first" ? 1 : -1) }; render(); return; }
+  const row = e.target.closest("[data-agent]");
+  if (row) { const id = row.dataset.agent; S.f.agent = S.f.agent === id ? "" : id; render(); }
+});
+
+const tip = $("#tip");
+document.addEventListener("pointermove", (e) => {
+  const t = e.target.closest && e.target.closest("[data-tip]");
+  if (!t) { tip.hidden = true; return; }
+  tip.innerHTML = t.dataset.tip; tip.hidden = false;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = e.clientX + 14, y = e.clientY + 14;
+  if (x + w > innerWidth - 8) x = e.clientX - w - 14;
+  if (y + h > innerHeight - 8) y = e.clientY - h - 14;
+  tip.style.left = Math.max(8, x) + "px"; tip.style.top = Math.max(8, y) + "px";
+});
+document.addEventListener("pointerleave", () => { tip.hidden = true; });
+
+const dlg = $("#settings");
+$("#settingsBtn").addEventListener("click", () => {
+  const s = S.settings;
+  $("#sConnect").value = s.connectSec; $("#sQuality").value = s.qualitySec; $("#sDials").value = s.dialTarget; $("#sTalk").value = s.talkTarget;
+  $("#sTz").value = s.tz || S.raw?.tz || "Europe/Warsaw";
+  dlg.showModal();
+});
+dlg.addEventListener("close", () => {
+  if (dlg.returnValue !== "save") return;
+  const n = (id, d) => { const v = parseInt($(id).value, 10); return isFinite(v) && v > 0 ? v : d; };
+  const tz = $("#sTz").value;
+  S.settings = { connectSec: n("#sConnect", 30), qualitySec: n("#sQuality", 120), dialTarget: n("#sDials", 80), talkTarget: n("#sTalk", 60), tz: tz === S.raw?.tz ? "" : tz };
+  store.set("settings", S.settings);
+  if (S.raw) { decorate(); render(); }
+});
+
+let rz; new ResizeObserver(() => { clearTimeout(rz); rz = setTimeout(() => S.last && drawDaily(S.last), 80); }).observe(document.body);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => render());
+
+// ---------- Boot ----------
+(async () => {
+  try {
+    if (S.snapshot) {
+      ingest(S.snapshot);
+    } else {
+      if (S.f.preset !== "custom") [S.f.from, S.f.to] = presetRange(S.f.preset);
+      setTz(S.settings.tz || "Europe/Warsaw");
+      await ensureRange(S.f.from, S.f.to);
+      setInterval(() => refreshRecent().catch(() => {}), 120000);
+      setInterval(async () => { try { const live = await fetchJSON("/api/live"); S.users = S.raw.users = live.users; render(); } catch {} }, 30000);
+    }
+    if (S.snapshot && S.f.preset === "custom" && S.f.from < S.minDay) S.f.preset = "7d";
+    render();
+  } catch (e) { showError(e); }
+})();
+})();
+</script>
