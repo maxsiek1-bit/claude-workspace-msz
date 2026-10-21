@@ -17,6 +17,7 @@ def main():
     p.add_argument("--json", help="użyj wcześniej przygotowanych danych zamiast liczyć od nowa")
     p.add_argument("--cache", default="cache")
     p.add_argument("--no-conpeek", action="store_true")
+    p.add_argument("--artifact", action="store_true", help="wersja do publikacji jako artifact claude.ai (Chart.js z CDN, bez szkieletu)")
     a = p.parse_args()
     if a.json:
         payload = Path(a.json).read_text(encoding="utf-8")
@@ -27,7 +28,14 @@ def main():
                              separators=(",", ":"), ensure_ascii=False, default=str)
     html = (HERE / "dashboard_template.html").read_text(encoding="utf-8")
     chart = (HERE / "vendor" / "chart.umd.min.js").read_text(encoding="utf-8")
-    html = html.replace("/*__CHARTJS__*/", chart.replace("</script", "<\\/script"))
+    if a.artifact:
+        html = html.replace("<script>/*__CHARTJS__*/</script>",
+                            '<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>')
+        for tag in ("<!doctype html>", '<html lang="pl">', "<head>", "</head>", "<body>", "</body>", "</html>",
+                    '<meta charset="utf-8">', '<meta name="viewport" content="width=device-width, initial-scale=1">'):
+            html = html.replace(tag + "\n", "").replace(tag, "")
+    else:
+        html = html.replace("/*__CHARTJS__*/", chart.replace("</script", "<\\/script"))
     html = html.replace("/*__DATA__*/", payload.replace("</", "<\\/"))
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
