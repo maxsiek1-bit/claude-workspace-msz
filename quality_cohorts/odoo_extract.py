@@ -148,6 +148,53 @@ def fetch_repair_parts(odoo):
     return df
 
 
+def fetch_shipments(odoo):
+    """Wydania urządzeń do klientów: pierwsza wysyłka numeru seryjnego = start pracy w terenie, kraj klienta."""
+    rows = odoo.search_read("stock.move.line", [("lot_id.name", "=like", "S_0%"), ("picking_code", "=", "outgoing"),
+                                                ("state", "=", "done")], ["lot_id", "date", "picking_partner_id"], log=True)
+    pids = sorted({_id(r["picking_partner_id"]) for r in rows if r["picking_partner_id"]})
+    partners = {}
+    for i in range(0, len(pids), 2000):
+        for p in odoo.call("res.partner", "read", pids[i:i + 2000], fields=["country_id", "commercial_partner_id"]):
+            partners[p["id"]] = p
+    com_ids = sorted({_id(p["commercial_partner_id"]) for p in partners.values() if p["commercial_partner_id"]} - set(partners))
+    for i in range(0, len(com_ids), 2000):
+        for p in odoo.call("res.partner", "read", com_ids[i:i + 2000], fields=["country_id", "commercial_partner_id"]):
+            partners[p["id"]] = p
+
+    def country(pid):
+        p = partners.get(pid)
+        if not p:
+            return None
+        c = _name(p["country_id"])
+        if not c and p["commercial_partner_id"]:
+            c = _name(partners.get(_id(p["commercial_partner_id"]), {}).get("country_id"))
+        return c
+
+    df = pd.DataFrame({
+        "serial": [(_name(r["lot_id"]) or "").strip().upper() for r in rows],
+        "shipped_at": pd.to_datetime([r["date"] for r in rows]),
+        "customer": [_name(r["picking_partner_id"]) for r in rows],
+        "country": [country(_id(r["picking_partner_id"])) for r in rows],
+    })
+    return df
+
+
+def fetch_ticket_details(odoo):
+    rows = odoo.search_read("helpdesk.ticket", [], ["partner_id", "close_date", "stage_id"], log=True)
+    pids = sorted({_id(r["partner_id"]) for r in rows if r["partner_id"]})
+    country = {}
+    for i in range(0, len(pids), 2000):
+        for p in odoo.call("res.partner", "read", pids[i:i + 2000], fields=["country_id"]):
+            country[p["id"]] = _name(p["country_id"])
+    return pd.DataFrame({
+        "ticket_id": [r["id"] for r in rows],
+        "closed_at": pd.to_datetime([r["close_date"] or None for r in rows]),
+        "stage": [_name(r["stage_id"]) for r in rows],
+        "ticket_country": [country.get(_id(r["partner_id"])) for r in rows],
+    })
+
+
 def load_all(cache="cache", refresh=False):
     odoo = Odoo()
     return {
@@ -156,6 +203,8 @@ def load_all(cache="cache", refresh=False):
         "tickets": _cached(cache, "tickets", lambda: fetch_tickets(odoo), refresh),
         "repairs": _cached(cache, "repairs", lambda: fetch_repairs(odoo), refresh),
         "repair_parts": _cached(cache, "repair_parts", lambda: fetch_repair_parts(odoo), refresh),
+        "shipments": _cached(cache, "shipments", lambda: fetch_shipments(odoo), refresh),
+        "ticket_details": _cached(cache, "ticket_details", lambda: fetch_ticket_details(odoo), refresh),
     }
 
 

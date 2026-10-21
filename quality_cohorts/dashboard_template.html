@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jakość urządzeń Enbio</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --surface-2: #f3f2ee;
+  --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+  --q100: #cde2fb; --q700: #0d366b;
+  --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b; --good-text: #006300;
+  --accent: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #232321;
+    --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+    --q100: #1d2a3a; --q700: #6da7ec; --good-text: #0ca30c; --accent: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --surface-2: #232321;
+  --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+  --q100: #1d2a3a; --q700: #6da7ec; --good-text: #0ca30c; --accent: #3987e5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header.top { position: sticky; top: 0; z-index: 20; background: var(--page); border-bottom: 1px solid var(--border); }
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
+.titlebar { display: flex; align-items: baseline; gap: 16px; padding: 14px 0 6px; flex-wrap: wrap; }
+.titlebar h1 { font-size: 20px; margin: 0; font-weight: 650; }
+.titlebar .meta { color: var(--ink-2); font-size: 13px; }
+.titlebar .sp { flex: 1; }
+button, select { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; }
+button { cursor: pointer; }
+button:hover, select:hover { background: var(--surface-2); }
+.filters { display: flex; gap: 10px; flex-wrap: wrap; padding: 8px 0 12px; align-items: end; }
+.filters label { display: flex; flex-direction: column; font-size: 11px; color: var(--muted); gap: 3px; text-transform: uppercase; letter-spacing: .04em; }
+.filters select { min-width: 120px; max-width: 220px; font-size: 13px; text-transform: none; letter-spacing: 0; }
+nav.toc { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; padding-bottom: 10px; }
+nav.toc a { color: var(--ink-2); text-decoration: none; }
+nav.toc a:hover { color: var(--ink); text-decoration: underline; }
+main { padding: 18px 0 60px; }
+section { margin: 0 0 28px; scroll-margin-top: 170px; }
+section > h2 { font-size: 16px; margin: 0 0 4px; font-weight: 650; }
+section > p.lead { margin: 0 0 12px; color: var(--ink-2); font-size: 13px; max-width: 980px; }
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; min-width: 0; }
+.card h3 { font-size: 13px; margin: 0 0 2px; font-weight: 600; }
+.card .sub { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.kpi .label { font-size: 12px; color: var(--ink-2); }
+.kpi .value { font-size: 26px; font-weight: 650; margin: 2px 0; }
+.kpi .note { font-size: 11px; color: var(--muted); }
+.chartbox { position: relative; height: 300px; }
+.chartbox.tall { height: 380px; }
+.chartbox.short { height: 160px; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+th, td { padding: 5px 8px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+th { color: var(--ink-2); font-weight: 600; position: sticky; top: 0; background: var(--surface); cursor: default; }
+th.sortable { cursor: pointer; }
+td.l, th.l { text-align: left; white-space: normal; }
+td .bar { display: inline-block; height: 8px; border-radius: 0 4px 4px 0; background: var(--s1); vertical-align: middle; margin-right: 6px; }
+.heat td { text-align: center; min-width: 46px; }
+.heat td.l { min-width: 220px; text-align: left; white-space: nowrap; }
+.callout { border-left: 3px solid var(--critical); background: var(--surface); border-radius: 0 12px 12px 0; padding: 12px 16px; margin: 0 0 14px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.callout b { font-weight: 650; }
+.status { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.muted { color: var(--muted); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); margin: 0 0 6px; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+.legend i.box { height: 10px; width: 10px; border-radius: 2px; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; padding: 4px 10px; font-size: 12px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.cardhead { display: flex; justify-content: space-between; align-items: start; gap: 10px; flex-wrap: wrap; }
+.empty { color: var(--muted); padding: 30px 0; text-align: center; }
+details summary { cursor: pointer; color: var(--ink-2); font-size: 13px; }
+ul.method { margin: 6px 0 0; padding-left: 18px; color: var(--ink-2); font-size: 13px; }
+ul.method li { margin: 3px 0; }
+.loading { opacity: .55; transition: opacity .15s; }
+@media (max-width: 980px) { .g2, .g3 { grid-template-columns: minmax(0, 1fr); } .wrap { padding: 0 16px; } section { scroll-margin-top: 260px; } }
+@media print { header.top { position: static; } .filters, nav.toc, #themeBtn { display: none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="titlebar">
+      <h1>Jakość urządzeń – wadliwość w terenie</h1>
+      <span class="meta" id="asof"></span>
+      <span class="sp"></span>
+      <button id="resetBtn" type="button">Wyczyść filtry</button>
+      <button id="themeBtn" type="button" aria-label="Przełącz motyw">Motyw</button>
+    </div>
+    <div class="filters" id="filters"></div>
+    <nav class="toc">
+      <a href="#s-kpi">Podsumowanie</a><a href="#s-trend">Trend kohort</a><a href="#s-km">Niezawodność</a>
+      <a href="#s-inflow">Napływ zgłoszeń</a><a href="#s-pareto">Tryby usterek</a><a href="#s-country">Kraje</a>
+      <a href="#s-model">Modele</a><a href="#s-parts">Części</a><a href="#s-comp">Komponenty i partie</a>
+      <a href="#s-conpeek">Conpeek</a><a href="#s-legacy">Sprzed Odoo</a><a href="#s-method">Metodologia</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap" id="main">
+
+<section id="s-kpi">
+  <h2>Podsumowanie</h2>
+  <p class="lead" id="scopeText"></p>
+  <div class="kpis" id="kpis"></div>
+</section>
+
+<section id="s-alert">
+  <div class="callout" id="alert"></div>
+</section>
+
+<section id="s-trend">
+  <h2>Wadliwość wg kohorty produkcyjnej</h2>
+  <p class="lead">Odsetek urządzeń z kohorty (miesiąc produkcji), które miały pierwszą usterkę w ciągu 3, 6 i 12 miesięcy od wysyłki. Liczone tylko dla urządzeń, które przepracowały u klienta co najmniej tyle miesięcy – dzięki temu młode kohorty nie wyglądają sztucznie dobrze.</p>
+  <div class="card">
+    <div class="legend" id="trendLegend"></div>
+    <div class="chartbox tall"><canvas id="trendChart" aria-label="Wadliwość 3/6/12 MIS wg miesiąca produkcji" role="img"></canvas></div>
+    <h3 style="margin-top:12px">Wolumen produkcji</h3>
+    <div class="chartbox short"><canvas id="volChart" aria-label="Liczba wyprodukowanych urządzeń wg miesiąca" role="img"></canvas></div>
+    <details style="margin-top:8px"><summary>Tabela</summary><div class="tablewrap" id="trendTable"></div></details>
+  </div>
+</section>
+
+<section id="s-km">
+  <h2>Krzywe niezawodności</h2>
+  <p class="lead">Skumulowany odsetek urządzeń z pierwszą usterką w funkcji miesięcy pracy u klienta (estymator Kaplana–Meiera; urządzenia, które jeszcze nie przepracowały danego okresu, są cenzurowane, a nie liczone jako sprawne). Im niżej i bardziej płasko, tym lepiej.</p>
+  <div class="card">
+    <div class="cardhead">
+      <div class="legend" id="kmLegend"></div>
+      <div class="seg" id="kmGroup" role="group" aria-label="Grupowanie krzywych">
+        <button type="button" data-g="half" aria-pressed="true">Półrocze produkcji</button>
+        <button type="button" data-g="line" aria-pressed="false">Linia produktu</button>
+        <button type="button" data-g="volt" aria-pressed="false">Zasilanie</button>
+        <button type="button" data-g="kind" aria-pressed="false">Nowe / odnowione</button>
+      </div>
+    </div>
+    <div class="chartbox tall"><canvas id="kmChart" aria-label="Krzywe niezawodności" role="img"></canvas></div>
+  </div>
+</section>
+
+<section id="s-inflow">
+  <h2>Napływ zgłoszeń z rynku</h2>
+  <p class="lead">Zgłoszenia usterek (helpdesk + naprawy) wg miesiąca zgłoszenia i typu – obciążenie serwisu i gwarancji w czasie, dla urządzeń z wybranego wycinka.</p>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Zgłoszenia wg miesiąca i typu</h3>
+      <div class="legend" id="inflowLegend"></div>
+      <div class="chartbox"><canvas id="inflowChart" aria-label="Zgłoszenia wg miesiąca i typu" role="img"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Obsługa zgłoszeń</h3>
+      <p class="sub">Czas od zgłoszenia do zamknięcia w Odoo, wg typu zgłoszenia</p>
+      <div class="tablewrap" id="serviceTable"></div>
+    </div>
+  </div>
+</section>
+
+<section id="s-pareto">
+  <h2>Tryby usterek</h2>
+  <p class="lead">Pareto: ile urządzeń miało dany kod błędu (urządzenie liczone raz na kod). Obok – jak rozkładają się tryby usterek między kwartałami produkcji (odsetek urządzeń z kwartału).</p>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Pareto trybów usterek</h3>
+      <p class="sub">Liczba urządzeń; w podpowiedzi udział skumulowany</p>
+      <div class="chartbox tall"><canvas id="paretoChart" aria-label="Pareto trybów usterek" role="img"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Tryb usterki × kwartał produkcji</h3>
+      <p class="sub">% urządzeń z kwartału z danym kodem; ciemniej = więcej</p>
+      <div class="tablewrap" id="heatmap"></div>
+    </div>
+  </div>
+</section>
+
+<section id="s-country">
+  <h2>Kraje</h2>
+  <p class="lead">Kraj odbiorcy z pierwszego wydania urządzenia w Odoo. Uwaga: urządzenia wysłane do Enbio Group AG (CH) są dalej dystrybuowane na inne rynki (m.in. USA) – pokazane jako osobny kanał. Obok kraj klienta, który zgłosił usterkę (bez mianownika – liczby bezwzględne).</p>
+  <div class="card" style="margin-bottom:14px">
+    <div class="cardhead"><h3>Wadliwość wg kraju odbiorcy</h3><label class="muted" style="font-size:12px">min. urządzeń <select id="minN"><option>30</option><option selected>100</option><option>300</option></select></label></div>
+    <p class="sub">Kliknij nagłówek kolumny, aby posortować. Niska wadliwość kanału Enbio Group AG i wersji US (120 V) najpewniej wynika z obsługi serwisu poza helpdeskiem Odoo – do weryfikacji, zanim uznamy te rynki za lepsze.</p>
+    <div class="tablewrap" id="countryTable"></div>
+  </div>
+  <div class="card">
+    <h3>Zgłoszenia wg kraju klienta</h3>
+    <div class="chartbox"><canvas id="tcountryChart" aria-label="Zgłoszenia wg kraju klienta" role="img"></canvas></div>
+  </div>
+</section>
+
+<section id="s-model">
+  <h2>Modele i warianty</h2>
+  <p class="lead">Porównanie modeli (prefiks numeru seryjnego), wersji zasilania i wersji rynkowej z numeru seryjnego.</p>
+  <div class="card" style="margin-bottom:14px"><h3>Modele</h3><div class="tablewrap" id="modelTable"></div></div>
+  <div class="card"><h3>Zasilanie i wersja rynkowa (SN)</h3><div class="tablewrap" id="variantTable"></div></div>
+</section>
+
+<section id="s-parts">
+  <h2>Części wymieniane w naprawach</h2>
+  <p class="lead">Z pozycji napraw w Odoo: jaki odsetek urządzeń z wybranego wycinka wymagał wymiany danej części. To pokazuje, co fizycznie zawodzi – w odróżnieniu od kodu błędu, który pokazuje objaw.</p>
+  <div class="card"><div class="chartbox tall"><canvas id="partsChart" aria-label="Części wymieniane w naprawach" role="img"></canvas></div></div>
+</section>
+
+<section id="s-comp">
+  <h2>Komponenty i partie dostawców</h2>
+  <p class="lead">Genealogia z Odoo: każde urządzenie rozpisane do partii dostawcy przez wszystkie poziomy produkcji (pakowanie → walidacja → montaż → podzespoły). Porównanie z urządzeniami z tej samej kohorty i modelu: <b>lift</b> = ile razy częściej niż oczekiwano, <b>z</b> &gt; 3 = mało prawdopodobne, że przypadek. Ta sekcja nie reaguje na filtry (liczona dla całej populacji).</p>
+  <div class="card" style="margin-bottom:14px">
+    <h3>Studium przypadku: czujnik temperatury wytwornicy pary a błąd E2</h3>
+    <p class="sub">% urządzeń z błędem E2 wg partii czujnika, w kolejności pierwszego użycia w produkcji (partie ≥ 40 urządzeń)</p>
+    <div class="legend" id="sensorLegend"></div>
+    <div class="chartbox tall"><canvas id="sensorChart" aria-label="Błąd E2 wg partii czujnika" role="img"></canvas></div>
+  </div>
+  <div class="card" style="margin-bottom:14px"><h3>Komponenty (indeksy) najsilniej powiązane z usterkami</h3><p class="sub">min. 50 urządzeń · komponenty montowane razem (ta sama dostawa, ten sam tydzień) dostają podobny wynik – lista wskazuje podejrzanych, przyczynę potwierdza analiza fizyczna</p><div class="tablewrap" id="compTable"></div></div>
+  <div class="card"><h3>Partie dostawców najsilniej powiązane z usterkami</h3><p class="sub">min. 50 urządzeń</p><div class="tablewrap" id="lotTable"></div></div>
+</section>
+
+<section id="s-conpeek">
+  <h2>Conpeek – usterki zgłaszane telefonicznie</h2>
+  <p class="lead">Kategorie rozmów w Conpeek. Conpeek nie zapisuje numeru seryjnego (≈0,03% rozmów), więc to sygnał trendu, nie dane na poziomie urządzenia – sekcja nie reaguje na filtry.</p>
+  <div class="grid g2">
+    <div class="card"><h3>Rozmowy o usterkach wg miesiąca (top 6 trybów)</h3><div class="legend" id="cpLegend"></div><div class="chartbox"><canvas id="cpChart" aria-label="Rozmowy o usterkach wg miesiąca" role="img"></canvas></div></div>
+    <div class="card"><h3>Wszystkie rozmowy wg grupy kategorii</h3><div class="tablewrap" id="cpTable"></div></div>
+  </div>
+</section>
+
+<section id="s-legacy">
+  <h2>Urządzenia sprzed Odoo (do 03.2024)</h2>
+  <p class="lead">Zgłoszenia dla urządzeń, których produkcji nie ma w Odoo. Rok produkcji odczytany z numeru seryjnego; brak liczby wyprodukowanych, więc to liczby urządzeń ze zgłoszeniem, nie odsetki.</p>
+  <div class="card"><div class="tablewrap" id="legacyTable"></div></div>
+</section>
+
+<section id="s-method">
+  <h2>Metodologia i jakość danych</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Definicje</h3>
+      <ul class="method">
+        <li><b>Urządzenie</b> – numer seryjny wyrobu gotowego wyprodukowany w Odoo (od 03.2024); kohorta = miesiąc pierwszego zakończonego zlecenia produkcyjnego.</li>
+        <li><b>Start pracy</b> – data pierwszego wydania do klienta; gdy brak wydania – data produkcji.</li>
+        <li><b>Usterka</b> – zgłoszenie helpdesk z numerem seryjnym typu gwarancyjnego, pogwarancyjnego, ekspertyzy lub reworku albo z tagiem usterki; bez przeglądów okresowych, pytań, akcesoriów i zwrotów; plus naprawy bez zgłoszenia.</li>
+        <li><b>X MIS</b> – % urządzeń z pierwszą usterką w ciągu X miesięcy pracy, wśród urządzeń pracujących ≥ X miesięcy.</li>
+        <li><b>AFR</b> – roczny wskaźnik awaryjności: liczba zgłoszeń usterek na 100 urządzeń na rok pracy.</li>
+        <li><b>Wczesne awarie</b> – pierwsza usterka ≤ 30 dni od wysyłki (DOA / infant mortality).</li>
+        <li><b>Powtórna awaria</b> – kolejne zgłoszenie usterki ≥ 14 dni po pierwszym.</li>
+        <li><b>Komponenty</b> – liczone tylko z pierwotnej produkcji (zlecenia do 60 dni od startu i przed pierwszym zgłoszeniem), żeby części z napraw i ponownego pakowania nie fałszowały wyniku.</li>
+        <li>Kody błędów z Odoo i Conpeek ujednolicone do E-kodów (np. „Error 12 …” = „E12 – Vacuum generation error”).</li>
+      </ul>
+    </div>
+    <div class="card"><h3>Pokrycie danych</h3><div class="tablewrap" id="dqTable"></div></div>
+  </div>
+</section>
+</main>
+
+<script>/*__CHARTJS__*/</script>
+<script>
+const D = /*__DATA__*/;
+(function () {
+"use strict";
+const U = D.units, DIM = D.dims, ST = D.static;
+const DAY = 86400000, EPOCH = new Date(D.epoch + "T00:00:00Z").getTime(), M = 30.4375;
+const WARRANTY = new Set(["Warranty repair", "Warranty replacement"].map(t => DIM.type.indexOf(t)).filter(i => i >= 0));
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const SER = () => [1, 2, 3, 4, 5, 6, 7, 8].map(i => css("--s" + i));
+const fmtPct = (v, d = 1) => v == null || isNaN(v) ? "–" : v.toFixed(d).replace(".", ",") + "%";
+const fmtN = v => v == null ? "–" : Math.round(v).toLocaleString("pl-PL");
+const fmtX = (v, d = 1) => v == null || isNaN(v) ? "–" : v.toFixed(d).replace(".", ",");
+const monthOf = d => { const t = new Date(EPOCH + d * DAY); return t.getUTCFullYear() + "-" + String(t.getUTCMonth() + 1).padStart(2, "0"); };
+const quarterOf = d => { const t = new Date(EPOCH + d * DAY); return t.getUTCFullYear() + " Q" + (Math.floor(t.getUTCMonth() / 3) + 1); };
+const halfOf = d => { const t = new Date(EPOCH + d * DAY); return t.getUTCFullYear() + " H" + (t.getUTCMonth() < 6 ? 1 : 2); };
+const asOf = D.asOf;
+const el = (tag, attrs, ...kids) => { const e = document.createElement(tag); if (attrs) for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "style") e.style.cssText = v; else e.setAttribute(k, v); } for (const k of kids) e.append(k instanceof Node ? k : document.createTextNode(k == null ? "" : String(k))); return e; };
+
+document.getElementById("asof").textContent = "Stan danych: " + new Date(EPOCH + asOf * DAY).toLocaleDateString("pl-PL") + " · Odoo + Conpeek";
+
+/* ---------- filtry ---------- */
+const months = [...new Set(U.map(u => monthOf(u[6])))].sort();
+const F = { line: -1, model: -1, kind: DIM.kind.indexOf("Nowe"), country: -1, snm: -1, volt: -1, from: months[0], to: months[months.length - 1], tickets: "all" };
+const DEF = { ...F };
+function sel(id, label, opts, key) {
+  const s = el("select", { id: "f-" + id });
+  for (const [v, t] of opts) { const o = el("option", { value: v }, t); s.append(o); }
+  s.value = String(F[key]);
+  s.addEventListener("change", () => { F[key] = isNaN(+s.value) ? s.value : +s.value; render(); });
+  document.getElementById("filters").append(el("label", null, label, s));
+}
+const dimOpts = (name, all) => [[-1, all], ...DIM[name].map((v, i) => [i, v]).sort((a, b) => a[1].localeCompare(b[1], "pl"))];
+const countByCountry = {}; U.forEach(u => countByCountry[u[5]] = (countByCountry[u[5]] || 0) + 1);
+sel("from", "Produkcja od", months.map(m => [m, m]), "from");
+sel("to", "Produkcja do", months.map(m => [m, m]), "to");
+sel("line", "Linia produktu", dimOpts("line", "Wszystkie"), "line");
+sel("model", "Model", dimOpts("model", "Wszystkie"), "model");
+sel("kind", "Nowe / odnowione", dimOpts("kind", "Wszystkie"), "kind");
+sel("country", "Kraj odbiorcy", [[-1, "Wszystkie"], ...DIM.country.map((v, i) => [i, v]).sort((a, b) => (countByCountry[b[0]] || 0) - (countByCountry[a[0]] || 0))], "country");
+sel("snm", "Wersja rynkowa (SN)", dimOpts("snm", "Wszystkie"), "snm");
+sel("volt", "Zasilanie", dimOpts("volt", "Wszystkie"), "volt");
+sel("tickets", "Zgłoszenia", [["all", "Wszystkie usterki"], ["warranty", "Tylko gwarancyjne"]], "tickets");
+document.getElementById("resetBtn").addEventListener("click", () => { Object.assign(F, DEF); for (const k of ["from", "to", "line", "model", "kind", "country", "snm", "volt", "tickets"]) document.getElementById("f-" + k).value = String(F[k]); render(); });
+
+function slice() {
+  const out = [];
+  for (const u of U) {
+    const m = monthOf(u[6]);
+    if (m < F.from || m > F.to) continue;
+    if (F.line >= 0 && u[1] !== F.line) continue;
+    if (F.model >= 0 && u[0] !== F.model) continue;
+    if (F.kind >= 0 && u[3] !== F.kind) continue;
+    if (F.country >= 0 && u[5] !== F.country) continue;
+    if (F.snm >= 0 && u[4] !== F.snm) continue;
+    if (F.volt >= 0 && u[2] !== F.volt) continue;
+    const ev = F.tickets === "warranty" ? u[9].filter(e => WARRANTY.has(e[1])) : u[9];
+    out.push({ u, ev, exp: Math.max(0, asOf - u[7]), first: ev.length ? Math.max(0, ev[0][0]) : null, pm: m });
+  }
+  return out;
+}
+
+/* ---------- metryki ---------- */
+function mis(rows, months_) { const lim = months_ * M; let n = 0, f = 0; for (const r of rows) { if (r.exp < lim) continue; n++; if (r.first != null && r.first <= lim) f++; } return n >= 20 ? { rate: 100 * f / n, n, f } : { rate: null, n, f }; }
+function stats(rows) {
+  const n = rows.length; let failed = 0, tickets = 0, expYears = 0, repeat = 0; const firsts = [];
+  for (const r of rows) {
+    expYears += r.exp / 365.25; tickets += r.ev.length;
+    if (r.ev.length) { failed++; firsts.push(r.first); if (r.ev.some(e => e[0] - r.ev[0][0] >= 14)) repeat++; }
+  }
+  firsts.sort((a, b) => a - b);
+  const top = topCodes(rows, 1)[0];
+  return { n, failed, pct: n ? 100 * failed / n : null, afr: expYears > 0 ? 100 * tickets / expYears : null, tickets,
+    m3: mis(rows, 3).rate, m6: mis(rows, 6).rate, m12: mis(rows, 12).rate, early: mis(rows, 1).rate,
+    repeat: failed ? 100 * repeat / failed : null, ttf: firsts.length ? firsts[Math.floor(firsts.length / 2)] : null, top: top ? top[0] : "" };
+}
+function topCodes(rows, k) {
+  const c = new Map();
+  for (const r of rows) { const seen = new Set(); for (const e of r.ev) for (const x of e[2]) seen.add(x); for (const x of seen) c.set(x, (c.get(x) || 0) + 1); }
+  return [...c.entries()].sort((a, b) => b[1] - a[1]).slice(0, k).map(([i, v]) => [DIM.code[i], v, i]);
+}
+
+/* ---------- Chart.js ---------- */
+const charts = {};
+function baseOpts(extra) {
+  const ink2 = css("--ink-2"), muted = css("--muted"), grid = css("--grid");
+  Chart.defaults.font.family = 'system-ui, -apple-system, "Segoe UI", sans-serif';
+  Chart.defaults.font.size = 12; Chart.defaults.color = ink2;
+  const o = {
+    responsive: true, maintainAspectRatio: false, animation: false,
+    interaction: { mode: "index", intersect: false },
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: css("--surface"), titleColor: css("--ink"), bodyColor: css("--ink"), borderColor: css("--axis"), borderWidth: 1, padding: 10, boxWidth: 12, boxHeight: 2, usePointStyle: false } },
+    scales: {
+      x: { grid: { display: false }, border: { color: css("--axis") }, ticks: { color: muted, maxRotation: 0, autoSkip: true } },
+      y: { grid: { color: grid }, border: { display: false }, ticks: { color: muted }, beginAtZero: true }
+    }
+  };
+  return deepMerge(o, extra || {});
+}
+function deepMerge(a, b) { for (const k in b) { if (b[k] && typeof b[k] === "object" && !Array.isArray(b[k]) && a[k]) deepMerge(a[k], b[k]); else a[k] = b[k]; } return a; }
+function draw(id, cfg) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart(document.getElementById(id), cfg); }
+function legend(id, items, box) { const L = document.getElementById(id); L.replaceChildren(...items.map(([t, c]) => { const i = el("i", { class: box ? "box" : "", style: "background:" + c }); return el("span", null, i, t); })); }
+const pctTick = { callback: v => v + "%" };
+
+/* ---------- tabele ---------- */
+function table(id, cols, rows, opts = {}) {
+  const t = el("table"); const thead = el("thead"); const tr = el("tr");
+  cols.forEach((c, ci) => { const th = el("th", { class: (c.l ? "l " : "") + (opts.sort ? "sortable" : "") }, c.t); if (opts.sort) th.addEventListener("click", () => { const dir = th.dataset.dir === "d" ? "a" : "d"; th.dataset.dir = dir; rows.sort((a, b) => { const x = a[ci], y = b[ci]; const v = (typeof x === "number" ? x : -Infinity) - (typeof y === "number" ? y : -Infinity); return isNaN(v) ? String(x).localeCompare(String(y)) * (dir === "d" ? -1 : 1) : (dir === "d" ? -v : v); }); fill(); }); tr.append(th); });
+  thead.append(tr); t.append(thead); const tb = el("tbody"); t.append(tb);
+  function fill() {
+    tb.replaceChildren(...rows.map(r => { const row = el("tr"); cols.forEach((c, ci) => { const v = r[ci]; const td = el("td", { class: c.l ? "l" : "" }); if (c.bar && typeof v === "number") { const w = Math.max(1, Math.round(60 * v / (c.max || 1))); td.append(el("span", { class: "bar", style: "width:" + w + "px;background:" + (c.color || css("--s1")) })); } td.append(c.f ? c.f(v) : (v == null ? "–" : v)); row.append(td); }); return row; }));
+    if (!rows.length) tb.append(el("tr", null, el("td", { colspan: cols.length, class: "l muted" }, "Brak danych dla wybranych filtrów")));
+  }
+  fill(); document.getElementById(id).replaceChildren(t);
+}
+
+/* ---------- render ---------- */
+let kmMode = "half";
+document.querySelectorAll("#kmGroup button").forEach(b => b.addEventListener("click", () => { kmMode = b.dataset.g; document.querySelectorAll("#kmGroup button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); renderKM(lastRows); }));
+document.getElementById("minN").addEventListener("change", () => renderCountry(lastRows));
+let lastRows = [];
+
+function render() {
+  document.getElementById("main").classList.add("loading");
+  requestAnimationFrame(() => {
+    const rows = slice(); lastRows = rows;
+    renderKPI(rows); renderTrend(rows); renderKM(rows); renderInflow(rows); renderPareto(rows);
+    renderCountry(rows); renderModels(rows); renderParts(rows);
+    document.getElementById("main").classList.remove("loading");
+  });
+}
+
+function renderKPI(rows) {
+  const s = stats(rows), all = stats(U.map(u => ({ u, ev: u[9], exp: Math.max(0, asOf - u[7]), first: u[9].length ? Math.max(0, u[9][0][0]) : null })));
+  document.getElementById("scopeText").textContent = `Wybrany wycinek: ${fmtN(s.n)} urządzeń wyprodukowanych ${F.from} – ${F.to}. Wskaźniki liczone od daty wysyłki do klienta.`;
+  const k = [
+    ["Urządzenia", fmtN(s.n), "w wybranym wycinku"],
+    ["Urządzenia z usterką", fmtPct(s.pct), fmtN(s.failed) + " urządzeń, kiedykolwiek"],
+    ["Wadliwość 3 MIS", fmtPct(s.m3), "pierwsza usterka ≤ 3 mies. pracy"],
+    ["Wadliwość 12 MIS", fmtPct(s.m12), "pierwsza usterka ≤ 12 mies. pracy"],
+    ["AFR", fmtX(s.afr), "zgłoszeń / 100 urządzeń / rok"],
+    ["Wczesne awarie", fmtPct(s.early), "usterka ≤ 30 dni od wysyłki"],
+    ["Powtórne awarie", fmtPct(s.repeat), "wadliwych z kolejnym zgłoszeniem"],
+    ["Mediana do 1. usterki", s.ttf == null ? "–" : fmtN(s.ttf) + " dni", "od wysyłki"],
+  ];
+  document.getElementById("kpis").replaceChildren(...k.map(([l, v, n]) => el("div", { class: "card kpi" }, el("div", { class: "label" }, l), el("div", { class: "value" }, v), el("div", { class: "note" }, n))));
+}
+
+function renderTrend(rows) {
+  const by = new Map(); for (const r of rows) { if (!by.has(r.pm)) by.set(r.pm, []); by.get(r.pm).push(r); }
+  const ms = [...by.keys()].sort();
+  const m3 = ms.map(m => mis(by.get(m), 3).rate), m6 = ms.map(m => mis(by.get(m), 6).rate), m12 = ms.map(m => mis(by.get(m), 12).rate);
+  const all = ms.map(m => { const g = by.get(m); return 100 * g.filter(r => r.ev.length).length / g.length; });
+  const C = SER();
+  const ds = [["3 MIS", m3, C[0]], ["6 MIS", m6, C[1]], ["12 MIS", m12, C[2]], ["Kiedykolwiek (do dziś)", all, css("--muted")]];
+  legend("trendLegend", ds.map(d => [d[0], d[2]]));
+  draw("trendChart", { type: "line", data: { labels: ms, datasets: ds.map(([l, d, c], i) => ({ label: l, data: d, borderColor: c, backgroundColor: c, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, spanGaps: false, borderDash: i === 3 ? [4, 3] : [] })) },
+    options: baseOpts({ scales: { y: { ticks: pctTick } }, plugins: { tooltip: { callbacks: { label: c => ` ${fmtPct(c.parsed.y)}  ${c.dataset.label}` } } } }) });
+  draw("volChart", { type: "bar", data: { labels: ms, datasets: [{ label: "Wyprodukowane", data: ms.map(m => by.get(m).length), backgroundColor: css("--s1"), borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: "bottom", maxBarThickness: 18 }] }, options: baseOpts({ plugins: { tooltip: { callbacks: { label: c => ` ${fmtN(c.parsed.y)} urządzeń` } } } }) });
+  table("trendTable", [{ t: "Miesiąc produkcji", l: 1 }, { t: "Urządzenia" }, { t: "3 MIS", f: fmtPct }, { t: "6 MIS", f: fmtPct }, { t: "12 MIS", f: fmtPct }, { t: "Kiedykolwiek", f: fmtPct }, { t: "Najczęstsza usterka", l: 1 }],
+    ms.map((m, i) => [m, by.get(m).length, m3[i], m6[i], m12[i], all[i], (topCodes(by.get(m), 1)[0] || [""])[0]]));
+}
+
+function km(rows, maxM = 30) {
+  const times = rows.map(r => r.first != null ? { t: r.first / M, e: 1 } : { t: r.exp / M, e: 0 });
+  const out = []; let S = 1;
+  for (let k = 0; k < maxM; k++) {
+    let atRisk = 0, d = 0;
+    for (const x of times) { if (x.t >= k) { atRisk++; if (x.e && x.t < k + 1) d++; } }
+    if (atRisk < 30) break;
+    S *= 1 - d / atRisk; out.push(+(100 * (1 - S)).toFixed(2));
+  }
+  return out;
+}
+function renderKM(rows) {
+  const key = { half: r => halfOf(r.u[6]), line: r => DIM.line[r.u[1]], volt: r => DIM.volt[r.u[2]], kind: r => DIM.kind[r.u[3]] }[kmMode];
+  const g = new Map(); for (const r of rows) { const k = key(r); if (!g.has(k)) g.set(k, []); g.get(k).push(r); }
+  const keys = [...g.keys()].filter(k => g.get(k).length >= 50).sort().slice(0, 8);
+  const C = SER(); const series = keys.map((k, i) => ({ k, d: km(g.get(k)), c: C[i], n: g.get(k).length }));
+  const L = Math.max(0, ...series.map(s => s.d.length));
+  legend("kmLegend", series.map(s => [`${s.k} (n=${fmtN(s.n)})`, s.c]));
+  draw("kmChart", { type: "line", data: { labels: Array.from({ length: L }, (_, i) => i + 1), datasets: series.map(s => ({ label: s.k, data: s.d, borderColor: s.c, backgroundColor: s.c, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, stepped: true })) },
+    options: baseOpts({ scales: { x: { title: { display: true, text: "Miesiące pracy u klienta", color: css("--muted") } }, y: { ticks: pctTick, title: { display: true, text: "Skumulowany % urządzeń z usterką", color: css("--muted") } } }, plugins: { tooltip: { callbacks: { title: c => `${c[0].label}. miesiąc pracy`, label: c => ` ${fmtPct(c.parsed.y)}  ${c.dataset.label}` } } } }) });
+}
+
+function renderInflow(rows) {
+  const types = new Map(), byM = new Map();
+  for (const r of rows) for (const e of r.ev) { const m = monthOf(r.u[7] + e[0]); const t = DIM.type[e[1]]; types.set(t, (types.get(t) || 0) + 1); if (!byM.has(m)) byM.set(m, new Map()); const mm = byM.get(m); mm.set(t, (mm.get(t) || 0) + 1); }
+  const order = [...types.entries()].sort((a, b) => b[1] - a[1]).map(x => x[0]);
+  const top = order.slice(0, 5), rest = order.slice(5);
+  const ms = [...byM.keys()].sort(); const C = SER();
+  const label = t => ({ "Warranty repair": "Naprawa gwarancyjna", "Warranty replacement": "Wymiana gwarancyjna", "Post-warranty repair": "Naprawa pogwarancyjna", "Expertise": "Ekspertyza", "Rework": "Rework", "(bez typu)": "Bez typu" }[t] || t);
+  const ds = top.map((t, i) => ({ label: label(t), data: ms.map(m => byM.get(m).get(t) || 0), backgroundColor: C[i], borderColor: css("--surface"), borderWidth: { top: 2 }, maxBarThickness: 22 }));
+  if (rest.length) ds.push({ label: "Pozostałe", data: ms.map(m => rest.reduce((s, t) => s + (byM.get(m).get(t) || 0), 0)), backgroundColor: css("--muted"), borderColor: css("--surface"), borderWidth: { top: 2 }, maxBarThickness: 22 });
+  legend("inflowLegend", ds.map(d => [d.label, d.backgroundColor]), true);
+  draw("inflowChart", { type: "bar", data: { labels: ms, datasets: ds }, options: baseOpts({ scales: { x: { stacked: true }, y: { stacked: true } }, plugins: { tooltip: { callbacks: { label: c => ` ${fmtN(c.parsed.y)}  ${c.dataset.label}` } } } }) });
+  const srv = new Map();
+  for (const r of rows) for (const e of r.ev) { const t = label(DIM.type[e[1]]); if (!srv.has(t)) srv.set(t, { n: 0, open: 0, d: [] }); const s = srv.get(t); s.n++; if (e[4] >= 0) s.d.push(e[4]); else s.open++; }
+  const med = a => { if (!a.length) return null; a.sort((x, y) => x - y); return a[Math.floor(a.length / 2)]; };
+  const p90 = a => a.length ? a[Math.floor(a.length * 0.9)] : null;
+  table("serviceTable", [{ t: "Typ", l: 1 }, { t: "Zgłoszenia" }, { t: "Mediana dni" }, { t: "90. percentyl dni" }, { t: "Otwarte" }],
+    [...srv.entries()].sort((a, b) => b[1].n - a[1].n).map(([t, s]) => [t, s.n, med(s.d), p90(s.d), s.open]).map(r => r.map(v => typeof v === "number" ? fmtN(v) : v)));
+}
+
+function renderPareto(rows) {
+  const tc = topCodes(rows, 999); const total = tc.reduce((s, x) => s + x[1], 0); const top = tc.slice(0, 15);
+  let cum = 0; const cumP = top.map(x => (cum += x[1], 100 * cum / total));
+  draw("paretoChart", { type: "bar", data: { labels: top.map(x => x[0]), datasets: [{ label: "Urządzenia", data: top.map(x => x[1]), backgroundColor: css("--s1"), borderRadius: { topRight: 4, bottomRight: 4 }, borderSkipped: "left", maxBarThickness: 16 }] },
+    options: baseOpts({ indexAxis: "y", interaction: { mode: "nearest", axis: "y", intersect: false }, scales: { x: { grid: { color: css("--grid"), display: true }, ticks: { color: css("--muted") } }, y: { grid: { display: false }, ticks: { color: css("--ink-2"), autoSkip: false, font: { size: 11 } } } },
+      plugins: { tooltip: { callbacks: { label: c => ` ${fmtN(c.parsed.x)} urządzeń · ${fmtPct(100 * c.parsed.x / total)} · skumulowane ${fmtPct(cumP[c.dataIndex])}` } } } }) });
+  // heatmap
+  const qs = [...new Set(rows.map(r => quarterOf(r.u[6])))].sort();
+  const n = new Map(qs.map(q => [q, 0])); rows.forEach(r => n.set(quarterOf(r.u[6]), n.get(quarterOf(r.u[6])) + 1));
+  const codes = tc.slice(0, 12).map(x => x[2]);
+  const cnt = new Map(); for (const r of rows) { const q = quarterOf(r.u[6]); const seen = new Set(); r.ev.forEach(e => e[2].forEach(x => seen.add(x))); seen.forEach(x => { const k = x + "|" + q; cnt.set(k, (cnt.get(k) || 0) + 1); }); }
+  let vmax = 0; const val = (c, q) => n.get(q) ? 100 * (cnt.get(c + "|" + q) || 0) / n.get(q) : 0;
+  codes.forEach(c => qs.forEach(q => vmax = Math.max(vmax, val(c, q))));
+  const t = el("table", { class: "heat" }); const h = el("tr", null, el("th", { class: "l" }, "Tryb usterki"), ...qs.map(q => el("th", null, q))); t.append(el("thead", null, h));
+  const tb = el("tbody");
+  const lo = hex(css("--q100")), hi = hex(css("--q700")), mix = a => "rgb(" + lo.map((x, i) => Math.round(x + (hi[i] - x) * a)).join(",") + ")";
+  for (const c of codes) { const tr = el("tr", null, el("td", { class: "l" }, DIM.code[c])); for (const q of qs) { const v = val(c, q); const a = vmax ? Math.sqrt(v / vmax) : 0; const td = el("td", { title: `${DIM.code[c]} · ${q}: ${fmtPct(v, 2)} (${cnt.get(c + "|" + q) || 0} z ${n.get(q)})`, style: `background:${v ? mix(a) : "transparent"};color:${a > 0.55 ? "#fff" : css("--ink")}` }, v ? fmtX(v) : "·"); tr.append(td); } tb.append(tr); }
+  t.append(tb); document.getElementById("heatmap").replaceChildren(t);
+}
+function hex(c) { c = c.replace("#", ""); return [0, 2, 4].map(i => parseInt(c.substr(i, 2), 16)); }
+
+function groupTable(id, rows, keyFn, minN, label) {
+  const g = new Map(); for (const r of rows) { const k = keyFn(r); if (!g.has(k)) g.set(k, []); g.get(k).push(r); }
+  const data = [...g.entries()].filter(([, v]) => v.length >= minN).map(([k, v]) => { const s = stats(v); return [k, s.n, s.pct, s.m3, s.m12, s.afr, s.repeat, s.top]; }).sort((a, b) => (b[5] || 0) - (a[5] || 0));
+  const maxAfr = Math.max(1, ...data.map(r => r[5] || 0));
+  table(id, [{ t: label, l: 1 }, { t: "Urządzenia", f: fmtN }, { t: "Z usterką", f: fmtPct }, { t: "3 MIS", f: fmtPct }, { t: "12 MIS", f: fmtPct }, { t: "AFR", f: fmtX, bar: 1, max: maxAfr }, { t: "Powtórne", f: fmtPct }, { t: "Najczęstsza usterka", l: 1 }], data, { sort: true });
+}
+function renderCountry(rows) {
+  groupTable("countryTable", rows, r => DIM.country[r.u[5]], +document.getElementById("minN").value, "Kraj odbiorcy");
+  const c = new Map(); for (const r of rows) for (const e of r.ev) { const k = DIM.tcountry[e[3]]; c.set(k, (c.get(k) || 0) + 1); }
+  const top = [...c.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15);
+  draw("tcountryChart", { type: "bar", data: { labels: top.map(x => x[0]), datasets: [{ label: "Zgłoszenia", data: top.map(x => x[1]), backgroundColor: css("--s1"), borderRadius: { topRight: 4, bottomRight: 4 }, borderSkipped: "left", maxBarThickness: 16 }] },
+    options: baseOpts({ indexAxis: "y", interaction: { mode: "nearest", axis: "y", intersect: false }, scales: { x: { grid: { display: true, color: css("--grid") } }, y: { grid: { display: false }, ticks: { autoSkip: false, color: css("--ink-2") } } }, plugins: { tooltip: { callbacks: { label: c => ` ${fmtN(c.parsed.x)} zgłoszeń` } } } }) });
+}
+function renderModels(rows) {
+  groupTable("modelTable", rows, r => DIM.model[r.u[0]], 20, "Model");
+  groupTable("variantTable", rows, r => DIM.volt[r.u[2]] + " · SN " + DIM.snm[r.u[4]], 20, "Wariant");
+}
+function renderParts(rows) {
+  const c = new Map(); for (const r of rows) for (const p of r.u[10]) c.set(p, (c.get(p) || 0) + 1);
+  const top = [...c.entries()].sort((a, b) => b[1] - a[1]).slice(0, 20); const n = rows.length || 1;
+  draw("partsChart", { type: "bar", data: { labels: top.map(x => DIM.part[x[0]]), datasets: [{ label: "% urządzeń", data: top.map(x => 100 * x[1] / n), backgroundColor: css("--s1"), borderRadius: { topRight: 4, bottomRight: 4 }, borderSkipped: "left", maxBarThickness: 14 }] },
+    options: baseOpts({ indexAxis: "y", interaction: { mode: "nearest", axis: "y", intersect: false }, scales: { x: { grid: { display: true, color: css("--grid") }, ticks: pctTick }, y: { grid: { display: false }, ticks: { autoSkip: false, color: css("--ink-2"), font: { size: 11 } } } }, plugins: { tooltip: { callbacks: { label: c => ` ${fmtPct(c.parsed.x, 2)} urządzeń · ${fmtN(top[c.dataIndex][1])} szt.` } } } }) });
+}
+
+/* ---------- sekcje statyczne ---------- */
+function renderStatic() {
+  const sc = ST.sensor_case || [];
+  if (sc.length) {
+    const parts = [...new Set(sc.map(r => r[0]))]; const C = SER(); const col = Object.fromEntries(parts.map((p, i) => [p, C[i]]));
+    legend("sensorLegend", parts.map(p => ["czujnik " + p, col[p]]), true);
+    draw("sensorChart", { type: "bar", data: { labels: sc.map(r => r[4]), datasets: [{ label: "% z E2", data: sc.map(r => r[3]), backgroundColor: sc.map(r => col[r[0]]), borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: "bottom", maxBarThickness: 18 }] },
+      options: baseOpts({ interaction: { mode: "nearest", axis: "x", intersect: false }, scales: { y: { ticks: pctTick, title: { display: true, text: "% urządzeń z błędem E2", color: css("--muted") } }, x: { title: { display: true, text: "Pierwsze użycie partii w produkcji", color: css("--muted") } } }, plugins: { tooltip: { callbacks: { title: c => `Partia ${sc[c[0].dataIndex][1]}`, label: c => ` ${fmtPct(c.parsed.y)} z E2 · czujnik ${sc[c.dataIndex][0]} · ${fmtN(sc[c.dataIndex][2])} urządzeń` } } } }) });
+  }
+  const statusZ = z => { const s = z >= 5 ? ["critical", "silny sygnał"] : z >= 3 ? ["serious", "sygnał"] : ["warning", "słaby"]; const sp = el("span", { class: "status" }, el("span", { class: "dot", style: "background:var(--" + s[0] + ")" }), fmtX(z) + " · " + s[1]); return sp; };
+  if (ST.components) table("compTable", [{ t: "Komponent", l: 1 }, { t: "Urządzenia", f: fmtN }, { t: "Wadliwe", f: fmtN }, { t: "Oczekiwane", f: fmtX }, { t: "Wadliwość", f: fmtPct }, { t: "Lift", f: v => fmtX(v, 2) + "×" }, { t: "z", f: statusZ }], ST.components.map(r => [r[0], r[1], r[2], r[3], r[4], r[5], r[6]]));
+  if (ST.lots) table("lotTable", [{ t: "Partia", l: 1 }, { t: "Komponent", l: 1 }, { t: "Urządzenia", f: fmtN }, { t: "Wadliwe", f: fmtN }, { t: "Wadliwość", f: fmtPct }, { t: "Lift", f: v => fmtX(v, 2) + "×" }, { t: "z", f: statusZ }], ST.lots.map(r => [r[0], r[1], r[2], r[3], r[5], r[6], r[7]]));
+  const cp = ST.conpeek;
+  if (cp) {
+    const rows = cp.rows.filter(r => !/Issues with the autoclave|Periodic/i.test(r[0])); const top = rows.slice(0, 6); const C = SER();
+    const ds = top.map((r, i) => ({ label: r[0], data: r[1], backgroundColor: C[i], borderColor: css("--surface"), borderWidth: { top: 2 }, maxBarThickness: 22 }));
+    const other = cp.months.map((_, j) => rows.slice(6).reduce((s, r) => s + r[1][j], 0) + cp.rows.filter(r => /Issues with the autoclave/i.test(r[0])).reduce((s, r) => s + r[1][j], 0));
+    ds.push({ label: "Pozostałe / bez kodu", data: other, backgroundColor: css("--muted"), borderColor: css("--surface"), borderWidth: { top: 2 }, maxBarThickness: 22 });
+    legend("cpLegend", ds.map(d => [d.label, d.backgroundColor]), true);
+    draw("cpChart", { type: "bar", data: { labels: cp.months, datasets: ds }, options: baseOpts({ scales: { x: { stacked: true }, y: { stacked: true } }, plugins: { tooltip: { callbacks: { label: c => ` ${fmtN(c.parsed.y)}  ${c.dataset.label}` } } } }) });
+    const tot = cp.total; const mx = Math.max(...cp.by_group.map(r => r[1]));
+    table("cpTable", [{ t: "Grupa kategorii", l: 1 }, { t: "Rozmowy", f: fmtN, bar: 1, max: mx }, { t: "Udział", f: fmtPct }], cp.by_group.map(r => [r[0], r[1], 100 * r[1] / tot]));
+  }
+  if (ST.legacy) { const cols = ST.legacy_cols; table("legacyTable", cols.map((c, i) => ({ t: i === 0 ? "Rok (z SN)" : c === "top_errors" ? "Najczęstsze usterki" : c, l: i === 0 || c === "top_errors" })), ST.legacy); }
+  const q = ST.quality;
+  table("dqTable", [{ t: "Pozycja", l: 1 }, { t: "Wartość" }], [
+    ["Zakończone zlecenia produkcyjne (MO)", fmtN(q.mos)], ["Linie zużycia komponentów (genealogia)", fmtN(q.consumption)],
+    ["Urządzenia z numerem seryjnym (Odoo)", fmtN(q.units)], ["…w tym z wydaniem do klienta", fmtN(q.units_shipped) + " (" + fmtPct(100 * q.units_shipped / q.units) + ")"],
+    ["Zgłoszenia helpdesk (wszystkie)", fmtN(q.tickets)], ["…z numerem seryjnym", fmtN(q.tickets_with_sn) + " (" + fmtPct(100 * q.tickets_with_sn / q.tickets) + ")"],
+    ["Zgłoszenia usterek z SN", fmtN(q.defect_tickets)], ["…dopasowane do produkcji w Odoo", fmtN(q.defect_tickets_matched)],
+    ["…urządzenia sprzed Odoo / SN nierozpoznany", fmtN(q.defect_tickets_legacy)], ["Rozmowy Conpeek", ST.conpeek ? fmtN(ST.conpeek.total) : "–"]]);
+  // alert
+  const bad = (ST.sensor_case || []).filter(r => r[3] >= 10);
+  const A = document.getElementById("alert");
+  if (bad.length) {
+    const lots = bad.length, n = bad.reduce((s, r) => s + r[2], 0), from = bad[0][4], to = bad[bad.length - 1][4];
+    const others = (ST.sensor_case || []).filter(r => r[0] !== bad[0][0]);
+    const best = others.reduce((s, r) => s + r[2] * r[3], 0) / Math.max(1, others.reduce((s, r) => s + r[2], 0));
+    const otherNames = [...new Set(others.map(r => r[0]))].join(", ");
+    A.replaceChildren(el("span", { class: "status" }, el("span", { class: "dot", style: "background:var(--critical)" }), el("b", null, "Krytyczne")), " ",
+      el("b", null, `Błąd E2 (przegrzanie wytwornicy pary) – ${lots} partii czujnika ${bad[0][0]} (${fmtN(n)} urządzeń, użyte ${from} – ${to}) ma ${fmtPct(Math.min(...bad.map(r => r[3])), 0)}–${fmtPct(Math.max(...bad.map(r => r[3])), 0)} urządzeń z E2`),
+      ` wobec ${fmtPct(best)} dla czujników ${otherNames} (wszystkie partie). Wcześniejsze partie tego samego indeksu ${bad[0][0]} nie miały problemu – wada dotyczy konkretnych dostaw. To główna przyczyna skoku wadliwości kohort 10.2025–02.2026; szczegóły w sekcji „Komponenty i partie”.`);
+  } else A.remove();
+}
+
+/* ---------- motyw ---------- */
+document.getElementById("themeBtn").addEventListener("click", () => {
+  const r = document.documentElement; const dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  r.dataset.theme = dark ? "light" : "dark"; renderStatic(); render();
+});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { renderStatic(); render(); });
+
+renderStatic(); render();
+})();
+</script>
+</body>
+</html>
