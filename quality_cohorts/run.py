@@ -1,9 +1,9 @@
-"""Raport wadliwości po kohortach numerów seryjnych (Odoo + Compika).
+"""Raport wadliwości po kohortach numerów seryjnych (Odoo + Conpeek).
 
 Przykłady:
   python run.py --demo
-  python run.py --compika eksport_compika.csv --period M
-Zmienne środowiskowe: ODOO_URL, ODOO_DB, ODOO_USER, ODOO_API_KEY
+  python run.py --period M            # Odoo + API Conpeek
+Zmienne środowiskowe: ODOO_URL, ODOO_DB, ODOO_USER, ODOO_API_KEY, CONPEEK_URL, CONPEEK_KEY
 """
 import argparse
 import html
@@ -36,7 +36,7 @@ def demo_data(n=6000, seed=7):
                      rng.choice(["E03 temperatura", "E12 czas cyklu", "E21 komunikacja", "E07 ciśnienie"], hit.sum()))
     delay = rng.exponential(150, hit.sum()).astype(int)
     defects = pd.DataFrame({"serial": units.serial[hit].values, "reported_at": units.produced_at[hit].values
-                            + pd.to_timedelta(delay, unit="D"), "error_code": codes, "source": "compika"})
+                            + pd.to_timedelta(delay, unit="D"), "error_code": codes, "source": "conpeek"})
     defects = defects[defects.reported_at < pd.Timestamp.today()]
     return units, components, defects
 
@@ -75,7 +75,8 @@ def to_html(sheets, path, title):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--demo", action="store_true", help="dane syntetyczne do sprawdzenia raportu")
-    p.add_argument("--compika", nargs="*", default=[], help="eksport(y) z Compika (CSV/XLSX)")
+    p.add_argument("--conpeek-file", nargs="*", default=[], help="eksport(y) zgłoszeń z Conpeek (CSV/XLSX) zamiast API")
+    p.add_argument("--no-conpeek-api", action="store_true", help="nie pobieraj zgłoszeń z API Conpeek")
     p.add_argument("--no-odoo-defects", action="store_true", help="nie bierz zgłoszeń z Odoo (helpdesk/naprawy/jakość)")
     p.add_argument("--products", nargs="*", help="filtr: kody wewnętrzne wyrobów gotowych")
     p.add_argument("--period", default="M", choices=["W", "M", "Q", "Y"], help="długość kohorty")
@@ -86,11 +87,13 @@ def main():
     if a.demo:
         units, components, defects = demo_data()
     else:
-        import compika
+        import conpeek
         import odoo_extract
         odoo = odoo_extract.Odoo()
         units, components = odoo_extract.extract_units_and_components(odoo, a.products)
-        frames = [compika.load_file(f) for f in a.compika]
+        frames = [conpeek.load_file(f) for f in a.conpeek_file]
+        if not a.no_conpeek_api and not a.conpeek_file:
+            frames.append(conpeek.load_api(units["serial"].dropna().unique()))
         if not a.no_odoo_defects:
             frames.append(odoo_extract.extract_defects(odoo))
         defects = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(columns=["serial", "reported_at", "error_code", "source"])
