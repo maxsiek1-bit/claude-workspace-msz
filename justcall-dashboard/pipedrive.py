@@ -176,27 +176,45 @@ def market_of(lead, regions):
 
 
 def portfolio(leads, regions):
-    """Open leads per owner and market, with the state of each lead's next activity."""
+    """Open leads and open deals per owner and market, with the state of their planned activities.
+
+    Rows: [kind ("L" lead / "D" deal), owner, market, newsletter flag, state, items, overdue activities]
+    where state is the state of the item's earliest open activity: none / overdue / today / future.
+    """
     tz_name = os.environ.get("DASHBOARD_TZ", "Europe/Warsaw")
     try:
         from zoneinfo import ZoneInfo
         today = dt.datetime.now(ZoneInfo(tz_name)).date().isoformat()
     except Exception:
         today = dt.date.today().isoformat()
-    due = {a["id"]: a.get("due_date") or "" for a in get_all_v2("activities", done="false")}
+    first_due, overdue_n = {}, {}
+    for a in get_all_v2("activities", done="false"):
+        due = a.get("due_date") or "9999-12-31"
+        for key in (("L", a.get("lead_id")), ("D", a.get("deal_id"))):
+            if not key[1]:
+                continue
+            if due < first_due.get(key, "9999-12-32"):
+                first_due[key] = due
+            if due < today:
+                overdue_n[key] = overdue_n.get(key, 0) + 1
+
     counts = {}
+
+    def add(kind, item_id, owner, market, ex):
+        due = first_due.get((kind, item_id))
+        state = "none" if due is None else "overdue" if due < today else "today" if due == today else "future"
+        key = (kind, owner or 0, market, ex, state)
+        row = counts.setdefault(key, [0, 0])
+        row[0] += 1
+        row[1] += overdue_n.get((kind, item_id), 0)
+
     for l in leads:
-        if l.get("is_archived"):
-            continue
-        nid = l.get("next_activity_id")
-        if not nid:
-            state = "none"
-        else:
-            d = due.get(nid, "")
-            state = "overdue" if d and d < today else "today" if d == today else "future"
-        key = (l.get("owner_id") or 0, market_of(l, regions), 1 if region_of(l, regions) is None else 0, state)
-        counts[key] = counts.get(key, 0) + 1
-    return {"today": today, "rows": [[o, m, ex, st, n] for (o, m, ex, st), n in counts.items()]}
+        if not l.get("is_archived"):
+            add("L", l["id"], l.get("owner_id"), market_of(l, regions), 1 if region_of(l, regions) is None else 0)
+    for d in get_all_v2("deals", status="open"):
+        fields = {**d, **(d.get("custom_fields") or {})}
+        add("D", d["id"], d.get("owner_id"), market_of(fields, regions), 0)
+    return {"today": today, "rows": [[k, o, m, ex, st, n, od] for (k, o, m, ex, st), (n, od) in counts.items()]}
 
 
 # --------------------------------------------------------------------------
