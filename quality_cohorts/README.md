@@ -17,8 +17,8 @@ ze zgłoszeniami błędów (zgłoszenia z Conpeek + helpdesk / naprawy / alerty 
 
 ## Uruchomienie
 ```bash
-export ODOO_URL=https://myodoo-pl-enbio.odoo.com
-export ODOO_DB=myodoo-pl-enbio-master-6316047
+export ODOO_URL=...           # adres instancji Odoo
+export ODOO_DB=...            # nazwa bazy
 export ODOO_USER=...          # login użytkownika
 export ODOO_API_KEY=...       # Preferencje → Bezpieczeństwo konta → Klucze API
 export CONPEEK_URL=...       # Conpeek: Ustawienia → Usługi → API → „Adres serwera API”
