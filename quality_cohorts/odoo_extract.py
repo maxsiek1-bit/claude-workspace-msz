@@ -1,16 +1,21 @@
-"""Pobieranie danych produkcyjnych i reklamacyjnych z Odoo 16 przez XML-RPC.
+"""Pobieranie danych z Odoo 16 (XML-RPC) i budowa genealogii numerów seryjnych urządzeń.
 
-Wynik (DataFrame'y):
-  units       – jeden wiersz na wyprodukowany numer seryjny (serial, product, produced_at, mo)
-  components  – komponenty zużyte na MO danego numeru seryjnego (serial, component, component_lot, qty)
-  defects     – zgłoszenia/naprawy z Odoo powiązane z numerem seryjnym (serial, reported_at, error_code, source)
+Surowe dane są zapisywane w katalogu cache (pickle), żeby kolejne analizy nie pobierały
+ponownie ~5 mln linii zużycia komponentów.
 """
 import os
+import re
+import time
 import xmlrpc.client
+from pathlib import Path
 
 import pandas as pd
 
-BATCH = 2000
+BATCH = 20000
+# Numer seryjny urządzenia, np. ST04-PL-24-04037, ST02-CH-23-01014, SR01-PL-22-00012
+DEVICE_SN = r"^S[TR]\d\d"
+# Wyroby, które nie są pierwotną produkcją urządzenia (serwis, wymiany, refurbish)
+NOT_ORIGINAL = re.compile(r"under repair|refurb|exchange", re.I)
 
 
 class Odoo:
@@ -26,7 +31,13 @@ class Odoo:
         self.models = xmlrpc.client.ServerProxy(f"{self.url}/xmlrpc/2/object", allow_none=True)
 
     def call(self, model, method, *args, **kw):
-        return self.models.execute_kw(self.db, self.uid, self.key, model, method, list(args), kw)
+        for attempt in range(5):
+            try:
+                return self.models.execute_kw(self.db, self.uid, self.key, model, method, list(args), kw)
+            except (OSError, xmlrpc.client.ProtocolError):
+                if attempt == 4:
+                    raise
+                time.sleep(2 ** attempt)
 
     def has_model(self, model):
         return bool(self.call("ir.model", "search_count", [("model", "=", model)]))
@@ -34,14 +45,17 @@ class Odoo:
     def fields(self, model):
         return set(self.call(model, "fields_get", attributes=["type"]))
 
-    def search_read(self, model, domain, fields):
-        out, offset = [], 0
+    def search_read(self, model, domain, fields, log=None):
+        """Stronicowanie po id (szybsze niż offset przy milionach rekordów)."""
+        out, last = [], 0
         while True:
-            rows = self.call(model, "search_read", domain, fields=fields, limit=BATCH, offset=offset, order="id")
+            rows = self.call(model, "search_read", domain + [("id", ">", last)], fields=fields, limit=BATCH, order="id")
             out += rows
+            if log:
+                print(f"  {model}: {len(out)}", flush=True)
             if len(rows) < BATCH:
                 return out
-            offset += BATCH
+            last = rows[-1]["id"]
 
 
 def _name(m2o):
@@ -52,91 +66,125 @@ def _id(m2o):
     return m2o[0] if m2o else None
 
 
-def extract_units_and_components(odoo, product_filter=None):
-    """Numery seryjne z zakończonych zleceń produkcyjnych oraz komponenty z tych zleceń."""
-    mo_domain = [("state", "=", "done")]
-    if product_filter:
-        mo_domain.append(("product_id.default_code", "in", product_filter))
-    mos = odoo.search_read("mrp.production", mo_domain, ["name", "product_id", "date_finished"])
-    mo_by_id = {m["id"]: m for m in mos}
-    mo_ids = list(mo_by_id)
-
-    # Wyroby gotowe: linie ruchów wyjściowych MO z numerem seryjnym (obsługuje MO > 1 szt.)
-    fin_moves = odoo.search_read("stock.move", [("production_id", "in", mo_ids), ("state", "=", "done")],
-                                 ["production_id"])
-    fin_move_mo = {m["id"]: _id(m["production_id"]) for m in fin_moves}
-    fin_lines = odoo.search_read("stock.move.line", [("move_id", "in", list(fin_move_mo)), ("lot_id", "!=", False)],
-                                 ["move_id", "lot_id", "product_id", "date"])
-    units = []
-    for ln in fin_lines:
-        mo = mo_by_id[fin_move_mo[_id(ln["move_id"])]]
-        units.append({
-            "serial": _name(ln["lot_id"]),
-            "product": _name(ln["product_id"]),
-            "produced_at": mo["date_finished"] or ln["date"],
-            "mo": mo["name"],
-            "mo_id": mo["id"],
-        })
-
-    # Komponenty: ruchy surowcowe MO
-    raw_moves = odoo.search_read("stock.move", [("raw_material_production_id", "in", mo_ids), ("state", "=", "done")],
-                                 ["raw_material_production_id"])
-    raw_move_mo = {m["id"]: _id(m["raw_material_production_id"]) for m in raw_moves}
-    raw_lines = odoo.search_read("stock.move.line", [("move_id", "in", list(raw_move_mo))],
-                                 ["move_id", "product_id", "lot_id", "qty_done"])
-    comps = [{
-        "mo_id": raw_move_mo[_id(ln["move_id"])],
-        "component": _name(ln["product_id"]),
-        "component_lot": _name(ln["lot_id"]),
-        "qty": ln["qty_done"],
-    } for ln in raw_lines]
-
-    units = pd.DataFrame(units, columns=["serial", "product", "produced_at", "mo", "mo_id"])
-    units["produced_at"] = pd.to_datetime(units["produced_at"])
-    comps = pd.DataFrame(comps, columns=["mo_id", "component", "component_lot", "qty"])
-    components = units[["serial", "mo_id"]].merge(comps, on="mo_id").drop(columns="mo_id")
-    return units.drop(columns="mo_id"), components
-
-
-# model -> (pole daty, pola kandydujące na "kod błędu"/opis)
-DEFECT_SOURCES = {
-    "helpdesk.ticket": ("create_date", ["tag_ids", "ticket_type_id", "name"]),
-    "repair.order": ("create_date", ["tag_ids", "name"]),
-    "quality.alert": ("create_date", ["reason_id", "tag_ids", "name"]),
-}
-
-
-def extract_defects(odoo):
-    """Zgłoszenia z Odoo, które mają przypięty numer seryjny (lot_id)."""
-    rows = []
-    for model, (date_field, label_fields) in DEFECT_SOURCES.items():
-        if not odoo.has_model(model):
-            continue
-        avail = odoo.fields(model)
-        if "lot_id" not in avail:
-            continue
-        labels = [f for f in label_fields if f in avail]
-        recs = odoo.search_read(model, [("lot_id", "!=", False)], ["lot_id", date_field] + labels)
-        tag_names = {}
-        if "tag_ids" in labels:
-            tag_model = odoo.call(model, "fields_get", ["tag_ids"], attributes=["relation"])["tag_ids"]["relation"]
-            ids = sorted({t for r in recs for t in r["tag_ids"]})
-            if ids:
-                tag_names = {t["id"]: t["name"] for t in odoo.call(tag_model, "read", ids, fields=["name"])}
-        for r in recs:
-            code = None
-            for f in labels:
-                v = r.get(f)
-                if f == "tag_ids" and v:
-                    code = ", ".join(tag_names.get(t, str(t)) for t in v)
-                elif isinstance(v, list) and v:
-                    code = v[1]
-                elif isinstance(v, str) and v:
-                    code = v
-                if code:
-                    break
-            rows.append({"serial": _name(r["lot_id"]), "reported_at": r[date_field],
-                         "error_code": code, "source": model})
-    df = pd.DataFrame(rows, columns=["serial", "reported_at", "error_code", "source"])
-    df["reported_at"] = pd.to_datetime(df["reported_at"])
+def _cached(cache, name, fn, refresh=False):
+    p = Path(cache) / f"{name}.pkl"
+    if p.exists() and not refresh:
+        return pd.read_pickle(p)
+    df = fn()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    df.to_pickle(p)
     return df
+
+
+def fetch_mos(odoo):
+    rows = odoo.search_read("mrp.production", [("state", "=", "done")],
+                            ["name", "product_id", "lot_producing_id", "date_finished"], log=True)
+    return pd.DataFrame({
+        "mo": [r["name"] for r in rows],
+        "product": [_name(r["product_id"]) for r in rows],
+        "lot_id": [_id(r["lot_producing_id"]) for r in rows],
+        "lot": [_name(r["lot_producing_id"]) for r in rows],
+        "date_finished": pd.to_datetime([r["date_finished"] for r in rows]),
+    })
+
+
+def fetch_consumption(odoo):
+    rows = odoo.search_read("stock.move.line",
+                            [("move_id.raw_material_production_id", "!=", False), ("state", "=", "done")],
+                            ["reference", "product_id", "lot_id", "qty_done"], log=True)
+    df = pd.DataFrame({
+        "mo": [r["reference"] for r in rows],
+        "product_id": [_id(r["product_id"]) for r in rows],
+        "product": [_name(r["product_id"]) for r in rows],
+        "lot_id": [_id(r["lot_id"]) for r in rows],
+        "lot": [_name(r["lot_id"]) for r in rows],
+        "qty": [r["qty_done"] for r in rows],
+    })
+    for c in ("mo", "product", "lot"):
+        df[c] = df[c].astype("category")
+    return df
+
+
+def fetch_tickets(odoo):
+    rows = odoo.search_read("helpdesk.ticket", [],
+                            ["name", "product_serial_number", "create_date", "tag_ids", "ticket_type_id", "team_id",
+                             "partner_id", "repair_report_ids"], log=True)
+    tags = {t["id"]: t["name"] for t in odoo.call("helpdesk.tag", "search_read", [], fields=["name"])}
+    return pd.DataFrame({
+        "ticket_id": [r["id"] for r in rows],
+        "ticket": [r["name"] for r in rows],
+        "serial": [(r["product_serial_number"] or "").strip().upper() or None for r in rows],
+        "reported_at": pd.to_datetime([r["create_date"] for r in rows]),
+        "tags": [[tags.get(t, str(t)) for t in r["tag_ids"]] for r in rows],
+        "ticket_type": [_name(r["ticket_type_id"]) for r in rows],
+        "team": [_name(r["team_id"]) for r in rows],
+        "partner": [_name(r["partner_id"]) for r in rows],
+    })
+
+
+def fetch_repairs(odoo):
+    rows = odoo.search_read("repair.order", [("lot_id", "!=", False)],
+                            ["name", "lot_id", "product_id", "create_date", "tag_ids", "ticket_id"], log=True)
+    return pd.DataFrame({
+        "repair": [r["name"] for r in rows],
+        "serial": [(_name(r["lot_id"]) or "").strip().upper() for r in rows],
+        "reported_at": pd.to_datetime([r["create_date"] for r in rows]),
+        "ticket_id": [_id(r["ticket_id"]) for r in rows],
+    })
+
+
+def load_all(cache="cache", refresh=False):
+    odoo = Odoo()
+    return {
+        "mos": _cached(cache, "mos", lambda: fetch_mos(odoo), refresh),
+        "consumption": _cached(cache, "consumption", lambda: fetch_consumption(odoo), refresh),
+        "tickets": _cached(cache, "tickets", lambda: fetch_tickets(odoo), refresh),
+        "repairs": _cached(cache, "repairs", lambda: fetch_repairs(odoo), refresh),
+    }
+
+
+def device_units(mos):
+    """Jedno urządzenie = numer seryjny; data produkcji = pierwsze zakończone MO wyrobu z tym numerem."""
+    d = mos[mos["lot"].fillna("").str.upper().str.match(DEVICE_SN) & ~mos["product"].fillna("").str.contains(NOT_ORIGINAL)]
+    d = d.assign(serial=d["lot"].str.strip().str.upper())
+    # wyrób najwyższego poziomu = ostatnie MO (pakowanie); kohorta = pierwsze MO (start produkcji)
+    first = d.sort_values("date_finished").groupby("serial")
+    units = pd.DataFrame({
+        "produced_at": first["date_finished"].first(),
+        "packed_at": first["date_finished"].last(),
+        "product": first["product"].last(),
+        "top_mo": first["mo"].last(),
+    }).reset_index()
+    units["model"] = units["serial"].str[:4]
+    return units
+
+
+def genealogy(units, mos, consumption, max_depth=8):
+    """Wszystkie komponenty (z partiami) zużyte w drzewie produkcji każdego urządzenia."""
+    producer = mos.dropna(subset=["lot_id"]).sort_values("date_finished") \
+        .drop_duplicates("lot_id")[["lot_id", "mo"]].rename(columns={"mo": "child_mo"})
+    producer = producer[~producer["child_mo"].isin(set())]
+    cons = consumption[["mo", "product", "lot", "lot_id"]].copy()
+    cons["mo"] = cons["mo"].astype(str)
+    # wszystkie MO danego numeru seryjnego (montaż, walidacja, pakowanie) są korzeniami drzewa
+    dev = mos[mos["lot"].fillna("").str.upper().str.match(DEVICE_SN) & ~mos["product"].fillna("").str.contains(NOT_ORIGINAL)]
+    frontier = dev.assign(serial=dev["lot"].str.strip().str.upper())[["serial", "mo"]]
+    frontier = frontier[frontier["serial"].isin(units["serial"])].drop_duplicates()
+    seen = set(frontier["mo"])
+    parts = []
+    for depth in range(1, max_depth + 1):
+        if frontier.empty:
+            break
+        lvl = frontier.merge(cons, on="mo").drop(columns="mo")
+        lvl["depth"] = depth
+        parts.append(lvl[["serial", "product", "lot", "depth", "lot_id"]])
+        nxt = lvl.merge(producer, on="lot_id")[["serial", "child_mo"]].rename(columns={"child_mo": "mo"})
+        nxt = nxt[~nxt["mo"].isin(seen)].drop_duplicates()
+        seen |= set(nxt["mo"])
+        frontier = nxt
+        print(f"  poziom {depth}: {len(lvl)} linii, kolejne MO: {nxt['mo'].nunique()}", flush=True)
+    comp = pd.concat(parts, ignore_index=True)
+    comp = comp.rename(columns={"product": "component", "lot": "component_lot"})
+    comp["component"] = comp["component"].astype(str)
+    comp["component_lot"] = comp["component_lot"].astype(str)
+    return comp.drop(columns="lot_id")

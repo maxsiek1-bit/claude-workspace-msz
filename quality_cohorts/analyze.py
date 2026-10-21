@@ -49,26 +49,50 @@ def errors_by_cohort(defects):
         .assign(TOTAL=lambda x: x.sum(axis=1)).sort_values("TOTAL", ascending=False).reset_index()
 
 
+def _expected(units):
+    """Oczekiwane p(wady) jednostki = wadliwość jej kohorty i modelu (usuwa efekt wieku urządzenia)."""
+    grp = ["cohort", "model"] if "model" in units else ["cohort"]
+    return units.groupby(grp)["defective"].transform("mean")
+
+
 def component_risk(units, components, key="component", min_units=10):
-    """Wadliwość jednostek zawierających dany komponent / partię komponentu vs średnia (lift)."""
+    """Wadliwość jednostek z danym komponentem / partią vs średnia i vs oczekiwanie dla ich kohorty.
+
+    lift_vs_cohort > 1 oznacza, że urządzenia z tym komponentem psują się częściej niż inne
+    urządzenia z tych samych kohort; z_score > 3 – mało prawdopodobne, by był to przypadek.
+    """
     base = units["defective"].mean() or 1e-9
-    c = components.dropna(subset=[key]).drop_duplicates(["serial", key]) \
-        .merge(units[["serial", "defective"]], on="serial")
-    r = c.groupby(key).agg(units=("serial", "nunique"), defective_units=("defective", "sum"))
+    u = units[["serial", "defective"]].assign(exp=_expected(units))
+    c = components.dropna(subset=[key]).drop_duplicates(["serial", key]).merge(u, on="serial")
+    r = c.groupby(key).agg(units=("serial", "nunique"), defective_units=("defective", "sum"),
+                           expected=("exp", "sum"), var=("exp", lambda p: (p * (1 - p)).sum()))
     r = r[r["units"] >= min_units]
     r["defect_rate_%"] = (100 * r["defective_units"] / r["units"]).round(2)
     r["lift_vs_avg"] = (r["defective_units"] / r["units"] / base).round(2)
+    r["lift_vs_cohort"] = (r["defective_units"] / r["expected"].clip(lower=1e-9)).round(2)
+    r["z_score"] = ((r["defective_units"] - r["expected"]) / r["var"].clip(lower=1e-9) ** 0.5).round(1)
+    r = r.drop(columns=["var"]).assign(expected=lambda x: x["expected"].round(1))
     r["share_of_defective_%"] = (100 * r["defective_units"] / max(units["defective"].sum(), 1)).round(1)
     if key == "component_lot":
         r = r.join(c.drop_duplicates(key).set_index(key)["component"])
-    return r.sort_values(["lift_vs_avg", "defective_units"], ascending=False).reset_index()
+    return r.sort_values(["z_score", "defective_units"], ascending=False).reset_index()
 
 
-def component_by_cohort(units, components):
-    c = components.drop_duplicates(["serial", "component"]).merge(units[["serial", "cohort", "defective"]], on="serial")
-    g = c.groupby(["cohort", "component"]).agg(units=("serial", "nunique"), defective_units=("defective", "sum")).reset_index()
+def component_by_cohort(units, components, key="component_lot", min_units=10, top=8):
+    """Dla każdej kohorty: komponenty/partie najbardziej nadreprezentowane wśród wadliwych urządzeń."""
+    c = components.drop_duplicates(["serial", key]).merge(units[["serial", "cohort", "defective"]], on="serial")
+    g = c.groupby(["cohort", key]).agg(units=("serial", "nunique"), defective_units=("defective", "sum")).reset_index()
+    if key == "component_lot":
+        g = g.merge(components.drop_duplicates(key)[[key, "component"]], on=key, how="left")
+    base = units.groupby("cohort")["defective"].mean().rename("cohort_rate")
+    g = g.merge(base, on="cohort")
+    g = g[(g["units"] >= min_units) & (g["defective_units"] >= 2)]
     g["defect_rate_%"] = (100 * g["defective_units"] / g["units"]).round(2)
-    return g
+    g["lift_vs_cohort"] = (g["defect_rate_%"] / 100 / g["cohort_rate"].clip(lower=1e-9)).round(2)
+    g["share_of_cohort_defective_%"] = (100 * g["defective_units"] /
+                                        g["cohort"].map(units.groupby("cohort")["defective"].sum()).clip(lower=1)).round(1)
+    g = g[g["lift_vs_cohort"] > 1].sort_values(["cohort", "lift_vs_cohort"], ascending=[True, False])
+    return g.groupby("cohort").head(top).drop(columns="cohort_rate")
 
 
 def component_error_matrix(units, components, defects, key="component_lot", top=30):
@@ -92,16 +116,25 @@ def unmatched(defects):
     return defects[defects["cohort"].isna()][["serial", "reported_at", "error_code", "source"]]
 
 
-def run_all(units, components, defects, period="M", min_units=10):
+def by_model(units, defects):
+    s = units.groupby(["model", "cohort"]).agg(produced=("serial", "size"), defective_units=("defective", "sum"))
+    s["defect_rate_%"] = (100 * s["defective_units"] / s["produced"]).round(2)
+    return s.reset_index().pivot(index="cohort", columns="model", values="defect_rate_%").reset_index()
+
+
+def run_all(units, components, defects, period="M", min_units=10, extra=None):
     units, defects = prepare(units, defects, period)
     return {
         "Kohorty": cohort_summary(units, defects),
         "Krzywa kohort": cohort_matrix(units, defects),
+        **({"Model x kohorta": by_model(units, defects)} if "model" in units else {}),
         "Błędy x kohorta": errors_by_cohort(defects),
         "Komponenty": component_risk(units, components, "component", min_units),
         "Partie komponentów": component_risk(units, components, "component_lot", min_units),
-        "Komponenty x kohorta": component_by_cohort(units, components),
+        "Kohorta x partie": component_by_cohort(units, components, "component_lot", min_units),
+        "Kohorta x komponenty": component_by_cohort(units, components, "component", min_units),
         "Partie x błędy": component_error_matrix(units, components, defects),
         "Numery seryjne": serial_detail(units, defects),
         "Niedopasowane SN": unmatched(defects),
+        **(extra or {}),
     }

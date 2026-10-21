@@ -53,13 +53,13 @@ def to_html(sheets, path, title):
              "body{font:13px system-ui;margin:24px;color:#222}table{border-collapse:collapse;margin:8px 0 28px}"
              "td,th{border:1px solid #ddd;padding:3px 7px;text-align:right}th{background:#f3f3f3;position:sticky;top:0}"
              "td:first-child{text-align:left}</style>", f"<h1>{title}</h1>"]
-    heat_cols = {"defect_rate_%", "lift_vs_avg"}
+    heat_cols = {"defect_rate_%", "lift_vs_avg", "lift_vs_cohort", "z_score"}
     for name, df in sheets.items():
-        if name in ("Numery seryjne", "Komponenty x kohorta"):
+        if name in ("Numery seryjne",):
             continue
         parts.append(f"<h2>{name}</h2><table><tr>" + "".join(f"<th>{html.escape(str(c))}</th>" for c in df.columns) + "</tr>")
         num = df.select_dtypes("number")
-        matrix = name in ("Krzywa kohort", "Błędy x kohorta", "Partie x błędy")
+        matrix = name in ("Krzywa kohort", "Błędy x kohorta", "Partie x błędy", "Model x kohorta", "Conpeek: usterki w rozmowach")
         vmax = num.drop(columns=["TOTAL"], errors="ignore").max().max() if matrix and not num.empty else 0
         for _, row in df.head(60).iterrows():
             cells = []
@@ -77,28 +77,42 @@ def main():
     p.add_argument("--demo", action="store_true", help="dane syntetyczne do sprawdzenia raportu")
     p.add_argument("--conpeek-file", nargs="*", default=[], help="eksport(y) zgłoszeń z Conpeek (CSV/XLSX) zamiast API")
     p.add_argument("--no-conpeek-api", action="store_true", help="nie pobieraj zgłoszeń z API Conpeek")
-    p.add_argument("--no-odoo-defects", action="store_true", help="nie bierz zgłoszeń z Odoo (helpdesk/naprawy/jakość)")
-    p.add_argument("--products", nargs="*", help="filtr: kody wewnętrzne wyrobów gotowych")
+    p.add_argument("--products", nargs="*", help="filtr: modele wg prefiksu numeru seryjnego, np. ST04 ST02")
+    p.add_argument("--cache", default="cache", help="katalog z pobranymi danymi Odoo")
+    p.add_argument("--refresh", action="store_true", help="pobierz dane z Odoo od nowa")
     p.add_argument("--period", default="M", choices=["W", "M", "Q", "Y"], help="długość kohorty")
     p.add_argument("--min-units", type=int, default=10)
     p.add_argument("--out", default="output")
     a = p.parse_args()
 
+    extra = {}
     if a.demo:
         units, components, defects = demo_data()
     else:
         import conpeek
-        import odoo_extract
-        odoo = odoo_extract.Odoo()
-        units, components = odoo_extract.extract_units_and_components(odoo, a.products)
-        frames = [conpeek.load_file(f) for f in a.conpeek_file]
-        if not a.no_conpeek_api and not a.conpeek_file:
-            frames.append(conpeek.load_api(units["serial"].dropna().unique()))
-        if not a.no_odoo_defects:
-            frames.append(odoo_extract.extract_defects(odoo))
-        defects = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(columns=["serial", "reported_at", "error_code", "source"])
+        import defects as dfx
+        import odoo_extract as ox
+        data = ox.load_all(a.cache, refresh=a.refresh)
+        units = ox.device_units(data["mos"])
+        if a.products:
+            units = units[units["model"].isin(a.products)]
+        gp = Path(a.cache) / "genealogy.pkl"
+        if gp.exists() and not a.refresh:
+            components = pd.read_pickle(gp)
+        else:
+            components = ox.genealogy(units, data["mos"], data["consumption"])
+            components.to_pickle(gp)
+        components = components[components["serial"].isin(units["serial"])]
+        defects = dfx.build(data["tickets"], data["repairs"])
+        for f in a.conpeek_file:
+            defects = pd.concat([defects, conpeek.load_file(f)], ignore_index=True)
+        if not a.no_conpeek_api:
+            dialogs = conpeek.fetch_dialogs()
+            extra["Conpeek: usterki w rozmowach"] = conpeek.call_error_trend(dialogs)
+            sn = conpeek.load_api(units["serial"])
+            defects = pd.concat([defects, sn], ignore_index=True)
 
-    sheets = analyze.run_all(units, components, defects, a.period, a.min_units)
+    sheets = analyze.run_all(units, components, defects, a.period, a.min_units, extra)
     out = Path(a.out)
     out.mkdir(exist_ok=True)
     with pd.ExcelWriter(out / "wadliwosc_kohorty.xlsx") as xw:
