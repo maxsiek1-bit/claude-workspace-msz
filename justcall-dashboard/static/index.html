@@ -24,6 +24,9 @@
   --seq-5: #1c5cab;
   --seq-6: #104281;
   --none: #d6d9e0;
+  --cat-1: #2a78d6;
+  --cat-2: #eb6834;
+  --cat-3: #1baf7a;
   --good: #0ca30c;
   --good-ink: #0a7a0a;
   --warn: #fab219;
@@ -40,7 +43,7 @@
     --bg: #0e1015; --surface: #171a21; --surface-2: #1c2029; --ink: #eceef3; --ink-2: #b5bbc9;
     --muted: #8c93a5; --line: #262b35; --line-strong: #353b48; --accent: #6fa3f2; --accent-soft: #1b2a45;
     --seq-1: #1a2b44; --seq-2: #184f95; --seq-3: #256abf; --seq-4: #3987e5; --seq-5: #6da7ec; --seq-6: #b7d3f6;
-    --none: #343946; --good-ink: #4cc74c; --warn-ink: #f2c04d; --crit-ink: #ec7a7a;
+    --none: #343946; --cat-1: #3987e5; --cat-2: #d95926; --cat-3: #199e70; --good-ink: #4cc74c; --warn-ink: #f2c04d; --crit-ink: #ec7a7a;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3); color-scheme: dark;
   }
 }
@@ -48,7 +51,7 @@
   --bg: #0e1015; --surface: #171a21; --surface-2: #1c2029; --ink: #eceef3; --ink-2: #b5bbc9;
   --muted: #8c93a5; --line: #262b35; --line-strong: #353b48; --accent: #6fa3f2; --accent-soft: #1b2a45;
   --seq-1: #1a2b44; --seq-2: #184f95; --seq-3: #256abf; --seq-4: #3987e5; --seq-5: #6da7ec; --seq-6: #b7d3f6;
-  --none: #343946; --good-ink: #4cc74c; --warn-ink: #f2c04d; --crit-ink: #ec7a7a;
+  --none: #343946; --cat-1: #3987e5; --cat-2: #d95926; --cat-3: #199e70; --good-ink: #4cc74c; --warn-ink: #f2c04d; --crit-ink: #ec7a7a;
   --shadow: 0 1px 2px rgba(0, 0, 0, .3); color-scheme: dark;
 }
 
@@ -98,7 +101,7 @@ section.panel { background: var(--surface); border: 1px solid var(--line); borde
 .lamp small { color: var(--muted); }
 
 /* KPI tiles */
-.kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
 .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 10px; display: grid; gap: 4px; min-width: 0; }
 .kpi .label { font-size: 12.5px; color: var(--ink-2); font-weight: 500; }
 .kpi .value { font-family: var(--f-display); font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
@@ -205,6 +208,15 @@ dialog h2 { font-size: 18px; margin-bottom: 12px; }
 .btn { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 8px; padding: 7px 14px; cursor: pointer; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 600; }
 
+/* Pipedrive */
+.r-0 { fill: var(--cat-1); } .r-1 { fill: var(--cat-2); } .r-2 { fill: var(--cat-3); } .r-x { fill: var(--none); } .r-m { fill: var(--seq-4); }
+.legend .r0 { background: var(--cat-1); } .legend .r1 { background: var(--cat-2); } .legend .r2 { background: var(--cat-3); } .legend .rx { background: var(--none); }
+.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+table.plain tbody tr { cursor: default; }
+.share { display: inline-block; width: 60px; height: 5px; border-radius: 3px; background: var(--line); vertical-align: middle; margin-left: 8px; overflow: hidden; }
+.share span { display: block; height: 100%; background: var(--seq-4); }
+.pd-empty { padding: 32px 0; color: var(--ink-2); }
+
 /* Tabs */
 .tabs { display: flex; gap: 4px; margin-bottom: -1px; }
 .tabs button { border: 0; background: none; padding: 8px 12px 10px; cursor: pointer; color: var(--ink-2); font-weight: 500; border-bottom: 2px solid transparent; }
@@ -236,7 +248,6 @@ a.rec:hover { text-decoration: underline; }
 .empty { color: var(--muted); font-size: 13px; padding: 16px 0; }
 
 @media (max-width: 1100px) {
-  .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .grid-2 { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 640px) {
@@ -269,6 +280,7 @@ a.rec:hover { text-decoration: underline; }
     <nav class="tabs" role="tablist" aria-label="Widok">
       <button role="tab" data-view="przeglad" aria-selected="true">Przegląd</button>
       <button role="tab" data-view="historia" aria-selected="false">Historia połączeń</button>
+      <button role="tab" data-view="pipedrive" aria-selected="false">Pipedrive: leady i e-mail</button>
     </nav>
   </div>
 </header>
@@ -299,6 +311,8 @@ a.rec:hover { text-decoration: underline; }
     </section>
   </main>
 </div>
+
+<div class="wrap" id="pdView" hidden><main id="pdApp"></main></div>
 
 <div id="tip" hidden></div>
 <div id="toast" hidden></div>
@@ -340,8 +354,9 @@ const S = {
   f: Object.assign({ preset: "7d", from: "", to: "", group: "", agent: "" }, store.get("filter", {})),
   sort: store.get("sort", { key: "conv", dir: -1 }),
   loaded: { from: "", to: "" },
-  view: location.hash === "#historia" ? "historia" : "przeglad",
+  view: ["#historia", "#pipedrive"].includes(location.hash) ? location.hash.slice(1) : "przeglad",
   log: { q: "", dir: "", res: "", min: 0, limit: 100 },
+  pdOpts: Object.assign({ imports: false }, store.get("pdOpts", {})),
 };
 const $ = (s) => document.querySelector(s);
 const nf = new Intl.NumberFormat("pl-PL");
@@ -414,6 +429,7 @@ function decorate() {
   for (const r of calls) Object.assign(r, localOf(r.t));
   for (const r of texts) Object.assign(r, localOf(r.t));
   S.calls = calls; S.texts = texts;
+  decoratePd();
   // first full local day covered by the fetched UTC range
   S.minDay = addDays(S.raw.range.from, 1);
 }
@@ -436,7 +452,7 @@ async function ensureRange(from, to) {
 async function refreshRecent() {
   if (S.snapshot || !S.raw) return;
   const from = addDays(todayKey(), -2);
-  const fresh = await fetchJSON(`/api/data?from=${from}&to=${addDays(todayKey(), 1)}`);
+  const fresh = await fetchJSON(`/api/data?from=${from}&to=${addDays(todayKey(), 1)}&pd=0`);
   const cut = Date.parse(from + "T00:00:00Z") / 1000;
   const merge = (oldB, newB) => {
     const oldRows = unpack(oldB).filter((r) => r.t < cut), newRows = unpack(newB);
@@ -591,15 +607,16 @@ function renderKpis(cur, prev, from, to, hasPrev) {
     { l: "Czas rozmów", v: durShort(a.talk), m: `śr. rozmowa ${dur(a.avgConv)}`, d: delta(a.talk, P(b?.talk)), s: g("talk") },
     { l: "Przychodzące odebrane", v: a.inRate == null ? "—" : pf.format(a.inRate), m: `${nf.format(a.inMissed)} nieodebranych z ${nf.format(a.inTotal)}`, d: a.inRate == null ? "" : delta(a.inRate, P(b?.inRate)), s: null },
   ];
+  if (S.pd && cur.mail) tiles.push({ l: "E-maile wysłane", v: nf.format(cur.mail.team.sent), m: `odpowiedź w ${durHuman(cur.mail.team.replyMed)} (mediana)`, d: delta(cur.mail.team.sent, P(prev?.mail?.team.sent)), s: series((d) => cur.mail.byDay.get(d) || 0) });
   return `<section class="kpis" aria-label="Najważniejsze wskaźniki">${tiles.map((t) => `<div class="kpi"><span class="label">${t.l}</span><span class="value">${t.v}</span><span class="meta">${t.d}<span>${t.m}</span></span>${t.s && days.length > 1 ? spark(t.s) : ""}</div>`).join("")}</section>`;
 }
 
 function rankingRows(cur, prevAll) {
   const allIds = new Set(S.calls.map((r) => r.a));
-  for (const u of S.users) if (allIds.has(u.id) && inScope(u.id) && !cur.agents.has(u.id)) cur.agents.set(u.id, finish(blank()));
+  for (const u of S.users) if (allIds.has(u.id) && inScope(u.id) && !cur.agents.has(u.id)) cur.agents.set(u.id, cur.mail ? fillMail(cur.mail, u.id, finish(blank())) : finish(blank()));
   const rows = [...cur.agents.entries()].map(([id, a]) => ({ id, a, name: nameOf(id) }));
   const k = S.sort.key, dir = S.sort.dir;
-  const val = (r) => k === "name" ? r.name : k === "first" ? (r.a.first ?? 1e9) : (r.a[k] ?? -1);
+  const val = (r) => k === "name" ? r.name : k === "first" ? (r.a.first ?? 1e9) : k === "mailReply" ? (r.a.mailReply ?? 1e12) : (r.a[k] ?? -1);
   rows.sort((x, y) => { const a = val(x), b = val(y); return (typeof a === "string" ? a.localeCompare(b, "pl") : a - b) * dir; });
   return rows;
 }
@@ -610,7 +627,7 @@ function renderRanking(cur) {
   const teamRate = cur.team.rate;
   const cols = [
     ["name", "Handlowiec"], ["dials", "Połączenia"], ["dialsPerDay", "Śr. / dzień"], ["conv", "Rozmowy"], ["rate", "Kontakt"], ["quality", "≥ 2 min"],
-    ["talk", "Czas rozmów"], ["talkPerDay", "Rozmowy / dzień"], ["avgConv", "Śr. rozmowa"], ["uniq", "Unik. kontakty"], ["inTotal", "Przychodzące"], ["smsOut", "SMS"], ["activeDays", "Dni"], ["first", "Godziny pracy"],
+    ["talk", "Czas rozmów"], ["talkPerDay", "Rozmowy / dzień"], ["avgConv", "Śr. rozmowa"], ["uniq", "Unik. kontakty"], ["inTotal", "Przychodzące"], ["smsOut", "SMS"], ...(S.pd ? [["mailSent", "E-maile"], ["mailReply", "Odp. e-mail"]] : []), ["activeDays", "Dni"], ["first", "Godziny pracy"],
   ];
   const head = cols.map(([key, label]) => `<th data-sort="${key}" class="${S.sort.key === key ? "sorted" + (S.sort.dir > 0 ? " asc" : "") : ""}">${label === "≥ 2 min" ? `≥ ${Math.round(st.qualitySec / 60)} min` : label}</th>`).join("");
   const goal = (v, target) => { const p = Math.min(1, v / target); return `<div class="bar goal ${p < .5 ? "crit" : p < .85 ? "low" : ""}" title="${pf.format(v / target)} celu"><span style="width:${(p * 100).toFixed(0)}%"></span></div>`; };
@@ -630,13 +647,14 @@ function renderRanking(cur) {
       <td class="n">${nf.format(a.uniq)}<div class="small">${nf.format(a.reachedN)} z rozmową</div></td>
       <td class="n">${nf.format(a.inTotal)}${a.inMissed ? `<div class="small">${nf.format(a.inMissed)} nieodebr.</div>` : ""}</td>
       <td class="n">${nf.format(a.smsOut)}${a.smsFail ? `<div class="small">${nf.format(a.smsFail)} niedostarcz.</div>` : ""}</td>
+      ${S.pd ? `<td class="n">${a.mailSent == null || S.jcToPd[id] == null ? "—" : nf.format(a.mailSent)}${a.mailRecv ? `<div class="small">${nf.format(a.mailRecv)} odebr.</div>` : ""}</td><td class="n">${durHuman(a.mailReply)}</td>` : ""}
       <td class="n">${a.activeDays}</td>
       <td class="n">${a.first != null ? `${hm(a.first)}–${hm(a.last)}` : "—"}</td></tr>`;
   }).join("");
   const t = cur.team;
-  const foot = `<tr><td>Zespół</td><td class="n">${nf.format(t.dials)}</td><td></td><td class="n">${nf.format(t.conv)}</td><td class="n">${t.dials ? pf.format(t.rate) : "—"}</td><td class="n">${nf.format(t.quality)}</td><td class="n">${durShort(t.talk)}</td><td></td><td class="n">${t.convN ? dur(t.avgConv) : "—"}</td><td class="n">${nf.format(t.uniq)}</td><td class="n">${nf.format(t.inTotal)}</td><td class="n">${nf.format(t.smsOut)}</td><td></td><td></td></tr>`;
+  const foot = `<tr><td>Zespół</td><td class="n">${nf.format(t.dials)}</td><td></td><td class="n">${nf.format(t.conv)}</td><td class="n">${t.dials ? pf.format(t.rate) : "—"}</td><td class="n">${nf.format(t.quality)}</td><td class="n">${durShort(t.talk)}</td><td></td><td class="n">${t.convN ? dur(t.avgConv) : "—"}</td><td class="n">${nf.format(t.uniq)}</td><td class="n">${nf.format(t.inTotal)}</td><td class="n">${nf.format(t.smsOut)}</td>${S.pd && cur.mail ? `<td class="n">${nf.format(cur.mail.team.sent)}</td><td class="n">${durHuman(cur.mail.team.replyMed)}</td>` : ""}<td></td><td></td></tr>`;
   return `<section class="panel"><div class="panel-head"><h2>Ranking handlowców</h2><span class="hint">Kliknij wiersz, aby przefiltrować cały panel do jednej osoby. Średnie dzienne liczone z dni, w których handlowiec pracował.</span></div>
-    <div class="scroll"><table id="rank"><thead><tr>${head}</tr></thead><tbody>${body || `<tr><td colspan="14" class="empty">Brak aktywności w wybranym okresie.</td></tr>`}</tbody><tfoot>${foot}</tfoot></table></div></section>`;
+    <div class="scroll"><table id="rank"><thead><tr>${head}</tr></thead><tbody>${body || `<tr><td colspan="${cols.length}" class="empty">Brak aktywności w wybranym okresie.</td></tr>`}</tbody><tfoot>${foot}</tfoot></table></div></section>`;
 }
 
 function renderInsights(cur, prev, hasPrev) {
@@ -653,6 +671,7 @@ function renderInsights(cur, prev, hasPrev) {
     if (a.dials >= 30 && tr > 0 && a.rate < tr * 0.7) items.push(["warn", "Kontakt", `<b>${esc(nameOf(id))}</b>: wskaźnik kontaktu ${pf.format(a.rate)} wobec ${pf.format(tr)} w zespole. Warto odsłuchać kilka nagrań i sprawdzić jakość bazy.`]);
     if (a.activeDays && a.dialsPerDay < st.dialTarget * 0.6) items.push(["warn", "Aktywność", `<b>${esc(nameOf(id))}</b>: średnio ${nf.format(Math.round(a.dialsPerDay))} połączeń dziennie przy celu ${st.dialTarget}.`]);
     if (a.first != null && a.first > 10.5 * 60) items.push(["info", "Start dnia", `<b>${esc(nameOf(id))}</b> zaczyna dzwonić średnio o ${hm(a.first)}.`]);
+    if (a.mailReply != null && a.mailReply > 6 * 3600) items.push(["warn", "E-mail", `<b>${esc(nameOf(id))}</b> odpowiada na maile klientów średnio po ${durHuman(a.mailReply)}.`]);
     if (a.convN >= 10 && a.avgConv < 60) items.push(["info", "Długość rozmów", `<b>${esc(nameOf(id))}</b>: średnia rozmowa trwa tylko ${dur(a.avgConv)}.`]);
   }
   if (cur.team.inTotal >= 5 && cur.team.inRate < 0.8) items.push(["crit", "Przychodzące", `Odebrano tylko ${pf.format(cur.team.inRate)} połączeń przychodzących (${nf.format(cur.team.inMissed)} straconych). To klienci, którzy sami dzwonili.`]);
@@ -760,7 +779,7 @@ function renderDiscipline(cur, from, to) {
       const x = a.days.get(d), we = weekdayOf(d) >= 5 ? "we" : "";
       if (!x || (!x.dials && !x.sms)) { h += `<td><span class="d zero ${we}" data-tip="${esc(`<b>${esc(nameOf(id))} · ${WD_PL[weekdayOf(d)]} ${shortDate(d)}</b><div>Brak aktywności</div>`)}">${we ? "" : "0"}</span></td>`; continue; }
       const step = Math.max(1, Math.min(6, Math.ceil((x.dials / target) * 5)));
-      const tip = `<b>${esc(nameOf(id))} · ${WD_PL[weekdayOf(d)]} ${shortDate(d)}</b><div class="r"><span>Połączenia</span><span>${x.dials}</span></div><div class="r"><span>Rozmowy</span><span>${x.conv}</span></div><div class="r"><span>Czas rozmów</span><span>${durShort(x.talk)}</span></div><div class="r"><span>SMS</span><span>${x.sms}</span></div>${x.dials ? `<div class="r"><span>Pierwsze / ostatnie</span><span>${hm(x.first)} / ${hm(x.last)}</span></div>` : ""}`;
+      const tip = `<b>${esc(nameOf(id))} · ${WD_PL[weekdayOf(d)]} ${shortDate(d)}</b><div class="r"><span>Połączenia</span><span>${x.dials}</span></div><div class="r"><span>Rozmowy</span><span>${x.conv}</span></div><div class="r"><span>Czas rozmów</span><span>${durShort(x.talk)}</span></div><div class="r"><span>SMS</span><span>${x.sms}</span></div>${S.pd && a.mailDays ? `<div class="r"><span>E-maile</span><span>${a.mailDays.get(d) || 0}</span></div>` : ""}${x.dials ? `<div class="r"><span>Pierwsze / ostatnie</span><span>${hm(x.first)} / ${hm(x.last)}</span></div>` : ""}`;
       h += `<td><span class="d ${cellInk(step, dark)}" style="background:var(--seq-${step})" data-tip="${esc(tip)}">${x.dials}</span></td>`;
     }
     h += `</tr>`;
@@ -876,9 +895,242 @@ function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = fal
 function setView(v) {
   S.view = v;
   document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.view === v)));
-  $("#overView").hidden = v !== "przeglad"; $("#logView").hidden = v !== "historia";
+  $("#overView").hidden = v !== "przeglad"; $("#logView").hidden = v !== "historia"; $("#pdView").hidden = v !== "pipedrive";
   try { history.replaceState(null, "", "#" + v); } catch {}
-  if (v === "historia") renderLog(); else if (S.last) drawDaily(S.last);
+  if (v === "historia") renderLog(); else if (v === "pipedrive") drawPd(); else if (S.last) drawDaily(S.last);
+}
+
+// ---------- Pipedrive ----------
+const median = (xs) => { if (!xs.length) return null; const a = xs.slice().sort((x, y) => x - y), m = a.length >> 1; return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; };
+function durHuman(sec) {
+  if (sec == null) return "—";
+  if (sec < 3600) return `${Math.max(1, Math.round(sec / 60))} min`;
+  if (sec < 48 * 3600) { const h = Math.floor(sec / 3600), m = Math.round((sec % 3600) / 60); return m ? `${h} h ${m} min` : `${h} h`; }
+  return `${(sec / 86400).toFixed(1).replace(".", ",")} dnia`;
+}
+function firstAfter(sorted, t) {
+  let lo = 0, hi = sorted.length;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (sorted[mid] < t) lo = mid + 1; else hi = mid; }
+  return lo < sorted.length ? sorted[lo] : null;
+}
+function decoratePd() {
+  const pd = S.raw.pipedrive;
+  S.pd = pd && !pd.error ? pd : null;
+  S.pdError = pd && pd.error ? pd.error : "";
+  if (!S.pd) return;
+  S.pdUsers = new Map(S.pd.users.map((u) => [u.id, u]));
+  S.pdToJc = {};
+  for (const u of S.pd.users) { const jc = S.users.find((x) => (x.email || "").toLowerCase() === u.email); if (jc) S.pdToJc[u.id] = jc.id; }
+  S.jcToPd = {}; for (const [pdId, jc] of Object.entries(S.pdToJc)) S.jcToPd[jc] = +pdId;
+  S.pdLeads = unpack(S.pd.leads); S.pdMails = unpack(S.pd.mails);
+  for (const r of S.pdLeads) Object.assign(r, localOf(r.t));
+  for (const r of S.pdMails) Object.assign(r, localOf(r.t));
+  // reply times: first unanswered inbound message in a thread -> next sent message by the same mailbox owner
+  const threads = new Map();
+  for (const m of S.pdMails) { const k = m.u + ":" + m.th; if (!threads.has(k)) threads.set(k, []); threads.get(k).push(m); }
+  S.pdReplies = [];
+  for (const msgs of threads.values()) {
+    let waiting = null;
+    for (const m of msgs) {
+      if (!m.s && !waiting) waiting = m;
+      else if (m.s && waiting) { S.pdReplies.push({ u: m.u, day: waiting.day, dt: m.t - waiting.t }); waiting = null; }
+    }
+    if (waiting) S.pdReplies.push({ u: waiting.u, day: waiting.day, dt: null });
+  }
+  // speed to lead: first call (JustCall, matched by phone) or first sent e-mail (Pipedrive, matched by contact)
+  const callsByNum = new Map();
+  for (const c of S.calls) {
+    if (!(c.d === "O" || c.ty === "answered")) continue;
+    const n = String(c.num || "").replace(/\D/g, "").slice(-9);
+    if (n.length < 7) continue;
+    if (!callsByNum.has(n)) callsByNum.set(n, []); callsByNum.get(n).push(c.t);
+  }
+  const mailsByPerson = new Map();
+  for (const m of S.pdMails) if (m.s) { if (!mailsByPerson.has(m.p)) mailsByPerson.set(m.p, []); mailsByPerson.get(m.p).push(m.t); }
+  for (const l of S.pdLeads) {
+    const from = l.t - 600;
+    let best = null, via = "";
+    for (const ph of String(l.ph || "").split(",").filter(Boolean)) { const t = firstAfter(callsByNum.get(ph) || [], from); if (t != null && (best == null || t < best)) { best = t; via = "telefon"; } }
+    const mt = firstAfter(mailsByPerson.get(l.pid) || [], from);
+    if (mt != null && (best == null || mt < best)) { best = mt; via = "e-mail"; }
+    l.fc = best == null ? null : Math.max(0, best - l.t); l.fcVia = via;
+  }
+}
+function pdName(uid) { const jc = S.pdToJc[uid]; if (jc) return nameOf(jc); const u = S.pdUsers && S.pdUsers.get(uid); return u ? u.name : uid ? `Użytkownik ${uid}` : "Bez właściciela"; }
+function pdInScope(uid) {
+  const jc = S.pdToJc[uid];
+  if (S.f.agent) return String(jc) === S.f.agent;
+  if (S.f.group) return !!jc && agentGroups(jc).includes(S.f.group);
+  return true;
+}
+function mailAgg(from, to) {
+  const users = new Map(), byDay = new Map(), userDay = new Map();
+  const team = { sent: 0, recv: 0, opened: 0, persons: new Set(), replies: [], unanswered: 0 };
+  const get = (u) => { if (!users.has(u)) users.set(u, { sent: 0, recv: 0, opened: 0, persons: new Set(), replies: [], unanswered: 0 }); return users.get(u); };
+  if (!S.pd) return { users, byDay, userDay, team };
+  for (const m of S.pdMails) {
+    if (m.day < from || m.day > to || !pdInScope(m.u)) continue;
+    const a = get(m.u);
+    if (m.s) {
+      a.sent++; team.sent++; a.opened += m.op; team.opened += m.op; a.persons.add(m.p); team.persons.add(m.p);
+      byDay.set(m.day, (byDay.get(m.day) || 0) + 1);
+      if (!userDay.has(m.u)) userDay.set(m.u, new Map()); const ud = userDay.get(m.u); ud.set(m.day, (ud.get(m.day) || 0) + 1);
+    } else { a.recv++; team.recv++; }
+  }
+  for (const r of S.pdReplies) {
+    if (r.day < from || r.day > to || !pdInScope(r.u)) continue;
+    const a = get(r.u);
+    if (r.dt == null) { a.unanswered++; team.unanswered++; } else { a.replies.push(r.dt); team.replies.push(r.dt); }
+  }
+  for (const a of [...users.values(), team]) a.replyMed = median(a.replies);
+  return { users, byDay, userDay, team };
+}
+function attachMail(cur, from, to) {
+  const m = mailAgg(from, to);
+  cur.mail = m;
+  for (const [id, a] of cur.agents) fillMail(m, id, a);
+}
+function fillMail(m, id, a) {
+  const pdId = S.jcToPd ? S.jcToPd[id] : undefined, x = pdId != null ? m.users.get(pdId) : null;
+  a.mailSent = x ? x.sent : (S.pd ? 0 : null); a.mailRecv = x ? x.recv : 0; a.mailReply = x ? x.replyMed : null;
+  a.mailDays = pdId != null ? (m.userDay.get(pdId) || new Map()) : new Map();
+  return a;
+}
+function pdAgg(from, to) {
+  const regs = S.pd.regions, out = { total: 0, byRegion: {}, byDay: new Map(), channels: new Map(), owners: new Map(), won: new Map(), wonN: 0, wonByCur: {}, pipes: new Map() };
+  for (const r of regs.concat("Inne")) out.byRegion[r] = 0;
+  const now = Date.now() / 1000;
+  for (const l of S.pdLeads) {
+    if (l.day < from || l.day > to || !pdInScope(l.o)) continue;
+    if (!S.pdOpts.imports && l.src === "Import") continue;
+    out.total++; out.byRegion[l.r] = (out.byRegion[l.r] || 0) + 1;
+    const d = out.byDay.get(l.day) || {}; d[l.r] = (d[l.r] || 0) + 1; out.byDay.set(l.day, d);
+    const c = out.channels.get(l.ch) || { total: 0 }; c.total++; c[l.r] = (c[l.r] || 0) + 1; out.channels.set(l.ch, c);
+    const o = out.owners.get(l.o) || { n: 0, open: 0, noAct: 0, fc: [], h1: 0, h24: 0, none: 0, judged: 0, hot: 0, warm: 0, cold: 0 };
+    o.n++;
+    if (!l.ar) { o.open++; if (!l.na) o.noAct++; }
+    const labels = String(l.lb || "").split(",");
+    if (labels.includes("Hot")) o.hot++; if (labels.includes("Warm")) o.warm++; if (labels.includes("Cold")) o.cold++;
+    if (now - l.t > 86400) {
+      o.judged++;
+      if (l.fc == null || l.fc > 86400) o.none += l.fc == null ? 1 : 0;
+      if (l.fc != null && l.fc <= 3600) o.h1++;
+      if (l.fc != null && l.fc <= 86400) o.h24++;
+    }
+    if (l.fc != null) o.fc.push(l.fc);
+    out.owners.set(l.o, o);
+  }
+  for (const w of S.pd.won) {
+    const lw = localOf(w.t);
+    if (lw.day < from || lw.day > to || !pdInScope(w.o)) continue;
+    const o = out.won.get(w.o) || { n: 0, cur: {} }; o.n++; o.cur[w.cur] = (o.cur[w.cur] || 0) + w.v; out.won.set(w.o, o);
+    out.wonN++; out.wonByCur[w.cur] = (out.wonByCur[w.cur] || 0) + w.v;
+    out.pipes.set(w.pl, (out.pipes.get(w.pl) || 0) + 1);
+  }
+  return out;
+}
+const money = (obj) => Object.entries(obj).filter(([, v]) => v).sort((a, b) => b[1] - a[1]).map(([c, v]) => `${nf.format(Math.round(v))} ${esc(c)}`).join(" · ") || "—";
+function agentAttr(uid) { const jc = S.pdToJc[uid]; return jc ? ` data-agent="${jc}" class="${S.f.agent === String(jc) ? "sel" : ""}"` : ` style="cursor:default"`; }
+
+function renderPd(from, to, pFrom, pTo, hasPrev) {
+  const el = $("#pdApp");
+  if (!S.pd) {
+    el.innerHTML = `<section class="panel"><div class="pd-empty">${S.pdError ? `Nie udało się pobrać danych z Pipedrive: ${esc(S.pdError)}` : S.snapshot ? "Ta migawka nie zawiera danych z Pipedrive." : "Pipedrive nie jest podłączony. Dodaj PIPEDRIVE_API_TOKEN i PIPEDRIVE_LEAD_FILTERS do pliku .env i uruchom serwer ponownie."}</div></section>`;
+    return;
+  }
+  const regs = S.pd.regions, all = regs.concat("Inne");
+  const cur = pdAgg(from, to), prev = hasPrev ? pdAgg(pFrom, pTo) : null;
+  const m = mailAgg(from, to), mp = hasPrev ? mailAgg(pFrom, pTo) : null;
+  const days = daysBetween(from, to);
+  const P = (v) => (hasPrev ? v : null);
+  const sp = (fn) => days.length > 1 ? spark(days.map(fn)) : "";
+  const queueTotal = regs.reduce((s, r) => s + (S.pd.queue[r] || 0), 0);
+  const noAct = [...cur.owners.values()].reduce((s, o) => s + o.noAct, 0);
+  const tiles = [
+    { l: "Nowe leady", v: nf.format(cur.total), m: `${(cur.total / days.length).toFixed(1).replace(".", ",")} dziennie${cur.byRegion.Inne ? ` · ${cur.byRegion.Inne} bez regionu` : ""}`, d: delta(cur.total, P(prev?.total)), s: sp((d) => Object.values(cur.byDay.get(d) || {}).reduce((a, b) => a + b, 0)) },
+    ...regs.map((r) => ({ l: `Nowe leady ${r}`, v: nf.format(cur.byRegion[r] || 0), m: cur.total ? `${pf.format((cur.byRegion[r] || 0) / cur.total)} wszystkich` : "", d: delta(cur.byRegion[r] || 0, P(prev?.byRegion[r])), s: sp((d) => (cur.byDay.get(d) || {})[r] || 0) })),
+    { l: "Czekają w kolejce teraz", v: nf.format(queueTotal), m: regs.map((r) => `${r} ${S.pd.queue[r] || 0}`).join(" · "), d: `<span class="delta ${queueTotal ? "down" : "up"}">${queueTotal ? "▲ do rozdzielenia" : "● pusto"}</span>`, s: "" },
+    { l: "E-maile wysłane", v: nf.format(m.team.sent), m: `odpowiedź w ${durHuman(m.team.replyMed)} (mediana)`, d: delta(m.team.sent, P(mp?.team.sent)), s: sp((d) => m.byDay.get(d) || 0) },
+  ];
+  const kpis = `<section class="kpis" aria-label="Wskaźniki Pipedrive">${tiles.map((t) => `<div class="kpi"><span class="label">${t.l}</span><span class="value">${t.v}</span><span class="meta">${t.d}<span>${t.m}</span></span>${t.s}</div>`).join("")}</section>`;
+
+  // insights
+  const ins = [];
+  if (queueTotal) ins.push(["warm", "Kolejka", `W filtrach „New leads” czeka teraz ${queueTotal} ${plural(queueTotal, "lead", "leady", "leadów")} do rozdzielenia (${regs.filter((r) => S.pd.queue[r]).map((r) => `${r}: ${S.pd.queue[r]}`).join(", ")}).`]);
+  for (const [uid, o] of cur.owners) {
+    if (o.judged >= 5 && o.none / o.judged > 0.3) ins.push(["crit", "Brak kontaktu", `<b>${esc(pdName(uid))}</b>: ${o.none} z ${o.judged} leadów starszych niż doba nie ma żadnego telefonu ani maila.`]);
+    if (o.open >= 5 && o.noAct / o.open > 0.3) ins.push(["warn", "Bez zadań", `<b>${esc(pdName(uid))}</b>: ${o.noAct} otwartych leadów bez zaplanowanego działania.`]);
+  }
+  for (const [uid, a] of m.users) if (a.replies.length >= 5 && a.replyMed > 6 * 3600) ins.push(["warn", "Odpowiedzi", `<b>${esc(pdName(uid))}</b> odpowiada na maile klientów średnio po ${durHuman(a.replyMed)}.`]);
+  const topCh = [...cur.channels.entries()].sort((a, b) => b[1].total - a[1].total)[0];
+  if (topCh) ins.push(["info", "Źródło", `Najwięcej leadów dało „${esc(topCh[0])}”: ${topCh[1].total} (${pf.format(topCh[1].total / cur.total)}).`]);
+  const order = { crit: 0, warm: 1, warn: 1, good: 2, info: 3 };
+  ins.sort((a, b) => order[a[0]] - order[b[0]]);
+  const insights = ins.length ? `<section class="panel"><div class="panel-head"><h2>Na co zwrócić uwagę</h2></div><div class="insights">${ins.slice(0, 8).map(([k, label, text]) => `<div class="ins"><span class="chip ${k === "warm" ? "warn" : k}">${{ crit: "■", warn: "▲", warm: "▲", good: "●", info: "◆" }[k]} ${label}</span><span>${text}</span></div>`).join("")}</div></section>` : "";
+
+  const legend = all.map((r, i) => `<span><i class="${i < 3 && r !== "Inne" ? "r" + i : "rx"}"></i>${esc(r)}</span>`).join("");
+  const leadsPanel = `<section class="panel"><div class="panel-head"><h2>Nowe leady dzień po dniu</h2><label class="toggle" for="pdImports"><input type="checkbox" id="pdImports" ${S.pdOpts.imports ? "checked" : ""}> Uwzględnij importy</label></div>
+    <div class="chart" id="leadChart"></div><div class="legend">${legend}</div>
+    <p class="small" style="margin-top:8px">Regiony jak w Twoich filtrach Pipedrive (pole „Country (automatic)”, bez importu newslettera Enbio). Liczone są wszystkie leady, które wpadły, także te już rozdzielone. Leady zamienione w deal znikają z listy leadów, więc nie są tu liczone.</p></section>`;
+
+  const chRows = [...cur.channels.entries()].sort((a, b) => b[1].total - a[1].total);
+  const sources = `<section class="panel"><div class="panel-head"><h2>Źródła leadów</h2><span class="hint">Pole „Source channel”</span></div><div class="scroll"><table class="plain"><thead><tr><th>Źródło</th>${all.map((r) => `<th>${esc(r)}</th>`).join("")}<th>Razem</th></tr></thead><tbody>
+    ${chRows.map(([ch, c]) => `<tr><td>${esc(ch)}</td>${all.map((r) => `<td class="n">${c[r] ? nf.format(c[r]) : "—"}</td>`).join("")}<td class="n">${nf.format(c.total)}<span class="share"><span style="width:${(c.total / Math.max(1, cur.total) * 100).toFixed(0)}%"></span></span></td></tr>`).join("") || `<tr><td colspan="${all.length + 2}" class="empty">Brak leadów w tym okresie.</td></tr>`}
+    </tbody><tfoot><tr><td>Razem</td>${all.map((r) => `<td class="n">${nf.format(cur.byRegion[r] || 0)}</td>`).join("")}<td class="n">${nf.format(cur.total)}</td></tr></tfoot></table></div></section>`;
+
+  const owners = [...cur.owners.entries()].sort((a, b) => b[1].n - a[1].n);
+  const handling = `<section class="panel"><div class="panel-head"><h2>Obsługa leadów</h2><span class="hint">Pierwszy kontakt to pierwszy telefon w JustCall (po numerze) lub pierwszy mail w Pipedrive po wpadnięciu leada. Udział kontaktu liczony z leadów starszych niż doba.</span></div>
+    <div class="scroll"><table><thead><tr><th>Właściciel leada</th><th>Leady</th><th>Otwarte</th><th>Bez zaplan. działania</th><th>Kontakt do 1 h</th><th>Kontakt do 24 h</th><th>Mediana do 1. kontaktu</th><th>Bez kontaktu</th><th>Hot / Warm / Cold</th></tr></thead><tbody>
+    ${owners.map(([uid, o]) => `<tr${agentAttr(uid)}><td><div class="agent"><span class="avatar">${initials(pdName(uid))}</span><span class="nm">${esc(pdName(uid))}</span></div></td><td class="n">${nf.format(o.n)}</td><td class="n">${nf.format(o.open)}</td><td class="n">${o.noAct ? `${nf.format(o.noAct)}${o.open >= 5 && o.noAct / o.open > 0.3 ? ` <span class="chip warn">▲</span>` : ""}` : "—"}</td><td class="n">${o.judged ? pf.format(o.h1 / o.judged) : "—"}</td><td class="n">${o.judged ? pf.format(o.h24 / o.judged) : "—"}</td><td class="n">${durHuman(median(o.fc))}</td><td class="n">${o.none ? `${nf.format(o.none)}${o.judged >= 5 && o.none / o.judged > 0.3 ? ` <span class="chip crit">■</span>` : ""}` : "—"}</td><td class="n">${o.hot} / ${o.warm} / ${o.cold}</td></tr>`).join("") || `<tr><td colspan="9" class="empty">Brak leadów.</td></tr>`}
+    </tbody></table></div></section>`;
+
+  const mrows = [...m.users.entries()].filter(([, a]) => a.sent || a.recv).sort((a, b) => b[1].sent - a[1].sent);
+  const mailPanel = `<section class="panel"><div class="panel-head"><h2>E-mail zespołu</h2><span class="hint">Maile ze skrzynek podłączonych do Pipedrive, powiązane z kontaktami. Korespondencja z adresami spoza Pipedrive nie jest liczona.</span></div>
+    <div class="chart" id="mailChart"></div>
+    <div class="scroll" style="margin-top:14px"><table><thead><tr><th>Osoba</th><th>Wysłane</th><th>Odebrane</th><th>Unikalni odbiorcy</th><th>Otwarte</th><th>Mediana odpowiedzi</th><th>Bez odpowiedzi</th></tr></thead><tbody>
+    ${mrows.map(([uid, a]) => `<tr${agentAttr(uid)}><td><div class="agent"><span class="avatar">${initials(pdName(uid))}</span><span class="nm">${esc(pdName(uid))}</span></div></td><td class="n">${nf.format(a.sent)}</td><td class="n">${nf.format(a.recv)}</td><td class="n">${nf.format(a.persons.size)}</td><td class="n">${a.sent ? pf.format(a.opened / a.sent) : "—"}</td><td class="n">${durHuman(a.replyMed)}</td><td class="n">${a.unanswered || "—"}</td></tr>`).join("") || `<tr><td colspan="7" class="empty">Brak maili w tym okresie.</td></tr>`}
+    </tbody><tfoot><tr><td>Zespół</td><td class="n">${nf.format(m.team.sent)}</td><td class="n">${nf.format(m.team.recv)}</td><td class="n">${nf.format(m.team.persons.size)}</td><td class="n">${m.team.sent ? pf.format(m.team.opened / m.team.sent) : "—"}</td><td class="n">${durHuman(m.team.replyMed)}</td><td class="n">${m.team.unanswered || "—"}</td></tr></tfoot></table></div>
+    <p class="small" style="margin-top:8px">„Otwarte” działa tylko dla maili wysłanych ze śledzeniem otwarć. „Bez odpowiedzi” to wątki, w których ostatnia wiadomość przyszła od klienta.</p></section>`;
+
+  const won = [...cur.won.entries()].sort((a, b) => b[1].n - a[1].n);
+  const wonPanel = `<section class="panel"><div class="panel-head"><h2>Wygrane deale</h2><span class="hint">${nf.format(cur.wonN)} w okresie · ${money(cur.wonByCur)}</span></div>
+    <div class="scroll"><table><thead><tr><th>Właściciel</th><th>Wygrane</th><th>Wartość</th></tr></thead><tbody>
+    ${won.map(([uid, o]) => `<tr${agentAttr(uid)}><td>${esc(pdName(uid))}</td><td class="n">${nf.format(o.n)}</td><td class="n">${money(o.cur)}</td></tr>`).join("") || `<tr><td colspan="3" class="empty">Brak wygranych w tym okresie.</td></tr>`}
+    </tbody></table></div>
+    <div class="legend">${[...cur.pipes.entries()].sort((a, b) => b[1] - a[1]).map(([p, n]) => `<span class="chip neutral">${esc(p)}: ${n}</span>`).join("")}</div></section>`;
+
+  const gen = new Date(S.pd.generated_at * 1000).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" });
+  el.innerHTML = `<div class="small">Dane z Pipedrive z ${gen}. Okres i osoba z filtrów u góry.</div>` + kpis + insights + leadsPanel + `<div class="grid-2">${handling}${sources}</div>` + mailPanel + wonPanel;
+  S.pdLast = { cur, m, days };
+  if (S.view === "pipedrive") drawPd();
+}
+function drawStacked(el, days, valuesFor, series, tipFor) {
+  if (!el) return;
+  const W = Math.max(280, el.clientWidth), H = 220, L = 36, R = 8, T = 10, B = 24;
+  const data = days.map((d) => ({ d, v: valuesFor(d) }));
+  const max = Math.max(4, ...data.map((x) => x.v.reduce((a, b) => a + b, 0)));
+  const step = Math.pow(10, Math.floor(Math.log10(max))); const nice = [1, 2, 2.5, 5, 10].map((k) => k * step).find((s) => max / s <= 5) || step * 10;
+  const top = Math.ceil(max / nice) * nice, y = (v) => T + (H - T - B) * (1 - v / top);
+  const bw = (W - L - R) / data.length, gap = Math.min(6, bw * 0.25);
+  let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img"><g class="grid">`;
+  for (let v = 0; v <= top; v += nice) s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${nf.format(v)}</text>`;
+  s += `</g>`;
+  const every = Math.ceil(data.length / Math.max(1, Math.floor((W - L) / 46)));
+  data.forEach((x, i) => {
+    const x0 = L + i * bw + gap / 2, w = Math.max(1, bw - gap); let base = 0;
+    x.v.forEach((val, k) => { if (!val) return; const y1 = y(base + val), h = Math.max(0, y(base) - y1 - (base ? 2 : 0)); s += `<rect class="${series[k]}" x="${x0}" y="${y1}" width="${w}" height="${h}" rx="${Math.min(3, w / 3)}"/>`; base += val; });
+    if (i % every === 0 || data.length <= 14) s += `<text x="${x0 + w / 2}" y="${H - 6}" text-anchor="middle">${shortDate(x.d)}</text>`;
+    s += `<rect class="hit" x="${L + i * bw}" y="${T}" width="${bw}" height="${H - T - B}" data-tip="${esc(tipFor(x.d, x.v))}"/>`;
+  });
+  s += `<g class="axis"><line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}"/></g></svg>`;
+  el.innerHTML = s;
+}
+function drawPd() {
+  if (!S.pd || !S.pdLast) return;
+  const { cur, m, days } = S.pdLast, all = S.pd.regions.concat("Inne");
+  drawStacked($("#leadChart"), days, (d) => all.map((r) => (cur.byDay.get(d) || {})[r] || 0), all.map((r, i) => r === "Inne" || i > 2 ? "r-x" : "r-" + i),
+    (d, v) => `<b>${WD_PL[weekdayOf(d)]} ${shortDate(d)}</b>${all.map((r, i) => `<div class="r"><span>${esc(r)}</span><span>${v[i]}</span></div>`).join("")}<div class="r"><span>Razem</span><span>${v.reduce((a, b) => a + b, 0)}</span></div>`);
+  drawStacked($("#mailChart"), days, (d) => [m.byDay.get(d) || 0], ["r-m"], (d, v) => `<b>${WD_PL[weekdayOf(d)]} ${shortDate(d)}</b><div class="r"><span>Wysłane e-maile</span><span>${v[0]}</span></div>`);
 }
 
 // ---------- Main render ----------
@@ -899,6 +1151,7 @@ function render() {
   const pFrom = addDays(from, -span), pTo = addDays(from, -1);
   const hasPrev = pFrom >= S.minDay;
   const cur = aggregate(from, to), prev = hasPrev ? aggregate(pFrom, pTo) : null;
+  attachMail(cur, from, to); if (prev) attachMail(prev, pFrom, pTo);
   syncControls();
   const gen = new Date(S.raw.generated_at * 1000).toLocaleString("pl-PL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
   $("#sub").textContent = `${shortDate(from)}${from !== to ? "–" + shortDate(to) : ""} · ${scopeLabel()} · ${hasPrev ? "porównanie z " + shortDate(pFrom) + "–" + shortDate(pTo) : "bez porównania"}`;
@@ -910,6 +1163,7 @@ function render() {
   S.last = cur;
   drawDaily(cur);
   renderLog();
+  renderPd(from, to, pFrom, pTo, hasPrev);
   store.set("filter", S.f); store.set("sort", S.sort);
 }
 
@@ -932,9 +1186,16 @@ for (const id of ["#from", "#to"]) $(id).addEventListener("change", () => {
 });
 $("#group").addEventListener("change", (e) => { S.f.group = e.target.value; render(); });
 $("#agent").addEventListener("change", (e) => { S.f.agent = e.target.value; render(); });
+$("#pdApp").addEventListener("click", (e) => {
+  const row = e.target.closest("[data-agent]");
+  if (row) { const id = row.dataset.agent; S.f.agent = S.f.agent === id ? "" : id; render(); }
+});
+$("#pdApp").addEventListener("change", (e) => {
+  if (e.target.id === "pdImports") { S.pdOpts.imports = e.target.checked; store.set("pdOpts", S.pdOpts); render(); }
+});
 $("#app").addEventListener("click", (e) => {
   const th = e.target.closest("th[data-sort]");
-  if (th) { const k = th.dataset.sort; S.sort = { key: k, dir: S.sort.key === k ? -S.sort.dir : (k === "name" || k === "first" ? 1 : -1) }; render(); return; }
+  if (th) { const k = th.dataset.sort; S.sort = { key: k, dir: S.sort.key === k ? -S.sort.dir : (k === "name" || k === "first" || k === "mailReply" ? 1 : -1) }; render(); return; }
   const row = e.target.closest("[data-agent]");
   if (row) { const id = row.dataset.agent; S.f.agent = S.f.agent === id ? "" : id; render(); }
 });
@@ -979,7 +1240,7 @@ dlg.addEventListener("close", () => {
   if (S.raw) { decorate(); render(); }
 });
 
-let rz; new ResizeObserver(() => { clearTimeout(rz); rz = setTimeout(() => S.last && drawDaily(S.last), 80); }).observe(document.body);
+let rz; new ResizeObserver(() => { clearTimeout(rz); rz = setTimeout(() => { if (S.view === "pipedrive") drawPd(); else if (S.last) drawDaily(S.last); }, 80); }).observe(document.body);
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => render());
 
 // ---------- Boot ----------
@@ -992,6 +1253,7 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => rend
       setTz(S.settings.tz || "Europe/Warsaw");
       await ensureRange(S.f.from, S.f.to);
       setInterval(() => refreshRecent().catch(() => {}), 120000);
+      setInterval(async () => { try { const pd = await fetchJSON(`/api/pipedrive?from=${S.loaded.from}`); if (pd) { S.raw.pipedrive = pd; decorate(); render(); } } catch {} }, 600000);
       setInterval(async () => { try { const live = await fetchJSON("/api/live"); S.users = S.raw.users = live.users; render(); } catch {} }, 30000);
     }
     if (S.snapshot && S.f.preset === "custom" && S.f.from < S.minDay) S.f.preset = "7d";

@@ -58,6 +58,8 @@ DASHBOARD_TZ = os.environ.get("DASHBOARD_TZ", "Europe/Warsaw")
 DASHBOARD_USER = os.environ.get("DASHBOARD_USER", "admin")
 DASHBOARD_PASSWORD = os.environ.get("DASHBOARD_PASSWORD", "")
 
+import pipedrive  # noqa: E402  (reads its token from the environment loaded above)
+
 
 # --------------------------------------------------------------------------
 # JustCall client with rate limiting
@@ -316,9 +318,23 @@ def split_recording(rows):
         r["rt"], r["rs"] = (url.replace(sid, "{sid}"), sid) if sid else (url, "")
     return rows
 TEXT_COLS = ["t", "a", "d", "st", "c"]
+LEAD_COLS = ["t", "o", "r", "ch", "src", "ar", "na", "lb", "pid", "ph", "ti"]
+MAIL_COLS = ["id", "t", "u", "s", "th", "p", "op", "fr"]
 
 
-def build_payload(start, end):
+def pipedrive_block(start):
+    if not pipedrive.enabled():
+        return None
+    try:
+        pd = pipedrive.build(start, CACHE_DIR)
+    except pipedrive.PipedriveError as err:
+        return {"error": str(err)}
+    pd["leads"] = pack(pd["leads"], LEAD_COLS, ("r", "ch", "src", "lb"))
+    pd["mails"] = pack(pd["mails"], MAIL_COLS, ("fr",))
+    return pd
+
+
+def build_payload(start, end, with_pipedrive=True):
     calls = fetch_range("calls", start, end)
     texts = fetch_range("texts", start, end)
     team = fetch_team()
@@ -335,6 +351,7 @@ def build_payload(start, end):
         "agent_names": {str(k): v for k, v in names.items()},
         "calls": pack(split_recording(calls), CALL_COLS, ("ty", "ln", "mr", "dp", "rt")),
         "texts": pack(texts, TEXT_COLS, ("st",)),
+        "pipedrive": pipedrive_block(start) if with_pipedrive else None,
     }
 
 
@@ -415,7 +432,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 end = min(parse_day(query.get("to", [""])[0], today), today)
                 start = parse_day(query.get("from", [""])[0], end - dt.timedelta(days=30))
                 start = max(start, end - dt.timedelta(days=MAX_RANGE_DAYS))
-                self.send(200, json.dumps(build_payload(start, end), separators=(",", ":"), ensure_ascii=False))
+                with_pd = query.get("pd", ["1"])[0] != "0"
+                self.send(200, json.dumps(build_payload(start, end, with_pd), separators=(",", ":"), ensure_ascii=False))
+            elif url.path == "/api/pipedrive":
+                today = dt.datetime.now(dt.timezone.utc).date()
+                start = parse_day(query.get("from", [""])[0], today - dt.timedelta(days=30))
+                self.send(200, json.dumps(pipedrive_block(max(start, today - dt.timedelta(days=MAX_RANGE_DAYS))), separators=(",", ":"), ensure_ascii=False))
             elif url.path == "/api/live":
                 self.send(200, json.dumps(fetch_team(), ensure_ascii=False))
             else:
