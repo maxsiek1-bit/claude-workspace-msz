@@ -610,7 +610,7 @@ function renderKpis(cur, prev, from, to, hasPrev) {
     { l: "Czas rozmów", v: durShort(a.talk), m: `śr. rozmowa ${dur(a.avgConv)}`, d: delta(a.talk, P(b?.talk)), s: g("talk") },
     { l: "Przychodzące odebrane", v: a.inRate == null ? "—" : pf.format(a.inRate), m: `${nf.format(a.inMissed)} nieodebranych z ${nf.format(a.inTotal)}`, d: a.inRate == null ? "" : delta(a.inRate, P(b?.inRate)), s: null },
   ];
-  if (S.pd && cur.mail) tiles.push({ l: "E-maile wysłane", v: nf.format(cur.mail.team.sent), m: `odpowiedź w ${durHuman(cur.mail.team.replyMed)} (mediana)`, d: delta(cur.mail.team.sent, P(prev?.mail?.team.sent)), s: series((d) => cur.mail.byDay.get(d) || 0) });
+  if (S.pd && cur.mail) tiles.push({ l: "E-maile wysłane", v: nf.format(cur.mail.team.sent), m: "z Pipedrive, do kontaktów", d: delta(cur.mail.team.sent, P(prev?.mail?.team.sent)), s: series((d) => cur.mail.byDay.get(d) || 0) });
   return `<section class="kpis" aria-label="Najważniejsze wskaźniki">${tiles.map((t) => `<div class="kpi"><span class="label">${t.l}</span><span class="value">${t.v}</span><span class="meta">${t.d}<span>${t.m}</span></span>${t.s && days.length > 1 ? spark(t.s) : ""}</div>`).join("")}</section>`;
 }
 
@@ -630,7 +630,7 @@ function renderRanking(cur) {
   const teamRate = cur.team.rate;
   const cols = [
     ["name", "Handlowiec"], ["dials", "Połączenia"], ["dialsPerDay", "Śr. / dzień"], ["conv", "Rozmowy"], ["rate", "Kontakt"], ["quality", "≥ 2 min"],
-    ["talk", "Czas rozmów"], ["talkPerDay", "Rozmowy / dzień"], ["avgConv", "Śr. rozmowa"], ["uniq", "Unik. kontakty"], ["inTotal", "Przychodzące"], ["smsOut", "SMS"], ...(S.pd ? [["mailSent", "E-maile"], ["mailReply", "Odp. e-mail"]] : []), ["activeDays", "Dni"], ["first", "Godziny pracy"],
+    ["talk", "Czas rozmów"], ["talkPerDay", "Rozmowy / dzień"], ["avgConv", "Śr. rozmowa"], ["uniq", "Unik. kontakty"], ["inTotal", "Przychodzące"], ["smsOut", "SMS wysłane"], ...(S.pd ? [["mailSent", "E-maile wysłane"]] : []), ["activeDays", "Dni"], ["first", "Godziny pracy"],
   ];
   const head = cols.map(([key, label]) => `<th data-sort="${key}" class="${S.sort.key === key ? "sorted" + (S.sort.dir > 0 ? " asc" : "") : ""}">${label === "≥ 2 min" ? `≥ ${Math.round(st.qualitySec / 60)} min` : label}</th>`).join("");
   const goal = (v, target) => { const p = Math.min(1, v / target); return `<div class="bar goal ${p < .5 ? "crit" : p < .85 ? "low" : ""}" title="${pf.format(v / target)} celu"><span style="width:${(p * 100).toFixed(0)}%"></span></div>`; };
@@ -650,12 +650,12 @@ function renderRanking(cur) {
       <td class="n">${nf.format(a.uniq)}<div class="small">${nf.format(a.reachedN)} z rozmową</div></td>
       <td class="n">${nf.format(a.inTotal)}${a.inMissed ? `<div class="small">${nf.format(a.inMissed)} nieodebr.</div>` : ""}</td>
       <td class="n">${nf.format(a.smsOut)}${a.smsFail ? `<div class="small">${nf.format(a.smsFail)} niedostarcz.</div>` : ""}</td>
-      ${S.pd ? `<td class="n">${a.mailSent == null || S.jcToPd[id] == null ? "—" : nf.format(a.mailSent)}${a.mailRecv ? `<div class="small">${nf.format(a.mailRecv)} odebr.</div>` : ""}</td><td class="n">${durHuman(a.mailReply)}</td>` : ""}
+      ${S.pd ? `<td class="n">${a.mailSent == null || S.jcToPd[id] == null ? "—" : nf.format(a.mailSent)}</td>` : ""}
       <td class="n">${a.activeDays}</td>
       <td class="n">${a.first != null ? `${hm(a.first)}–${hm(a.last)}` : "—"}</td></tr>`;
   }).join("");
   const t = cur.team;
-  const foot = `<tr><td>Zespół</td><td class="n">${nf.format(t.dials)}</td><td></td><td class="n">${nf.format(t.conv)}</td><td class="n">${t.dials ? pf.format(t.rate) : "—"}</td><td class="n">${nf.format(t.quality)}</td><td class="n">${durShort(t.talk)}</td><td></td><td class="n">${t.convN ? dur(t.avgConv) : "—"}</td><td class="n">${nf.format(t.uniq)}</td><td class="n">${nf.format(t.inTotal)}</td><td class="n">${nf.format(t.smsOut)}</td>${S.pd && cur.mail ? `<td class="n">${nf.format(cur.mail.team.sent)}</td><td class="n">${durHuman(cur.mail.team.replyMed)}</td>` : ""}<td></td><td></td></tr>`;
+  const foot = `<tr><td>Zespół</td><td class="n">${nf.format(t.dials)}</td><td></td><td class="n">${nf.format(t.conv)}</td><td class="n">${t.dials ? pf.format(t.rate) : "—"}</td><td class="n">${nf.format(t.quality)}</td><td class="n">${durShort(t.talk)}</td><td></td><td class="n">${t.convN ? dur(t.avgConv) : "—"}</td><td class="n">${nf.format(t.uniq)}</td><td class="n">${nf.format(t.inTotal)}</td><td class="n">${nf.format(t.smsOut)}</td>${S.pd && cur.mail ? `<td class="n">${nf.format(cur.mail.team.sent)}</td>` : ""}<td></td><td></td></tr>`;
   return `<section class="panel"><div class="panel-head"><h2>Ranking handlowców</h2><span class="hint">Kliknij wiersz, aby przefiltrować cały panel do jednej osoby. Średnie dzienne liczone z dni, w których handlowiec pracował.</span></div>
     <div class="scroll"><table id="rank"><thead><tr>${head}</tr></thead><tbody>${body || `<tr><td colspan="${cols.length}" class="empty">Brak aktywności w wybranym okresie.</td></tr>`}</tbody><tfoot>${foot}</tfoot></table></div></section>`;
 }
@@ -674,7 +674,6 @@ function renderInsights(cur, prev, hasPrev) {
     if (a.dials >= 30 && tr > 0 && a.rate < tr * 0.7) items.push(["warn", "Kontakt", `<b>${esc(nameOf(id))}</b>: wskaźnik kontaktu ${pf.format(a.rate)} wobec ${pf.format(tr)} w zespole. Warto odsłuchać kilka nagrań i sprawdzić jakość bazy.`]);
     if (a.activeDays && a.dialsPerDay < st.dialTarget * 0.6) items.push(["warn", "Aktywność", `<b>${esc(nameOf(id))}</b>: średnio ${nf.format(Math.round(a.dialsPerDay))} połączeń dziennie przy celu ${st.dialTarget}.`]);
     if (a.first != null && a.first > 10.5 * 60) items.push(["info", "Start dnia", `<b>${esc(nameOf(id))}</b> zaczyna dzwonić średnio o ${hm(a.first)}.`]);
-    if (a.mailReply != null && a.mailReply > 6 * 3600) items.push(["warn", "E-mail", `<b>${esc(nameOf(id))}</b> odpowiada na maile klientów średnio po ${durHuman(a.mailReply)}.`]);
     if (a.convN >= 10 && a.avgConv < 60) items.push(["info", "Długość rozmów", `<b>${esc(nameOf(id))}</b>: średnia rozmowa trwa tylko ${dur(a.avgConv)}.`]);
   }
   if (cur.team.inTotal >= 5 && cur.team.inRate < 0.8) items.push(["crit", "Przychodzące", `Odebrano tylko ${pf.format(cur.team.inRate)} połączeń przychodzących (${nf.format(cur.team.inMissed)} straconych). To klienci, którzy sami dzwonili.`]);
