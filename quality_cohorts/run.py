@@ -59,7 +59,7 @@ def to_html(sheets, path, title):
             continue
         parts.append(f"<h2>{name}</h2><table><tr>" + "".join(f"<th>{html.escape(str(c))}</th>" for c in df.columns) + "</tr>")
         num = df.select_dtypes("number")
-        matrix = name in ("Krzywa kohort", "Błędy x kohorta", "Partie x błędy", "Model x kohorta", "Conpeek: usterki w rozmowach", "Wymieniane części % kohorty")
+        matrix = name in ("Krzywa kohort", "Błędy x kohorta", "Partie x błędy", "Model x kohorta", "Conpeek - usterki w rozmowach", "Wymieniane części % kohorty")
         vmax = num.drop(columns=["TOTAL"], errors="ignore").max().max() if matrix and not num.empty else 0
         for _, row in df.head(60).iterrows():
             cells = []
@@ -96,20 +96,18 @@ def main():
         units = ox.device_units(data["mos"])
         if a.products:
             units = units[units["model"].isin(a.products)]
-        gp = Path(a.cache) / "genealogy.pkl"
-        if gp.exists() and not a.refresh:
-            components = pd.read_pickle(gp)
-        else:
-            components = ox.genealogy(units, data["mos"], data["consumption"])
-            components.to_pickle(gp)
-        components = components[components["serial"].isin(units["serial"])]
         defects = dfx.build(data["tickets"], data["repairs"])
+        # pierwotna produkcja: do 60 dni od startu i przed pierwszym zgłoszeniem usterki
+        first_report = defects.groupby("serial")["reported_at"].min()
+        window = units.set_index("serial")["produced_at"] + pd.Timedelta(days=60)
+        cutoff = pd.concat([window, first_report.reindex(window.index)], axis=1).min(axis=1)
+        components = ox.genealogy(units, data["mos"], data["consumption"], cutoff)
         parts = data["repair_parts"]
         for f in a.conpeek_file:
             defects = pd.concat([defects, conpeek.load_file(f)], ignore_index=True)
         if not a.no_conpeek_api:
             dialogs = conpeek.fetch_dialogs()
-            extra["Conpeek: usterki w rozmowach"] = conpeek.call_error_trend(dialogs)
+            extra["Conpeek - usterki w rozmowach"] = conpeek.call_error_trend(dialogs)
             sn = conpeek.load_api(units["serial"])
             defects = pd.concat([defects, sn], ignore_index=True)
 

@@ -175,8 +175,12 @@ def device_units(mos):
     return units
 
 
-def genealogy(units, mos, consumption, max_depth=8):
-    """Wszystkie komponenty (z partiami) zużyte w drzewie produkcji każdego urządzenia."""
+def genealogy(units, mos, consumption, cutoff=None, max_depth=8):
+    """Wszystkie komponenty (z partiami) zużyte w pierwotnym drzewie produkcji każdego urządzenia.
+
+    cutoff: Series serial -> data; zlecenia urządzenia zakończone później (np. ponowne pakowanie
+    po naprawie) są pomijane, żeby części z serwisu nie wyglądały na przyczynę usterki.
+    """
     producer = mos.dropna(subset=["lot_id"]).sort_values("date_finished") \
         .drop_duplicates("lot_id")[["lot_id", "mo"]].rename(columns={"mo": "child_mo"})
     producer = producer[~producer["child_mo"].isin(set())]
@@ -184,8 +188,11 @@ def genealogy(units, mos, consumption, max_depth=8):
     cons["mo"] = cons["mo"].astype(str)
     # wszystkie MO danego numeru seryjnego (montaż, walidacja, pakowanie) są korzeniami drzewa
     dev = mos[mos["lot"].fillna("").str.upper().str.match(DEVICE_SN) & ~mos["product"].fillna("").str.contains(NOT_ORIGINAL)]
-    frontier = dev.assign(serial=dev["lot"].str.strip().str.upper())[["serial", "mo"]]
-    frontier = frontier[frontier["serial"].isin(units["serial"])].drop_duplicates()
+    frontier = dev.assign(serial=dev["lot"].str.strip().str.upper())[["serial", "mo", "date_finished"]]
+    frontier = frontier[frontier["serial"].isin(units["serial"])]
+    if cutoff is not None:
+        frontier = frontier[frontier["date_finished"] <= frontier["serial"].map(cutoff).fillna(pd.Timestamp.max)]
+    frontier = frontier[["serial", "mo"]].drop_duplicates()
     seen = set(frontier["mo"])
     parts = []
     for depth in range(1, max_depth + 1):

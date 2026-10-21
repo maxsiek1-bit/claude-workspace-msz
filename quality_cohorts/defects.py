@@ -32,7 +32,7 @@ _ENAMES = {}
 
 def normalize_code(label):
     """'Error 12 - Prevacuum fail' / 'E12 – Vacuum generation error' -> 'E12 Prevacuum fail / check outlet'."""
-    if not label:
+    if not isinstance(label, str) or not label:
         return None
     last = label.split("/")[-1].strip()
     m = _ECODE.search(last) or _ECODE.search(label)

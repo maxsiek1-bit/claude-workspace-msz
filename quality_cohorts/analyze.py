@@ -127,6 +127,21 @@ def replaced_parts(units, parts, top=40):
     return m.sort_values("devices_total", ascending=False).head(top).reset_index()
 
 
+def legacy_devices(defects):
+    """Urządzenia ze zgłoszeniami, których nie ma w produkcji Odoo (sprzed 03.2024).
+    Rok produkcji z numeru seryjnego (ST04-PL-23-01234 -> 2023); brak mianownika, więc liczby bezwzględne."""
+    d = defects[defects["cohort"].isna()].copy()
+    m = d["serial"].str.extract(r"^(S[TR]\d\d)[- ]?[A-Z]{2}[- ]?(\d{2})[- ]")
+    d["model"], d["year"] = m[0], "20" + m[1]
+    d = d.dropna(subset=["model"])
+    d = d[d["year"].astype(int).between(2015, pd.Timestamp.today().year)]  # odrzuca literówki w SN
+    units = d.groupby(["year", "model"])["serial"].nunique().unstack(fill_value=0)
+    top = d.drop_duplicates(["serial", "error_code"]).groupby(["year", "error_code"]).size().rename("n").reset_index() \
+        .sort_values(["year", "n"], ascending=[True, False]).groupby("year").head(3)
+    units["top_errors"] = top.groupby("year").apply(lambda g: "; ".join(f"{e} ({n})" for e, n in zip(g.error_code, g.n)))
+    return units.reset_index()
+
+
 def by_model(units, defects):
     s = units.groupby(["model", "cohort"]).agg(produced=("serial", "size"), defective_units=("defective", "sum"))
     s["defect_rate_%"] = (100 * s["defective_units"] / s["produced"]).round(2)
@@ -147,6 +162,7 @@ def run_all(units, components, defects, period="M", min_units=10, extra=None, pa
         "Partie x błędy": component_error_matrix(units, components, defects),
         **({"Wymieniane części % kohorty": replaced_parts(units, parts)} if parts is not None else {}),
         "Numery seryjne": serial_detail(units, defects),
+        "Sprzed Odoo (rok z SN)": legacy_devices(defects),
         "Niedopasowane SN": unmatched(defects),
         **(extra or {}),
     }
