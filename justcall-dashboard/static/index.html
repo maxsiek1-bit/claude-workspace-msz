@@ -1052,6 +1052,12 @@ function renderPd(from, to, pFrom, pTo, hasPrev) {
     { l: "Czekają w kolejce teraz", v: nf.format(queueTotal), m: regs.map((r) => `${r} ${S.pd.queue[r] || 0}`).join(" · "), d: `<span class="delta ${queueTotal ? "down" : "up"}">${queueTotal ? "▲ do rozdzielenia" : "● pusto"}</span>`, s: "" },
     { l: "E-maile wysłane", v: nf.format(m.team.sent), m: `odpowiedź w ${durHuman(m.team.replyMed)} (mediana)`, d: delta(m.team.sent, P(mp?.team.sent)), s: sp((d) => m.byDay.get(d) || 0) },
   ];
+  if (S.pd.portfolio) {
+    let open = 0, none = 0, overdue = 0;
+    for (const [o, , ex, st, n] of S.pd.portfolio.rows) if (pdInScope(o) && !ex) { open += n; if (st === "none") none += n; if (st === "overdue") overdue += n; }
+    const cov = open ? (open - none) / open : 0;
+    tiles.splice(regs.length + 2, 0, { l: "Pokrycie zadaniami", v: open ? pf.format(cov) : "—", m: `${nf.format(open)} otwartych bez newslettera · ${nf.format(none)} bez zadania · ${nf.format(overdue)} zaległych`, d: `<span class="delta ${cov >= 0.9 ? "up" : "down"}">${cov >= 0.9 ? "● w normie" : "▲ do uzupełnienia"}</span>`, s: "" });
+  }
   const kpis = `<section class="kpis" aria-label="Wskaźniki Pipedrive">${tiles.map((t) => `<div class="kpi"><span class="label">${t.l}</span><span class="value">${t.v}</span><span class="meta">${t.d}<span>${t.m}</span></span>${t.s}</div>`).join("")}</section>`;
 
   // insights
@@ -1060,6 +1066,14 @@ function renderPd(from, to, pFrom, pTo, hasPrev) {
   for (const [uid, o] of cur.owners) {
     if (o.judged >= 5 && o.none / o.judged > 0.3) ins.push(["crit", "Brak kontaktu", `<b>${esc(pdName(uid))}</b>: ${o.none} z ${o.judged} leadów starszych niż doba nie ma żadnego telefonu ani maila.`]);
     if (o.open >= 5 && o.noAct / o.open > 0.3) ins.push(["warn", "Bez zadań", `<b>${esc(pdName(uid))}</b>: ${o.noAct} otwartych leadów bez zaplanowanego działania.`]);
+  }
+  if (S.pd.portfolio) {
+    const per = new Map();
+    for (const [o, , , st, n] of S.pd.portfolio.rows) { if (!pdInScope(o)) continue; const x = per.get(o) || { open: 0, none: 0, overdue: 0 }; x.open += n; if (st === "none") x.none += n; if (st === "overdue") x.overdue += n; per.set(o, x); }
+    for (const [uid, x] of per) {
+      if (x.open >= 10 && x.none / x.open > 0.15) ins.push(["warn", "Pokrycie", `<b>${esc(pdName(uid))}</b>: ${x.none} z ${x.open} otwartych leadów nie ma zaplanowanego zadania (pokrycie ${pf.format((x.open - x.none) / x.open)}).`]);
+      if (x.open >= 10 && x.overdue / x.open > 0.1) ins.push(["crit", "Zaległe", `<b>${esc(pdName(uid))}</b>: ${x.overdue} leadów ma zaległe zadanie.`]);
+    }
   }
   for (const [uid, a] of m.users) if (a.replies.length >= 5 && a.replyMed > 6 * 3600) ins.push(["warn", "Odpowiedzi", `<b>${esc(pdName(uid))}</b> odpowiada na maile klientów średnio po ${durHuman(a.replyMed)}.`]);
   const topCh = [...cur.channels.entries()].sort((a, b) => b[1].total - a[1].total)[0];
@@ -1100,9 +1114,36 @@ function renderPd(from, to, pFrom, pTo, hasPrev) {
     <div class="legend">${[...cur.pipes.entries()].sort((a, b) => b[1] - a[1]).map(([p, n]) => `<span class="chip neutral">${esc(p)}: ${n}</span>`).join("")}</div></section>`;
 
   const gen = new Date(S.pd.generated_at * 1000).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" });
-  el.innerHTML = `<div class="small">Dane z Pipedrive z ${gen}. Okres i osoba z filtrów u góry.</div>` + kpis + insights + leadsPanel + `<div class="grid-2">${handling}${sources}</div>` + mailPanel + wonPanel;
+  el.innerHTML = `<div class="small">Dane z Pipedrive z ${gen}. Okres i osoba z filtrów u góry.</div>` + kpis + insights + renderPortfolio() + leadsPanel + `<div class="grid-2">${handling}${sources}</div>` + mailPanel + wonPanel;
   S.pdLast = { cur, m, days };
   if (S.view === "pipedrive") drawPd();
+}
+function renderPortfolio() {
+  const pf0 = S.pd.portfolio;
+  if (!pf0) return "";
+  const regs = S.pd.regions.concat("Inne");
+  const owners = new Map(), team = { open: 0, news: 0, reg: {}, st: { none: 0, overdue: 0, today: 0, future: 0 } };
+  const blankO = () => ({ open: 0, news: 0, reg: {}, st: { none: 0, overdue: 0, today: 0, future: 0 } });
+  for (const [o, m, ex, st, n] of pf0.rows) {
+    if (!pdInScope(o)) continue;
+    if (!owners.has(o)) owners.set(o, blankO());
+    for (const a of [owners.get(o), team]) {
+      a.open += n; a.st[st] += n;
+      if (ex) a.news += n;
+      else { const r = a.reg[m] || (a.reg[m] = { n: 0, cov: 0, overdue: 0 }); r.n += n; if (st !== "none") r.cov += n; if (st === "overdue") r.overdue += n; }
+    }
+  }
+  const covOf = (a) => a.open ? (a.open - a.st.none) / a.open : 0;
+  const bar = (p) => `<div class="bar goal ${p < .7 ? "crit" : p < .9 ? "low" : ""}"><span style="width:${(p * 100).toFixed(0)}%"></span></div>`;
+  const cell = (r, label) => r && r.n ? `<div class="cell-bar" data-tip="${esc(`<b>${label}</b><div class="r"><span>Otwarte leady</span><span>${r.n}</span></div><div class="r"><span>Z zaplanowanym zadaniem</span><span>${r.cov} · ${pf.format(r.cov / r.n)}</span></div><div class="r"><span>Zaległe zadania</span><span>${r.overdue}</span></div>`)}">${nf.format(r.n)}<span class="small">${pf.format(r.cov / r.n)} z zadaniem</span></div>` : "—";
+  const rows = [...owners.entries()].sort((a, b) => b[1].open - a[1].open);
+  const anyNews = team.news > 0;
+  const head = `<tr><th>Właściciel</th><th>Otwarte leady</th>${regs.map((r) => `<th>${esc(r)}</th>`).join("")}${anyNews ? "<th>Newsletter Enbio</th>" : ""}<th>Pokrycie zadaniami</th><th>Zaległe</th><th>Na dziś</th><th>Bez zadania</th></tr>`;
+  const line = (label, a, attrs) => `<tr${attrs}><td>${label}</td><td class="n">${nf.format(a.open)}</td>${regs.map((r) => `<td class="n">${cell(a.reg[r], esc(r))}</td>`).join("")}${anyNews ? `<td class="n">${a.news ? nf.format(a.news) : "—"}</td>` : ""}<td class="n"><div class="cell-bar">${a.open ? pf.format(covOf(a)) : "—"}${a.open ? bar(covOf(a)) : ""}</div></td><td class="n">${a.st.overdue ? `${nf.format(a.st.overdue)}${a.st.overdue / Math.max(1, a.open) > 0.1 ? ` <span class="chip crit">■</span>` : ""}` : "—"}</td><td class="n">${a.st.today ? nf.format(a.st.today) : "—"}</td><td class="n">${a.st.none ? `${nf.format(a.st.none)}${covOf(a) < 0.7 ? ` <span class="chip warn">▲</span>` : ""}` : "—"}</td></tr>`;
+  const body = rows.map(([uid, a]) => line(`<div class="agent"><span class="avatar">${initials(pdName(uid))}</span><span class="nm">${esc(pdName(uid))}</span></div>`, a, agentAttr(uid))).join("");
+  return `<section class="panel"><div class="panel-head"><h2>Leady w portfelu handlowców</h2><span class="hint">Stan na ${shortDate(pf0.today)}, niezależnie od wybranego okresu. Otwarte (niezarchiwizowane) leady na osobę i rynek. Pokrycie to udział leadów z zaplanowanym kolejnym zadaniem (next activity).</span></div>
+    <div class="scroll"><table class="plain"><thead>${head}</thead><tbody>${body || `<tr><td colspan="${regs.length + 7}" class="empty">Brak otwartych leadów.</td></tr>`}</tbody><tfoot>${line("Zespół", team, "")}</tfoot></table></div>
+    <p class="small" style="margin-top:8px">Rynki jak w filtrach „New leads”. ${anyNews ? "Leady z importu newslettera Enbio (pomijane w tych filtrach) mają osobną kolumnę i wliczają się do sumy. " : ""}„Zaległe” to leady, których najbliższe zadanie ma termin przed dziś.</p></section>`;
 }
 function drawStacked(el, days, valuesFor, series, tipFor) {
   if (!el) return;

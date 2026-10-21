@@ -167,6 +167,38 @@ def region_of(lead, regions):
     return None if excluded_everywhere else "Inne"
 
 
+def market_of(lead, regions):
+    """Market by the filters' include rules only (exclusions such as the newsletter import ignored)."""
+    for reg in regions:
+        if all(values_of(lead.get(k)) & vals for k, vals in reg["include"].items()):
+            return reg["name"]
+    return "Inne"
+
+
+def portfolio(leads, regions):
+    """Open leads per owner and market, with the state of each lead's next activity."""
+    tz_name = os.environ.get("DASHBOARD_TZ", "Europe/Warsaw")
+    try:
+        from zoneinfo import ZoneInfo
+        today = dt.datetime.now(ZoneInfo(tz_name)).date().isoformat()
+    except Exception:
+        today = dt.date.today().isoformat()
+    due = {a["id"]: a.get("due_date") or "" for a in get_all_v2("activities", done="false")}
+    counts = {}
+    for l in leads:
+        if l.get("is_archived"):
+            continue
+        nid = l.get("next_activity_id")
+        if not nid:
+            state = "none"
+        else:
+            d = due.get(nid, "")
+            state = "overdue" if d and d < today else "today" if d == today else "future"
+        key = (l.get("owner_id") or 0, market_of(l, regions), 1 if region_of(l, regions) is None else 0, state)
+        counts[key] = counts.get(key, 0) + 1
+    return {"today": today, "rows": [[o, m, ex, st, n] for (o, m, ex, st), n in counts.items()]}
+
+
 # --------------------------------------------------------------------------
 # Persons (phones, mail activity) and per-person mail cache
 # --------------------------------------------------------------------------
@@ -286,7 +318,8 @@ def build(start_day, cache_root):
     start_ts = int(dt.datetime.combine(start_day, dt.time(), dt.timezone.utc).timestamp())
     people = persons()
     leads = []
-    for l in all_leads():
+    every_lead = all_leads()
+    for l in every_lead:
         t = iso_epoch(l.get("add_time"))
         if not t or t < start_ts:
             continue
@@ -311,6 +344,7 @@ def build(start_day, cache_root):
         "regions": [r["name"] for r in regions],
         "users": meta["users"],
         "queue": queue_counts(regions),
+        "portfolio": portfolio(every_lead, regions),
         "leads": leads,
         "mails": mail_messages(cache_root / "pd-mail", start_day),
         "won": won_deals(start_day, meta["pipelines"]),
