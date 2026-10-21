@@ -59,7 +59,7 @@ def to_html(sheets, path, title):
             continue
         parts.append(f"<h2>{name}</h2><table><tr>" + "".join(f"<th>{html.escape(str(c))}</th>" for c in df.columns) + "</tr>")
         num = df.select_dtypes("number")
-        matrix = name in ("Krzywa kohort", "Błędy x kohorta", "Partie x błędy", "Model x kohorta", "Conpeek: usterki w rozmowach")
+        matrix = name in ("Krzywa kohort", "Błędy x kohorta", "Partie x błędy", "Model x kohorta", "Conpeek: usterki w rozmowach", "Wymieniane części % kohorty")
         vmax = num.drop(columns=["TOTAL"], errors="ignore").max().max() if matrix and not num.empty else 0
         for _, row in df.head(60).iterrows():
             cells = []
@@ -85,7 +85,7 @@ def main():
     p.add_argument("--out", default="output")
     a = p.parse_args()
 
-    extra = {}
+    extra, parts = {}, None
     if a.demo:
         units, components, defects = demo_data()
     else:
@@ -104,6 +104,7 @@ def main():
             components.to_pickle(gp)
         components = components[components["serial"].isin(units["serial"])]
         defects = dfx.build(data["tickets"], data["repairs"])
+        parts = data["repair_parts"]
         for f in a.conpeek_file:
             defects = pd.concat([defects, conpeek.load_file(f)], ignore_index=True)
         if not a.no_conpeek_api:
@@ -112,7 +113,7 @@ def main():
             sn = conpeek.load_api(units["serial"])
             defects = pd.concat([defects, sn], ignore_index=True)
 
-    sheets = analyze.run_all(units, components, defects, a.period, a.min_units, extra)
+    sheets = analyze.run_all(units, components, defects, a.period, a.min_units, extra, parts)
     out = Path(a.out)
     out.mkdir(exist_ok=True)
     with pd.ExcelWriter(out / "wadliwosc_kohorty.xlsx") as xw:

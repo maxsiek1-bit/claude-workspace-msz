@@ -116,13 +116,24 @@ def unmatched(defects):
     return defects[defects["cohort"].isna()][["serial", "reported_at", "error_code", "source"]]
 
 
+def replaced_parts(units, parts, top=40):
+    """Części wymieniane w naprawach: ile urządzeń z kohorty wymagało danej części (% wyprodukowanych)."""
+    p = parts.merge(units[["serial", "cohort"]], on="serial").drop_duplicates(["serial", "part"])
+    produced = units.groupby("cohort").size()
+    m = p.pivot_table(index="part", columns="cohort", values="serial", aggfunc="nunique", fill_value=0)
+    tot = m.sum(axis=1)
+    m = (100 * m / produced.reindex(m.columns)).round(2)
+    m.insert(0, "devices_total", tot)
+    return m.sort_values("devices_total", ascending=False).head(top).reset_index()
+
+
 def by_model(units, defects):
     s = units.groupby(["model", "cohort"]).agg(produced=("serial", "size"), defective_units=("defective", "sum"))
     s["defect_rate_%"] = (100 * s["defective_units"] / s["produced"]).round(2)
     return s.reset_index().pivot(index="cohort", columns="model", values="defect_rate_%").reset_index()
 
 
-def run_all(units, components, defects, period="M", min_units=10, extra=None):
+def run_all(units, components, defects, period="M", min_units=10, extra=None, parts=None):
     units, defects = prepare(units, defects, period)
     return {
         "Kohorty": cohort_summary(units, defects),
@@ -134,6 +145,7 @@ def run_all(units, components, defects, period="M", min_units=10, extra=None):
         "Kohorta x partie": component_by_cohort(units, components, "component_lot", min_units),
         "Kohorta x komponenty": component_by_cohort(units, components, "component", min_units),
         "Partie x błędy": component_error_matrix(units, components, defects),
+        **({"Wymieniane części % kohorty": replaced_parts(units, parts)} if parts is not None else {}),
         "Numery seryjne": serial_detail(units, defects),
         "Niedopasowane SN": unmatched(defects),
         **(extra or {}),

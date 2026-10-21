@@ -133,6 +133,21 @@ def fetch_repairs(odoo):
     })
 
 
+def fetch_repair_parts(odoo):
+    """Części dodane (wymienione) w naprawach, przypisane do numeru seryjnego naprawianego urządzenia."""
+    orders = {r["id"]: r for r in odoo.search_read("repair.order", [("lot_id", "!=", False)], ["lot_id", "create_date"])}
+    rows = odoo.search_read("repair.line", [("type", "=", "add")], ["repair_id", "product_id", "product_uom_qty"], log=True)
+    out = []
+    for r in rows:
+        o = orders.get(_id(r["repair_id"]))
+        if o:
+            out.append({"serial": (_name(o["lot_id"]) or "").strip().upper(), "repaired_at": o["create_date"],
+                        "part": _name(r["product_id"]), "qty": r["product_uom_qty"]})
+    df = pd.DataFrame(out, columns=["serial", "repaired_at", "part", "qty"])
+    df["repaired_at"] = pd.to_datetime(df["repaired_at"])
+    return df
+
+
 def load_all(cache="cache", refresh=False):
     odoo = Odoo()
     return {
@@ -140,6 +155,7 @@ def load_all(cache="cache", refresh=False):
         "consumption": _cached(cache, "consumption", lambda: fetch_consumption(odoo), refresh),
         "tickets": _cached(cache, "tickets", lambda: fetch_tickets(odoo), refresh),
         "repairs": _cached(cache, "repairs", lambda: fetch_repairs(odoo), refresh),
+        "repair_parts": _cached(cache, "repair_parts", lambda: fetch_repair_parts(odoo), refresh),
     }
 
 
