@@ -1,0 +1,631 @@
+<style>
+.tx { font-family: var(--font-anthropic-sans); display: grid; gap: var(--cds-gap-lg); }
+.tx-head { display: grid; gap: var(--cds-gap-sm); }
+.tx-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+.tx-take { color: var(--color-fg-muted); margin: 0; max-width: 70ch; font-size: var(--cds-font-size-body); }
+.tx-take b { color: var(--color-fg); font-weight: 600; }
+.tx-filters { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.tx-filters label { display: flex; gap: var(--cds-gap-xs); align-items: center; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.tx-filters select { font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); }
+.tx-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; max-width: 80ch; }
+.tx-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); gap: var(--cds-gap-md); }
+.tx-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: var(--cds-gap-xs); align-content: start; }
+.tx-tile .lab { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.tx-tile .val { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); font-weight: 400; font-variant-numeric: tabular-nums; min-height: 1.2em; }
+.tx-tile .sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.tx-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: var(--cds-gap-md); }
+.tx-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; }
+.tx-card h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.tx-chart { position: relative; min-height: 260px; }
+.tx-chart.short { min-height: 200px; }
+.tx-funnel { display: grid; gap: var(--cds-gap-sm); }
+.tx-frow { display: grid; grid-template-columns: minmax(7rem, 9rem) 1fr; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); }
+.tx-fbar { height: 22px; border-radius: 4px; background: var(--cds-chart-muted); min-width: 2px; }
+.tx-frow .num { font-variant-numeric: tabular-nums; color: var(--color-fg); }
+.tx-ftrack { display: flex; align-items: center; gap: var(--cds-gap-sm); }
+.tx-drop { color: var(--color-fg-muted); }
+.tx-drop.worst { color: var(--color-bad); }
+.tx-tablebox { overflow: auto; max-height: 30rem; }
+.tx-table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.tx-table th { position: sticky; top: 0; background: var(--color-panel); text-align: right; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.tx-table th button { all: unset; cursor: pointer; }
+.tx-table th button:focus-visible { outline: 2px solid var(--color-fg); }
+.tx-table td { text-align: right; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.tx-table th:first-child, .tx-table td:first-child { text-align: left; white-space: normal; min-width: 10rem; }
+.tx-table tr.hit td { font-weight: 600; }
+.tx-cellbar { display: inline-block; height: 6px; border-radius: 3px; vertical-align: middle; margin-right: 6px; }
+.tx-sw { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: baseline; }
+.tx-search { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); max-width: 18rem; }
+.tx-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.tx-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 2; }
+.tx-tip .h { color: var(--cds-text-secondary); }
+.tx-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.tx-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.tx-gaps { margin: 0; padding-left: 1.2em; display: grid; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-body); max-width: 85ch; }
+.tx-gaps code { font-size: .92em; }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+</style>
+
+<div class="tx">
+  <header class="tx-head" id="naglowek">
+    <h1>Atrybucja leadów Tesoro</h1>
+    <p class="tx-take" id="takeaway">
+      Z <b class="dash-skeleton" data-source="kanaly" data-field="leady" id="tk-leady">—</b> leadów powstało
+      <b class="dash-skeleton" data-source="kanaly" data-field="sprzedaze" id="tk-sprz">—</b> sprzedaży
+      (<b class="dash-skeleton" data-source="kanaly" data-field="konwersja" id="tk-konw">—</b>).
+      Najwięcej sprzedaży dał kanał <b class="dash-skeleton" data-source="kanaly" data-field="kanal" id="tk-best">—</b>,
+      a najwięcej leadów <b class="dash-skeleton" data-source="kanaly" data-field="kanal" id="tk-vol">—</b>.
+    </p>
+    <div class="tx-filters">
+      <label for="f-okres">Leady utworzone w
+        <select id="f-okres">
+          <option value="all">całym okresie (2022–2026)</option>
+          <option value="2026">2026</option><option value="2025">2025</option>
+          <option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option>
+        </select>
+      </label>
+      <label for="f-inw">Inwestycja
+        <select id="f-inw">
+          <option value="all">Wszystkie</option>
+          <option value="Ogrody Tesoro">Ogrody Tesoro</option>
+          <option value="Tesoro Golf Park">Tesoro Golf Park</option>
+          <option value="Inne / brak">Inne / brak</option>
+        </select>
+      </label>
+    </div>
+    <p class="tx-note">Sprzedaż = podpisana umowa deweloperska, przedwstępna lub akt notarialny (bez anulowanych). Lead łączony z klientem po telefonie lub e-mailu; sprzedaż przypisana do pierwszego leada tej osoby, utworzonego przed umową. Leady z ostatnich miesięcy jeszcze nie zdążyły dojść do umowy.</p>
+  </header>
+
+  <section class="tx-tiles" id="kpi">
+    <div class="tx-tile"><span class="lab">Leady</span><span class="val dash-skeleton" data-k="leady" data-source="kanaly" data-field="leady">—</span><span class="sub">utworzone w okresie</span></div>
+    <div class="tx-tile"><span class="lab">Klienci ze spotkaniem</span><span class="val dash-skeleton" data-k="spotkania" data-source="kanaly" data-field="spotkania">—</span><span class="sub">spotkanie odbyło się po leadzie</span></div>
+    <div class="tx-tile"><span class="lab">Sprzedaże z leadów</span><span class="val dash-skeleton" data-k="sprzedaze" data-source="kanaly" data-field="sprzedaze">—</span><span class="sub">unikalni klienci</span></div>
+    <div class="tx-tile"><span class="lab">Konwersja lead → sprzedaż</span><span class="val dash-skeleton" data-k="konwersja" data-source="kanaly" data-field="konwersja">—</span><span class="sub">sprzedaże ÷ leady</span></div>
+    <div class="tx-tile"><span class="lab">Wartość sprzedaży brutto</span><span class="val dash-skeleton" data-k="wartosc" data-source="kanaly" data-field="wartosc">—</span><span class="sub">suma lokali, PLN</span></div>
+    <div class="tx-tile"><span class="lab">Mediana: lead → umowa</span><span class="val dash-skeleton" data-k="mediana_dni" data-source="kanaly" data-field="mediana_dni">—</span><span class="sub">dni</span></div>
+  </section>
+
+  <div class="tx-grid">
+    <section class="tx-card" id="lejek">
+      <h2>Lejek: od leada do umowy</h2>
+      <p class="tx-note">Wszystkie kanały w wybranym okresie. Czerwony procent to największy spadek między etapami.</p>
+      <div class="tx-funnel" id="funnel" data-source="kanaly"></div>
+    </section>
+    <section class="tx-card" id="czas-do-umowy">
+      <h2>Ile trwa droga od leada do umowy</h2>
+      <p class="tx-note">Liczba sprzedaży wg dni od pierwszego leada do pierwszej umowy.</p>
+      <div class="tx-chart short dash-skeleton" id="lag" data-source="czas"></div>
+    </section>
+  </div>
+
+  <section class="tx-card" id="kanaly-tabela">
+    <h2>Kanały: leady, spotkania, umowy</h2>
+    <p class="tx-note">Kliknij nagłówek, aby posortować. Udział w leadach vs udział w sprzedaży pokazuje, które kanały „przepalają” wolumen.</p>
+    <div class="tx-tablebox">
+      <table class="tx-table" id="t-kanaly" data-source="kanaly" data-row-key="okres,inw,kanal">
+        <thead><tr>
+          <th data-field="kanal"><button>Kanał</button></th>
+          <th data-field="leady"><button>Leady</button></th>
+          <th data-field="udzial_leady"><button>% leadów</button></th>
+          <th data-field="spotkania"><button>Spotkania</button></th>
+          <th data-field="umowy"><button>Umowy (w tym rez.)</button></th>
+          <th data-field="sprzedaze"><button>Sprzedaże</button></th>
+          <th data-field="udzial_sprzedaz"><button>% sprzedaży</button></th>
+          <th data-field="konwersja"><button>Lead → sprzedaż</button></th>
+          <th data-field="leady_na_sprzedaz"><button>Leadów na 1 sprzedaż</button></th>
+          <th data-field="wartosc"><button>Wartość brutto</button></th>
+          <th data-field="mediana_dni"><button>Mediana dni</button></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="tx-grid">
+    <section class="tx-card" id="leady-miesiecznie">
+      <h2>Leady miesięcznie wg kanału</h2>
+      <div class="tx-legend" id="lg-leady"></div>
+      <div class="tx-chart dash-skeleton" id="ch-leady" data-source="miesiace"></div>
+    </section>
+    <section class="tx-card" id="sprzedaz-miesiecznie">
+      <h2>Sprzedaże miesięcznie wg kanału pierwszego leada</h2>
+      <p class="tx-note">Data umowy. „Brak leada w CRM” to klienci, którzy nie mają leada od 2022 r. (wizyta, telefon, polecenie wpisane ręcznie).</p>
+      <div class="tx-legend" id="lg-sprz"></div>
+      <div class="tx-chart dash-skeleton" id="ch-sprz" data-source="sprzedaz_mies"></div>
+    </section>
+  </div>
+
+  <section class="tx-card" id="kampanie">
+    <h2>Kampanie reklamowe (Meta i Google)</h2>
+    <p class="tx-note">Nazwa lub ID kampanii z formularza leadowego. Dla Meta „% Instagram” to część leadów z placementu IG. Brak AdSetu i kreacji w danych z CRM, zobacz sekcję niżej.</p>
+    <input class="tx-search" id="q-kamp" type="search" placeholder="Szukaj kampanii lub ID" aria-label="Szukaj kampanii">
+    <div class="tx-tablebox">
+      <table class="tx-table" id="t-kamp" data-source="kampanie" data-row-key="okres,inw,kampania">
+        <thead><tr>
+          <th data-field="kampania"><button>Kampania</button></th>
+          <th data-field="kanal"><button>Kanał</button></th>
+          <th data-field="leady"><button>Leady</button></th>
+          <th data-field="udzial_ig"><button>% Instagram</button></th>
+          <th data-field="spotkania"><button>Spotkania</button></th>
+          <th data-field="umowy"><button>Umowy</button></th>
+          <th data-field="sprzedaze"><button>Sprzedaże</button></th>
+          <th data-field="konwersja"><button>Lead → sprzedaż</button></th>
+          <th data-field="wartosc"><button>Wartość brutto</button></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tx-card" id="crm-vs-lead">
+    <h2>Źródło w karcie klienta vs. pierwszy lead</h2>
+    <p class="tx-note">Sprzedaże z wybranego roku umowy. Wiersz to „Źródło pochodzenia” wpisane w kartę klienta, kolumny mówią, z jakiego kanału przyszedł jego pierwszy lead. Duże liczby poza przekątną oznaczają, że reklamy są niedoszacowane w raportach CRM.</p>
+    <div class="tx-tablebox">
+      <table class="tx-table" id="t-crm" data-source="crm_vs_lead" data-row-key="okres,inw,kanal_crm">
+        <thead><tr>
+          <th data-field="kanal_crm">Źródło w CRM</th>
+          <th data-field="sprzedaze">Sprzedaże</th>
+          <th data-field="meta_ads">Lead: Meta</th>
+          <th data-field="google_ads">Lead: Google</th>
+          <th data-field="strona_www">Lead: WWW</th>
+          <th data-field="portale">Lead: portale</th>
+          <th data-field="polecenie">Lead: polecenie</th>
+          <th data-field="inne">Lead: inne</th>
+          <th data-field="brak_leada">Bez leada</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tx-card" id="braki">
+    <h2>Co dodać, żeby widzieć AdSety i kreacje</h2>
+    <ul class="tx-gaps">
+      <li><b>Endpoint <code>leads-report</code></b> ma pole <code>utm_data</code> (utm_source, utm_campaign, utm_content, utm_term) i datę konwersji leada. Twój klucz go nie ma, więc warto poprosić o dostęp. Do tego <code>clients-report</code> (pierwsze i ostatnie źródło klienta) i <code>clients-list</code> (UTM, klasyfikacja).</li>
+      <li><b>ID AdSetu i reklamy w leadzie.</b> Integracja z leadami Meta (wowmediametrics) przekazuje dziś tylko ID lub nazwę kampanii. Trzeba dopisać <code>adset_id</code>, <code>adset_name</code>, <code>ad_id</code>, <code>ad_name</code> i <code>form_id</code> (dla Google: <code>adgroup_id</code>, <code>creative_id</code>, <code>keyword</code>, <code>gclid</code>).</li>
+      <li><b>UTM na stronie WWW.</b> Najwięcej sprzedaży ma źródło „Www”, ale bez UTM nie wiadomo, czy to ruch z reklam, SEO czy wejścia bezpośrednie. Formularz na stronie powinien zapisywać do CRM <code>utm_*</code>, <code>gclid</code>, <code>fbclid</code> i stronę wejścia.</li>
+      <li><b>Wydatki reklamowe.</b> Po połączeniu konta reklamowego Meta i Google Ads z tym dashboardem można policzyć koszt leada, koszt spotkania i koszt sprzedaży per kampania, AdSet i kreacja.</li>
+      <li><b>Konwersje offline do Meta i Google.</b> Endpointy <code>gclid-conversions</code> i <code>google-ads-conversions</code> pozwalają odesyłać spotkania i umowy z powrotem do Google Ads, żeby algorytm optymalizował się pod sprzedaż, a nie pod formularz.</li>
+      <li><b>Jedno źródło w karcie klienta.</b> Zasada: handlowiec nie nadpisuje źródła pochodzenia, jeśli klient ma wcześniejszy lead z reklamy. Teraz „Www”, „Wizyta” i „Z polecenia” często ukrywają pierwszy kontakt z kampanii.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+// Wspólne grupowanie leadów: okres (rok utworzenia leada) i inwestycja, każde z wariantem "all".
+dash.calc('kanaly', {
+  title: 'Metryki wg kanału',
+  description: 'Leady, spotkania, umowy i sprzedaże wg kanału, roku utworzenia leada i inwestycji; wiersz „Wszystkie” to suma.',
+  inputs: ['leady'],
+  fn: (leady) => {
+    const g = new Map();
+    for (const r of leady) {
+      for (const okres of ['all', r.data.slice(0, 4)]) for (const inw of ['all', r.inwestycja]) for (const kanal of ['Wszystkie', r.kanal]) {
+        const k = okres + '|' + inw + '|' + kanal;
+        let a = g.get(k);
+        if (!a) g.set(k, a = { okres, inw, kanal, leady: 0, spotkania: 0, umowy: 0, sprzedaze: 0, wartosc: 0, dni: [] });
+        a.leady++; a.spotkania += +r.spotkanie; a.umowy += +r.umowa_rez; a.sprzedaze += +r.sprzedaz;
+        if (r.sprzedaz === '1') { a.wartosc += +r.wartosc_brutto || 0; a.dni.push(+r.dni_do_sprzedazy); }
+      }
+    }
+    const rows = [...g.values()];
+    const tot = new Map(rows.filter((a) => a.kanal === 'Wszystkie').map((a) => [a.okres + '|' + a.inw, a]));
+    return rows.map(({ dni, ...a }) => {
+      const t = tot.get(a.okres + '|' + a.inw);
+      dni.sort((x, y) => x - y);
+      return { ...a,
+        konwersja: a.leady ? a.sprzedaze / a.leady : 0,
+        udzial_leady: t.leady ? a.leady / t.leady : 0,
+        udzial_sprzedaz: t.sprzedaze ? a.sprzedaze / t.sprzedaze : 0,
+        leady_na_sprzedaz: a.sprzedaze ? Math.round(a.leady / a.sprzedaze) : null,
+        mediana_dni: dni.length ? dni[Math.floor((dni.length - 1) / 2)] : null };
+    });
+  },
+});
+
+dash.calc('kampanie', {
+  title: 'Metryki wg kampanii',
+  description: 'Leady i sprzedaże wg nazwy lub ID kampanii z formularza leadowego, roku utworzenia leada i inwestycji.',
+  inputs: ['leady'],
+  fn: (leady) => {
+    const g = new Map();
+    for (const r of leady) {
+      if (!r.kampania) continue;
+      for (const okres of ['all', r.data.slice(0, 4)]) for (const inw of ['all', r.inwestycja]) {
+        const k = okres + '|' + inw + '|' + r.kampania;
+        let a = g.get(k);
+        if (!a) g.set(k, a = { okres, inw, kampania: r.kampania, kanal: r.kanal, leady: 0, ig: 0, spotkania: 0, umowy: 0, sprzedaze: 0, wartosc: 0 });
+        a.leady++; a.ig += r.platforma === 'Instagram' ? 1 : 0;
+        a.spotkania += +r.spotkanie; a.umowy += +r.umowa_rez; a.sprzedaze += +r.sprzedaz;
+        if (r.sprzedaz === '1') a.wartosc += +r.wartosc_brutto || 0;
+      }
+    }
+    return [...g.values()].map(({ ig, ...a }) => ({ ...a,
+      udzial_ig: a.kanal === 'Meta Ads' ? ig / a.leady : null,
+      konwersja: a.sprzedaze / a.leady }));
+  },
+});
+
+dash.calc('miesiace', {
+  title: 'Leady miesięcznie',
+  description: 'Liczba leadów wg miesiąca utworzenia, kanału i inwestycji.',
+  inputs: ['leady'],
+  fn: (leady) => {
+    const g = new Map();
+    for (const r of leady) for (const inw of ['all', r.inwestycja]) {
+      const k = inw + '|' + r.data.slice(0, 7) + '|' + r.kanal;
+      let a = g.get(k);
+      if (!a) g.set(k, a = { inw, miesiac: r.data.slice(0, 7), kanal: r.kanal, leady: 0 });
+      a.leady++;
+    }
+    return [...g.values()];
+  },
+});
+
+dash.calc('sprzedaz_mies', {
+  title: 'Sprzedaże miesięcznie',
+  description: 'Liczba sprzedaży wg miesiąca umowy, kanału pierwszego leada i inwestycji.',
+  inputs: ['sprzedaz'],
+  fn: (sprzedaz) => {
+    const g = new Map();
+    for (const r of sprzedaz) for (const inw of ['all', r.inwestycja]) {
+      const k = inw + '|' + r.data_sprzedazy.slice(0, 7) + '|' + r.kanal_leada;
+      let a = g.get(k);
+      if (!a) g.set(k, a = { inw, miesiac: r.data_sprzedazy.slice(0, 7), kanal: r.kanal_leada, sprzedaze: 0 });
+      a.sprzedaze++;
+    }
+    return [...g.values()];
+  },
+});
+
+dash.calc('crm_vs_lead', {
+  title: 'Źródło CRM vs pierwszy lead',
+  description: 'Sprzedaże wg źródła w karcie klienta (wiersze) i kanału pierwszego leada (kolumny), wg roku umowy i inwestycji.',
+  inputs: ['sprzedaz'],
+  fn: (sprzedaz) => {
+    const col = { 'Meta Ads': 'meta_ads', 'Google Ads': 'google_ads', 'Strona WWW': 'strona_www', 'Portale': 'portale', 'Polecenie': 'polecenie', 'Brak leada w CRM': 'brak_leada' };
+    const g = new Map();
+    for (const r of sprzedaz) for (const okres of ['all', r.data_sprzedazy.slice(0, 4)]) for (const inw of ['all', r.inwestycja]) {
+      const k = okres + '|' + inw + '|' + r.kanal_crm;
+      let a = g.get(k);
+      if (!a) g.set(k, a = { okres, inw, kanal_crm: r.kanal_crm, sprzedaze: 0, meta_ads: 0, google_ads: 0, strona_www: 0, portale: 0, polecenie: 0, inne: 0, brak_leada: 0 });
+      a.sprzedaze++; a[col[r.kanal_leada] || 'inne']++;
+    }
+    return [...g.values()];
+  },
+});
+
+dash.calc('czas', {
+  title: 'Czas od leada do umowy',
+  description: 'Liczba sprzedaży wg przedziału dni od pierwszego leada do umowy, roku leada i inwestycji.',
+  inputs: ['leady'],
+  fn: (leady) => {
+    const bins = [[30, '0–30 dni'], [90, '31–90 dni'], [180, '3–6 mies.'], [365, '6–12 mies.'], [Infinity, 'ponad rok']];
+    const g = new Map();
+    for (const r of leady) {
+      if (r.sprzedaz !== '1') continue;
+      const [, przedzial] = bins.find(([lim]) => +r.dni_do_sprzedazy <= lim);
+      for (const okres of ['all', r.data.slice(0, 4)]) for (const inw of ['all', r.inwestycja]) {
+        const k = okres + '|' + inw + '|' + przedzial;
+        let a = g.get(k);
+        if (!a) g.set(k, a = { okres, inw, przedzial, kolejnosc: bins.findIndex((b) => b[1] === przedzial), sprzedaze: 0 });
+        a.sprzedaze++;
+      }
+    }
+    return [...g.values()];
+  },
+});
+</script>
+
+<script>
+(() => {
+  const ORDER = ['Meta Ads', 'Google Ads', 'Strona WWW', 'Portale', 'Polecenie', 'Offline', 'Pośrednik', 'Mailing', 'Inne / brak', 'Brak leada w CRM'];
+  const colorOf = (k) => {
+    const i = ORDER.indexOf(k);
+    if (k === 'Brak leada w CRM') return 'var(--cds-chart-muted)';
+    return dash.colors[Math.min(i < 0 ? 7 : i, 7)];
+  };
+  window.txColorOf = colorOf;
+  window.txOrder = ORDER;
+  const fmtInt = d3.format(',');
+  const fmtPct = d3.format('.1%');
+  const fmtPctS = (v) => (v == null ? '–' : v < 0.001 && v > 0 ? '<0,1%' : fmtPct(v));
+  const fmtMoney = (v) => (v >= 10000 ? new Intl.NumberFormat('pl-PL', { notation: 'compact', maximumFractionDigits: 1 }).format(v) + ' zł' : fmtInt(v) + ' zł');
+  window.txFmt = { fmtInt, fmtPct: fmtPctS, fmtMoney };
+  const key = (...p) => p.map(encodeURIComponent).join(',');
+  const where = (o) => Object.entries(o).map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&');
+
+  dash.setParams({ okres: dash.params().okres ?? 'all', inw: dash.params().inw ?? 'all' });
+  const selO = document.getElementById('f-okres');
+  const selI = document.getElementById('f-inw');
+  selO.addEventListener('change', () => dash.setParams({ okres: selO.value }));
+  selI.addEventListener('change', () => dash.setParams({ inw: selI.value }));
+
+  // sortowalne tabele
+  const sortState = {};
+  function sortable(table, render) {
+    table.querySelectorAll('th button').forEach((b) => {
+      b.addEventListener('click', () => {
+        const f = b.closest('th').dataset.field;
+        const s = sortState[table.id] || {};
+        sortState[table.id] = { field: f, dir: s.field === f && s.dir === 'desc' ? 'asc' : 'desc' };
+        table.querySelectorAll('th').forEach((th) => th.removeAttribute('aria-sort'));
+        b.closest('th').setAttribute('aria-sort', sortState[table.id].dir === 'desc' ? 'descending' : 'ascending');
+        render();
+      });
+    });
+  }
+  function applySort(table, rows, def) {
+    const s = sortState[table.id] || def;
+    const val = (r) => r[s.field];
+    return rows.slice().sort((a, b) => {
+      const x = val(a), y = val(b);
+      const c = typeof x === 'string' || typeof y === 'string' ? String(x ?? '').localeCompare(String(y ?? ''), 'pl') : (x ?? -Infinity) - (y ?? -Infinity);
+      return s.dir === 'desc' ? -c : c;
+    });
+  }
+  function fail(el, d) {
+    el.replaceChildren();
+    if (d.status === 'error') { const f = document.createElement('div'); f.className = 'tx-fail'; f.textContent = 'Failed to load'; el.append(f); }
+  }
+
+  // --- nagłówek, KPI, lejek
+  function drawTop() {
+    const d = dash.data('kanaly');
+    const { okres, inw } = dash.params();
+    const tiles = document.querySelectorAll('#kpi [data-k]');
+    const tk = ['tk-leady', 'tk-sprz', 'tk-konw', 'tk-best', 'tk-vol'].map((id) => document.getElementById(id));
+    const funnel = document.getElementById('funnel');
+    if (d.status !== 'ok') {
+      if (d.status === 'error') { tiles.forEach((t) => { t.classList.remove('dash-skeleton'); t.textContent = '—'; }); fail(funnel, d); }
+      return;
+    }
+    const rows = d.data.filter((r) => r.okres === okres && r.inw === inw);
+    const tot = rows.find((r) => r.kanal === 'Wszystkie');
+    const w = where({ okres, inw, kanal: 'Wszystkie' });
+    tiles.forEach((t) => {
+      t.classList.remove('dash-skeleton');
+      t.setAttribute('data-where', w);
+      const k = t.dataset.k;
+      const v = tot ? tot[k] : null;
+      t.textContent = v == null ? '—' : k === 'konwersja' ? fmtPctS(v) : k === 'wartosc' ? fmtMoney(v) : fmtInt(v);
+    });
+    tk.forEach((e) => e.classList.remove('dash-skeleton'));
+    [['tk-leady', 'leady', fmtInt], ['tk-sprz', 'sprzedaze', fmtInt], ['tk-konw', 'konwersja', fmtPctS]].forEach(([id, f, fm]) => {
+      const e = document.getElementById(id); e.setAttribute('data-where', w); e.textContent = tot ? fm(tot[f]) : '—';
+    });
+    const ch = rows.filter((r) => r.kanal !== 'Wszystkie');
+    const best = ch.slice().sort((a, b) => b.sprzedaze - a.sprzedaze)[0];
+    const vol = ch.slice().sort((a, b) => b.leady - a.leady)[0];
+    const eb = document.getElementById('tk-best'), ev = document.getElementById('tk-vol');
+    if (best) { eb.setAttribute('data-where', where({ okres, inw, kanal: best.kanal })); eb.textContent = best.kanal; }
+    if (vol) { ev.setAttribute('data-where', where({ okres, inw, kanal: vol.kanal })); ev.textContent = vol.kanal; }
+
+    // lejek
+    funnel.replaceChildren();
+    if (!tot) return;
+    const steps = [['leady', 'Leady'], ['spotkania', 'Spotkanie'], ['umowy', 'Umowa (rez./dew.)'], ['sprzedaze', 'Sprzedaż']];
+    const drops = steps.map(([f], i) => (i === 0 || !tot[steps[i - 1][0]] ? null : 1 - tot[f] / tot[steps[i - 1][0]]));
+    const worst = drops.indexOf(d3.max(drops.filter((x) => x != null)));
+    const x = d3.scaleSqrt().domain([0, tot.leady || 1]).range([0, 100]);
+    steps.forEach(([f, label], i) => {
+      const row = document.createElement('div'); row.className = 'tx-frow';
+      const l = document.createElement('span'); l.textContent = label;
+      const track = document.createElement('div'); track.className = 'tx-ftrack';
+      const bar = document.createElement('div'); bar.className = 'tx-fbar';
+      bar.style.width = `calc(${x(tot[f])}% - 6rem)`;
+      if (i === steps.length - 1) bar.style.background = dash.colors[0];
+      const n = document.createElement('span'); n.className = 'num';
+      n.setAttribute('data-source', 'kanaly'); n.setAttribute('data-field', f); n.setAttribute('data-where', w);
+      n.textContent = fmtInt(tot[f]);
+      track.append(bar, n);
+      if (drops[i] != null) {
+        const dr = document.createElement('span'); dr.className = 'tx-drop' + (i === worst ? ' worst' : '');
+        dr.textContent = '−' + d3.format('.1%')(drops[i]);
+        track.append(dr);
+      }
+      row.append(l, track); funnel.append(row);
+    });
+    const note = document.createElement('p'); note.className = 'tx-note';
+    note.textContent = 'Długość pasków w skali pierwiastkowej, żeby małe etapy były widoczne.';
+    funnel.append(note);
+  }
+
+  // --- tabela kanałów
+  const tK = document.getElementById('t-kanaly');
+  function drawKanaly() {
+    const d = dash.data('kanaly');
+    const tb = tK.tBodies[0];
+    if (d.status !== 'ok') { tb.replaceChildren(); return; }
+    const { okres, inw } = dash.params();
+    const rows = d.data.filter((r) => r.okres === okres && r.inw === inw && r.kanal !== 'Wszystkie');
+    const maxShare = d3.max(rows, (r) => Math.max(r.udzial_leady, r.udzial_sprzedaz)) || 1;
+    tb.replaceChildren(...applySort(tK, rows, { field: 'sprzedaze', dir: 'desc' }).map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = key(r.okres, r.inw, r.kanal);
+      const cells = [
+        r.kanal, fmtInt(r.leady), null, fmtInt(r.spotkania), fmtInt(r.umowy), fmtInt(r.sprzedaze), null,
+        fmtPctS(r.konwersja), r.leady_na_sprzedaz == null ? '–' : fmtInt(r.leady_na_sprzedaz), r.wartosc ? fmtMoney(r.wartosc) : '–', r.mediana_dni == null ? '–' : fmtInt(r.mediana_dni),
+      ];
+      cells.forEach((c, i) => {
+        const td = document.createElement('td');
+        if (i === 0) { const sw = document.createElement('span'); sw.className = 'tx-sw'; sw.style.background = colorOf(r.kanal); td.append(sw, document.createTextNode(c)); }
+        else if (i === 2 || i === 6) {
+          const v = i === 2 ? r.udzial_leady : r.udzial_sprzedaz;
+          const b = document.createElement('span'); b.className = 'tx-cellbar';
+          b.style.width = Math.max(2, 60 * v / maxShare) + 'px'; b.style.background = i === 2 ? 'var(--cds-chart-muted)' : dash.colors[0];
+          td.append(b, document.createTextNode(fmtPctS(v)));
+        } else td.textContent = c;
+        tr.append(td);
+      });
+      return tr;
+    }));
+  }
+  sortable(tK, drawKanaly);
+
+  // --- tabela kampanii
+  const tC = document.getElementById('t-kamp');
+  const q = document.getElementById('q-kamp');
+  function drawKampanie() {
+    const d = dash.data('kampanie');
+    const tb = tC.tBodies[0];
+    if (d.status !== 'ok') { tb.replaceChildren(); return; }
+    const { okres, inw } = dash.params();
+    const s = q.value.trim().toLowerCase();
+    const rows = d.data.filter((r) => r.okres === okres && r.inw === inw && (!s || r.kampania.toLowerCase().includes(s)));
+    tb.replaceChildren(...applySort(tC, rows, { field: 'leady', dir: 'desc' }).map((r) => {
+      const tr = document.createElement('tr');
+      if (r.sprzedaze > 0) tr.className = 'hit';
+      tr.dataset.key = key(r.okres, r.inw, r.kampania);
+      [r.kampania, r.kanal, fmtInt(r.leady), r.udzial_ig == null ? '–' : fmtPctS(r.udzial_ig), fmtInt(r.spotkania), fmtInt(r.umowy), fmtInt(r.sprzedaze), fmtPctS(r.konwersja), r.wartosc ? fmtMoney(r.wartosc) : '–']
+        .forEach((c, i) => {
+          const td = document.createElement('td');
+          if (i === 1) { const sw = document.createElement('span'); sw.className = 'tx-sw'; sw.style.background = colorOf(r.kanal); td.append(sw, document.createTextNode(c)); }
+          else td.textContent = c;
+          tr.append(td);
+        });
+      return tr;
+    }));
+  }
+  sortable(tC, drawKampanie);
+  q.addEventListener('input', drawKampanie);
+
+  // --- CRM vs lead
+  const tR = document.getElementById('t-crm');
+  function drawCrm() {
+    const d = dash.data('crm_vs_lead');
+    const tb = tR.tBodies[0];
+    if (d.status !== 'ok') { tb.replaceChildren(); return; }
+    const { okres, inw } = dash.params();
+    const rows = d.data.filter((r) => r.okres === okres && r.inw === inw).sort((a, b) => b.sprzedaze - a.sprzedaze);
+    const cols = ['sprzedaze', 'meta_ads', 'google_ads', 'strona_www', 'portale', 'polecenie', 'inne', 'brak_leada'];
+    const mx = d3.max(rows, (r) => d3.max(cols.slice(1), (c) => r[c])) || 1;
+    tb.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = key(r.okres, r.inw, r.kanal_crm);
+      const td0 = document.createElement('td'); td0.textContent = r.kanal_crm; tr.append(td0);
+      cols.forEach((c, i) => {
+        const td = document.createElement('td');
+        td.textContent = r[c] ? fmtInt(r[c]) : '·';
+        if (i > 0 && r[c]) td.style.background = `color-mix(in srgb, ${dash.colors[0]} ${Math.round(8 + 50 * r[c] / mx)}%, transparent)`;
+        tr.append(td);
+      });
+      return tr;
+    }));
+  }
+
+  window.txDrawers = [drawTop, drawKanaly, drawKampanie, drawCrm];
+  dash.onData(() => {
+    selO.value = dash.params().okres; selI.value = dash.params().inw;
+    window.txDrawers.forEach((f) => f());
+  });
+})();
+</script>
+
+<script>
+(() => {
+  const { fmtInt } = window.txFmt;
+  const colorOf = window.txColorOf, ORDER = window.txOrder;
+
+  function tipFor(box) {
+    let t = box.querySelector('.tx-tip');
+    if (!t) { t = document.createElement('div'); t.className = 'tx-tip'; t.hidden = true; box.append(t); }
+    return t;
+  }
+  function showTip(box, tip, ev, head, lines) {
+    tip.replaceChildren();
+    const h = document.createElement('div'); h.className = 'h'; h.textContent = head; tip.append(h);
+    lines.forEach(([c, name, v]) => {
+      const l = document.createElement('div');
+      if (c) { const s = document.createElement('span'); s.className = 'tx-sw'; s.style.background = c; l.append(s); }
+      l.append(document.createTextNode(name + ': ' + v)); tip.append(l);
+    });
+    tip.hidden = false;
+    const [mx, my] = d3.pointer(ev, box);
+    const tw = tip.offsetWidth, bw = box.clientWidth;
+    tip.style.left = Math.max(0, Math.min(bw - tw, mx + 12)) + 'px';
+    tip.style.top = Math.max(0, my - tip.offsetHeight - 8) + 'px';
+  }
+
+  function stacked(boxId, legendId, src, field, filterRow) {
+    const box = document.getElementById(boxId);
+    const lg = document.getElementById(legendId);
+    const d = dash.data(src);
+    if (d.status !== 'ok') {
+      if (d.status === 'error') { box.classList.remove('dash-skeleton'); box.replaceChildren(); const f = document.createElement('div'); f.className = 'tx-fail'; f.textContent = 'Failed to load'; box.append(f); }
+      return;
+    }
+    box.classList.remove('dash-skeleton');
+    const { okres, inw } = dash.params();
+    const rows = d.data.filter((r) => r.inw === inw && (okres === 'all' || r.miesiac.startsWith(okres)));
+    const months = [...new Set(rows.map((r) => r.miesiac))].sort();
+    const keys = ORDER.filter((k) => rows.some((r) => r.kanal === k));
+    rows.forEach((r) => { if (!keys.includes(r.kanal)) keys.push(r.kanal); });
+    const byM = new Map(months.map((m) => [m, Object.fromEntries(keys.map((k) => [k, 0]))]));
+    rows.forEach((r) => { byM.get(r.miesiac)[r.kanal] += r[field]; });
+    const table = months.map((m) => ({ m, ...byM.get(m) }));
+    const series = d3.stack().keys(keys)(table);
+
+    lg.replaceChildren(...keys.map((k) => { const s = document.createElement('span'); const sw = document.createElement('span'); sw.className = 'tx-sw'; sw.style.background = colorOf(k); s.append(sw, document.createTextNode(k)); return s; }));
+
+    box.querySelectorAll('svg').forEach((s) => s.remove());
+    const W = Math.max(280, box.clientWidth), H = 260;
+    const ymax = d3.max(table, (r) => d3.sum(keys, (k) => r[k])) || 1;
+    const y = d3.scaleLinear([0, ymax], [H - 24, 8]).nice();
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const yt = y.ticks(4);
+    const probe = svg.append('text').attr('font-size', 11).text(fmtInt(d3.max(yt)));
+    const ml = probe.node().getComputedTextLength() + 10; probe.remove();
+    const x = d3.scaleBand(months, [ml, W - 4]).padding(0.2);
+    svg.append('g').selectAll('line').data(yt).join('line').attr('x1', ml).attr('x2', W - 4).attr('y1', y).attr('y2', y).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(yt).join('text').attr('x', ml - 6).attr('y', (v) => y(v) + 4).attr('text-anchor', 'end').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text(fmtInt);
+    const step = Math.max(1, Math.ceil(months.length / Math.floor((W - ml) / 56)));
+    const lbl = (m) => (okres === 'all' ? (m.endsWith('-01') ? m.slice(0, 4) : '') : ['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'][+m.slice(5) - 1]);
+    svg.append('g').selectAll('text').data(months.filter((m, i) => okres === 'all' ? m.endsWith('-01') : i % step === 0)).join('text')
+      .attr('x', (m) => x(m) + x.bandwidth() / 2).attr('y', H - 6).attr('text-anchor', okres === 'all' ? 'start' : 'middle').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text(lbl);
+    svg.append('line').attr('x1', ml).attr('x2', W - 4).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--cds-chart-axis)');
+    svg.append('g').selectAll('g').data(series).join('g').attr('fill', (s) => colorOf(s.key))
+      .selectAll('rect').data((s) => s).join('rect')
+      .attr('x', (p) => x(p.data.m)).attr('width', x.bandwidth())
+      .attr('y', (p) => y(p[1])).attr('height', (p) => Math.max(0, y(p[0]) - y(p[1])));
+    const tip = tipFor(box);
+    svg.append('g').selectAll('rect').data(table).join('rect')
+      .attr('x', (r) => x(r.m)).attr('width', x.bandwidth()).attr('y', 0).attr('height', H - 24).attr('fill', 'transparent')
+      .on('mousemove', (ev, r) => showTip(box, tip, ev, r.m, [['', 'Razem', fmtInt(d3.sum(keys, (k) => r[k]))], ...keys.filter((k) => r[k]).map((k) => [colorOf(k), k, fmtInt(r[k])])]))
+      .on('mouseleave', () => { tip.hidden = true; });
+  }
+
+  function lag() {
+    const box = document.getElementById('lag');
+    const d = dash.data('czas');
+    if (d.status !== 'ok') {
+      if (d.status === 'error') { box.classList.remove('dash-skeleton'); box.replaceChildren(); const f = document.createElement('div'); f.className = 'tx-fail'; f.textContent = 'Failed to load'; box.append(f); }
+      return;
+    }
+    box.classList.remove('dash-skeleton');
+    const { okres, inw } = dash.params();
+    const rows = d.data.filter((r) => r.okres === okres && r.inw === inw).sort((a, b) => a.kolejnosc - b.kolejnosc);
+    box.querySelectorAll('svg, .tx-note').forEach((s) => s.remove());
+    if (!rows.length) { const p = document.createElement('p'); p.className = 'tx-note'; p.textContent = 'Brak sprzedaży z leadów w tym wyborze.'; box.append(p); return; }
+    const W = Math.max(260, box.clientWidth), H = 200;
+    const x = d3.scaleBand(rows.map((r) => r.przedzial), [4, W - 4]).padding(0.3);
+    const y = d3.scaleLinear([0, d3.max(rows, (r) => r.sprzedaze)], [H - 40, 18]);
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    svg.append('line').attr('x1', 4).attr('x2', W - 4).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--cds-chart-axis)');
+    const bw = Math.min(64, x.bandwidth());
+    svg.selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.przedzial) + (x.bandwidth() - bw) / 2).attr('width', bw)
+      .attr('y', (r) => y(r.sprzedaze)).attr('height', (r) => y(0) - y(r.sprzedaze)).attr('rx', 4).attr('fill', dash.colors[0]);
+    svg.selectAll('text.v').data(rows).join('text').attr('class', 'v').attr('x', (r) => x(r.przedzial) + x.bandwidth() / 2).attr('y', (r) => y(r.sprzedaze) - 5)
+      .attr('text-anchor', 'middle').attr('font-size', 12).attr('fill', 'var(--color-fg)').text((r) => fmtInt(r.sprzedaze));
+    svg.selectAll('text.l').data(rows).join('text').attr('class', 'l').attr('x', (r) => x(r.przedzial) + x.bandwidth() / 2).attr('y', H - 22)
+      .attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text((r) => r.przedzial);
+  }
+
+  window.txDrawers.push(
+    () => stacked('ch-leady', 'lg-leady', 'miesiace', 'leady'),
+    () => stacked('ch-sprz', 'lg-sprz', 'sprzedaz_mies', 'sprzedaze'),
+    lag,
+  );
+})();
+</script>
