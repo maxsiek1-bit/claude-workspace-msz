@@ -136,6 +136,31 @@
     </section>
   </div>
 
+  <section class="tx-card" id="dojrzewanie">
+    <h2>Ile trwa dojrzewanie klienta wg kanału</h2>
+    <p class="tx-note">Mediana dni od utworzenia leada do kolejnych etapów (liczona tylko dla osób, które dany etap osiągnęły). Pasek pokazuje typową drogę: lead → pierwsze spotkanie → drugie spotkanie → pierwsza umowa (rezerwacyjna lub sprzedażowa) → sprzedaż. Konwersja leada w klienta w CRM następuje zwykle tego samego dnia, więc jej nie pokazujemy. Kanały z mniej niż 3 sprzedażami pominięte na wykresie.</p>
+    <div class="tx-legend" id="lg-etapy"></div>
+    <div class="tx-chart short dash-skeleton" id="ch-etapy" data-source="etapy"></div>
+    <div class="tx-tablebox">
+      <table class="tx-table" id="t-etapy" data-source="etapy" data-row-key="okres,inw,kanal">
+        <thead><tr>
+          <th data-field="kanal"><button>Kanał</button></th>
+          <th data-field="n_spotkanie"><button>Klientów ze spotkaniem</button></th>
+          <th data-field="med_spotkanie"><button>Lead → 1. spotkanie (mediana dni)</button></th>
+          <th data-field="sr_liczba_spotkan"><button>Śr. liczba spotkań</button></th>
+          <th data-field="n_spotkanie2"><button>Z 2. spotkaniem</button></th>
+          <th data-field="med_przerwa"><button>1. → 2. spotkanie</button></th>
+          <th data-field="n_umowa"><button>Umów</button></th>
+          <th data-field="med_umowa"><button>Lead → umowa</button></th>
+          <th data-field="n_sprzedaz"><button>Sprzedaży</button></th>
+          <th data-field="med_sprzedaz"><button>Lead → sprzedaż</button></th>
+          <th data-field="sr_sprzedaz"><button>Średnia lead → sprzedaż</button></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
   <section class="tx-card" id="kampanie">
     <h2>Kampanie reklamowe (Meta i Google)</h2>
     <p class="tx-note">Nazwa lub ID kampanii z formularza leadowego. Dla Meta „% Instagram” to część leadów z placementu IG. Brak AdSetu i kreacji w danych z CRM, zobacz sekcję niżej.</p>
@@ -293,6 +318,41 @@ dash.calc('crm_vs_lead', {
       a.sprzedaze++; a[col[r.kanal_leada] || 'inne']++;
     }
     return [...g.values()];
+  },
+});
+
+dash.calc('etapy', {
+  title: 'Czas do etapów wg kanału',
+  description: 'Mediana i średnia dni od leada do: pierwszego spotkania, drugiego spotkania, pierwszej umowy i sprzedaży, średnia liczba spotkań na klienta ze spotkaniem i mediana przerwy między 1. a 2. spotkaniem, wg kanału, roku leada i inwestycji; tylko osoby, które etap osiągnęły.',
+  inputs: ['leady'],
+  fn: (leady) => {
+    const stages = [['spotkanie', 'dni_do_spotkania'], ['umowa', 'dni_do_umowy'], ['sprzedaz', 'dni_do_sprzedazy']];
+    const has = (v) => v != null && v !== '' && !Number.isNaN(+v);
+    const g = new Map();
+    for (const r of leady) {
+      for (const okres of ['all', r.data.slice(0, 4)]) for (const inw of ['all', r.inwestycja]) {
+        const k = okres + '|' + inw + '|' + r.kanal;
+        let a = g.get(k);
+        if (!a) g.set(k, a = { okres, inw, kanal: r.kanal, lists: Object.fromEntries(stages.map(([s]) => [s, []])), spotkanie2: [], przerwa: [], liczba: [] });
+        for (const [s, col] of stages) if (has(r[col])) a.lists[s].push(+r[col]);
+        if (r.spotkanie === '1') a.liczba.push(+r.liczba_spotkan || 0);
+        if (has(r.dni_do_spotkania) && has(r.dni_do_2_spotkania)) { a.przerwa.push(+r.dni_do_2_spotkania); a.spotkanie2.push(+r.dni_do_spotkania + +r.dni_do_2_spotkania); }
+      }
+    }
+    const med = (v) => { v.sort((x, y) => x - y); return v.length ? v[Math.floor((v.length - 1) / 2)] : null; };
+    const avg = (v) => (v.length ? v.reduce((x, y) => x + y, 0) / v.length : null);
+    return [...g.values()].map(({ lists, spotkanie2, przerwa, liczba, ...a }) => {
+      for (const [s] of stages) {
+        a['n_' + s] = lists[s].length;
+        a['med_' + s] = med(lists[s]);
+        a['sr_' + s] = lists[s].length ? Math.round(avg(lists[s])) : null;
+      }
+      a.n_spotkanie2 = spotkanie2.length;
+      a.med_spotkanie2 = med(spotkanie2);
+      a.med_przerwa = med(przerwa);
+      a.sr_liczba_spotkan = liczba.length ? Math.round(avg(liczba) * 10) / 10 : null;
+      return a;
+    });
   },
 });
 
@@ -622,7 +682,78 @@ dash.calc('czas', {
       .attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text((r) => r.przedzial);
   }
 
+  const tE = document.getElementById('t-etapy');
+  const STAGES = [['spotkanie', '1. spotkanie'], ['spotkanie2', '2. spotkanie'], ['umowa', 'Umowa'], ['sprzedaz', 'Sprzedaż']];
+  function etapy() {
+    const box = document.getElementById('ch-etapy');
+    const lg = document.getElementById('lg-etapy');
+    const tb = tE.tBodies[0];
+    const d = dash.data('etapy');
+    if (d.status !== 'ok') {
+      tb.replaceChildren();
+      if (d.status === 'error') { box.classList.remove('dash-skeleton'); box.replaceChildren(); const f = document.createElement('div'); f.className = 'tx-fail'; f.textContent = 'Failed to load'; box.append(f); }
+      return;
+    }
+    box.classList.remove('dash-skeleton');
+    const { okres, inw } = dash.params();
+    const rows = d.data.filter((r) => r.okres === okres && r.inw === inw);
+    const fmtD = (v) => (v == null ? '–' : fmtInt(v));
+    const sorted = rows.slice().sort((a, b) => b.n_sprzedaz - a.n_sprzedaz);
+    // sort state shared with other tables
+    const s = (window.txSort && window.txSort[tE.id]) || null;
+    tb.replaceChildren(...(s ? sorted.sort((a, b) => { const x = a[s.field], y = b[s.field]; const c = typeof x === 'string' ? x.localeCompare(y, 'pl') : (x ?? -Infinity) - (y ?? -Infinity); return s.dir === 'desc' ? -c : c; }) : sorted).map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = [r.okres, r.inw, r.kanal].map(encodeURIComponent).join(',');
+      [r.kanal, fmtInt(r.n_spotkanie), fmtD(r.med_spotkanie), r.sr_liczba_spotkan == null ? '–' : d3.format('.1f')(r.sr_liczba_spotkan).replace('.', ','), fmtInt(r.n_spotkanie2), fmtD(r.med_przerwa), fmtInt(r.n_umowa), fmtD(r.med_umowa), fmtInt(r.n_sprzedaz), fmtD(r.med_sprzedaz), fmtD(r.sr_sprzedaz)].forEach((c, i) => {
+        const td = document.createElement('td');
+        if (i === 0) { const sw = document.createElement('span'); sw.className = 'tx-sw'; sw.style.background = colorOf(r.kanal); td.append(sw, document.createTextNode(c)); }
+        else td.textContent = c;
+        tr.append(td);
+      });
+      return tr;
+    }));
+
+    // wykres: pozioma oś czasu, punkt = mediana dni do etapu
+    const chart = sorted.filter((r) => r.n_sprzedaz >= 3);
+    box.querySelectorAll('svg, .tx-note').forEach((e) => e.remove());
+    lg.replaceChildren(...STAGES.map(([, name], i) => { const sp = document.createElement('span'); const sw = document.createElement('span'); sw.className = 'tx-sw'; sw.style.background = dash.colors[i]; sp.append(sw, document.createTextNode(name)); return sp; }));
+    if (!chart.length) { const p = document.createElement('p'); p.className = 'tx-note'; p.textContent = 'Za mało sprzedaży z leadów w tym wyborze, żeby pokazać wykres.'; return; }
+    const W = Math.max(280, box.clientWidth), rowH = 30, H = chart.length * rowH + 36;
+    box.style.minHeight = H + 'px';
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const probe = svg.append('text').attr('font-size', 11);
+    const ml = d3.max(chart, (r) => { probe.text(r.kanal); return probe.node().getComputedTextLength(); }) + 14; probe.remove();
+    const xmax = d3.max(chart, (r) => r.med_sprzedaz) || 1;
+    const x = d3.scaleLinear([0, xmax], [ml, W - 24]).nice();
+    const xt = x.ticks(5);
+    svg.append('g').selectAll('line').data(xt).join('line').attr('x1', x).attr('x2', x).attr('y1', 8).attr('y2', H - 24).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(xt).join('text').attr('x', x).attr('y', H - 8).attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text((v) => fmtInt(v) + ' dni');
+    const tip = tipFor(box);
+    chart.forEach((r, i) => {
+      const cy = 8 + i * rowH + rowH / 2;
+      svg.append('text').attr('x', ml - 8).attr('y', cy + 4).attr('text-anchor', 'end').attr('font-size', 11).attr('fill', 'var(--color-fg)').text(r.kanal);
+      svg.append('line').attr('x1', x(0)).attr('x2', x(r.med_sprzedaz ?? 0)).attr('y1', cy).attr('y2', cy).attr('stroke', 'var(--cds-chart-axis)').attr('stroke-width', 2).attr('stroke-linecap', 'round');
+      STAGES.forEach(([s], j) => {
+        if (r['med_' + s] == null) return;
+        svg.append('circle').attr('cx', x(r['med_' + s])).attr('cy', cy).attr('r', 6).attr('fill', dash.colors[j]).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1.5)
+          .style('cursor', 'default')
+          .on('mousemove', (ev) => showTip(box, tip, ev, r.kanal, [[dash.colors[j], STAGES[j][1], 'mediana ' + fmtInt(r['med_' + s]) + ' dni, n = ' + fmtInt(r['n_' + s])]]))
+          .on('mouseleave', () => { tip.hidden = true; });
+      });
+      if (r.med_sprzedaz != null) svg.append('text').attr('x', x(r.med_sprzedaz) + 10).attr('y', cy + 4).attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text(fmtInt(r.med_sprzedaz));
+    });
+  }
+  tE.querySelectorAll('th button').forEach((b) => b.addEventListener('click', () => {
+    window.txSort = window.txSort || {};
+    const f = b.closest('th').dataset.field; const s = window.txSort[tE.id] || {};
+    window.txSort[tE.id] = { field: f, dir: s.field === f && s.dir === 'desc' ? 'asc' : 'desc' };
+    tE.querySelectorAll('th').forEach((th) => th.removeAttribute('aria-sort'));
+    b.closest('th').setAttribute('aria-sort', window.txSort[tE.id].dir === 'desc' ? 'descending' : 'ascending');
+    etapy();
+  }));
+
   window.txDrawers.push(
+    etapy,
     () => stacked('ch-leady', 'lg-leady', 'miesiace', 'leady'),
     () => stacked('ch-sprz', 'lg-sprz', 'sprzedaz_mies', 'sprzedaze'),
     lag,

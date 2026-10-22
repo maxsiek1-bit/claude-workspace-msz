@@ -24,7 +24,7 @@ def channel(src,plat):
 # --- clients from agreements + meetings
 T=json.load(open('trans.json')); M=json.load(open('meet.json'))
 key2cid={}
-cl=collections.defaultdict(lambda:{'meet':None,'res':None,'sale':None,'units':{},'created':None,'src':None,'inv':None})
+cl=collections.defaultdict(lambda:{'meets':[],'meet':None,'res':None,'sale':None,'units':{},'created':None,'src':None,'inv':None})
 def link(cid,p,e):
   for k in (ph(p),em(e)):
     if k: key2cid.setdefault(k,cid)
@@ -47,7 +47,7 @@ for m in M:
   if not cid: continue
   link(cid,m['Telefon klienta'],m['E-mail klienta'])
   if m['Status spotkania']=='Odbyło się':
-    c=cl[cid]; d=D(m['Data spotkania']); c['meet']=min(filter(None,[c['meet'],d]))
+    c=cl[cid]; d=D(m['Data spotkania']); c['meet']=min(filter(None,[c['meet'],d])); c['meets'].append(d)
     c['created']=c['created'] or D(m['Utworzono klienta']); c['src']=c['src'] or m['Źródło pochodzenia']
 
 # --- leads
@@ -83,11 +83,16 @@ for l in L:
 # first-touch: each client's sale/meeting attributed only to their earliest lead
 seen=set(); matched_cids=set()
 for r in rows:
-  cid=r.pop('cid'); r['m']=r['r']=r['s']=0; r['ds']=None; r['v']=0
+  cid=r.pop('cid'); r['m']=r['r']=r['s']=0; r['ds']=None; r['v']=0; r['dk']=r['dm']=r['dr']=None; r['nm']=0; r['d2']=None
   if cid is None or cid in seen: continue
   c=cl.get(cid)
   if not c: continue
   seen.add(cid); ld=D(r['d'])
+  if c['created'] and c['created']>=ld: r['dk']=(c['created']-ld).days
+  if c['meet'] and c['meet']>=ld: r['dm']=(c['meet']-ld).days
+  ms=sorted(x for x in c['meets'] if x>=ld); r['nm']=len(ms)
+  if len(ms)>=2: r['d2']=(ms[1]-ms[0]).days
+  if c['res'] and c['res']>=ld: r['dr']=(c['res']-ld).days
   if c['meet'] and c['meet']>=ld: r['m']=1
   if c['res'] and c['res']>=ld: r['r']=1
   if c['sale'] and c['sale']>=ld:
