@@ -215,8 +215,8 @@ function buildFilters(){
      {label:"tylko nowe", fn:()=>{S.prod=new Set(D.products.map((p,i)=>[p,i]).filter(([p])=>!isRefurb(p)).map(([,i])=>i));}},
      {label:"tylko refurb", fn:()=>{S.prod=new Set(D.products.map((p,i)=>[p,i]).filter(([p])=>isRefurb(p)).map(([,i])=>i));}}]);
   chipRow(document.getElementById("f-dt"), D.dtypes.map(d=>({label:d})), i=>S.dt.has(i), (i,solo)=>toggleSet(S.dt,i,solo));
-  chipRow(document.getElementById("f-seller"), D.sellers.map(s=>({label:s})), i=>S.seller.has(i), (i,solo)=>toggleSet(S.seller,i,solo),
-    [{label:"wszyscy", fn:()=>{S.seller=new Set(D.sellers.map((_,i)=>i));}}]);
+  chipRow(document.getElementById("f-seller"), D.sellers.map(s=>({label:s})), i=>S.seller.has(i), (i,solo)=>{ if(solo){ S.seller=new Set([i]); } else if(S.seller.has(i)) S.seller.delete(i); else S.seller.add(i); },
+    [{label:"wszyscy", fn:()=>{S.seller=new Set(D.sellers.map((_,i)=>i));}},{label:"nikt", fn:()=>{S.seller=new Set();}}]);
   chipRow(document.getElementById("f-ka"), D.keyAccounts.map(k=>({label:k})), i=>S.ka.has(i+1), (i,solo)=>{ const k=i+1; if(solo){ S.ka=new Set([k]); S.kaOnly=true; } else { S.kaOnly=false; if(S.ka.has(k)) S.ka.delete(k); else S.ka.add(k); } },
     [{label:"wlicz wszystkich", fn:()=>{S.ka=new Set(D.keyAccounts.map((_,i)=>i+1)); S.kaOnly=false;}},{label:"wyłącz wszystkich", fn:()=>{S.ka=new Set(); S.kaOnly=false;}},{label:"tylko oni", fn:()=>{S.ka=new Set(D.keyAccounts.map((_,i)=>i+1)); S.kaOnly=true;}}]);
   const sel=document.getElementById("f-country");
@@ -243,7 +243,7 @@ function syncFilterUI(){
   const parts=[]; if(S.comp.size<D.companies.length) parts.push([...S.comp].map(i=>D.companies[i]).join(", ")); else parts.push("wszystkie spółki");
   if(S.country>=0) parts.push(D.countries[S.country]); else parts.push("wszystkie kraje");
   if(S.prod.size<D.products.length) parts.push(S.prod.size+" z "+D.products.length+" produktów"); else parts.push("wszystkie produkty");
-  if(S.seller.size<D.sellers.length) parts.push("handlowcy: "+[...S.seller].map(i=>D.sellers[i]).join(", "));
+  if(S.seller.size===0) parts.push("brak wybranych handlowców – zaznacz kogoś"); else if(S.seller.size<D.sellers.length) parts.push("handlowcy: "+[...S.seller].map(i=>D.sellers[i]).join(", "));
   if(S.kaOnly) parts.push("TYLKO większe strzały"); else if(S.ka.size===0) parts.push("bez większych strzałów"); else if(S.ka.size<D.keyAccounts.length) parts.push("bez "+(D.keyAccounts.length-S.ka.size)+" klientów z większymi strzałami");
   document.getElementById("subtitle").textContent = `${metricName()} · ${parts.join(" · ")} · dane do ${D.maxDate}`;
 }
