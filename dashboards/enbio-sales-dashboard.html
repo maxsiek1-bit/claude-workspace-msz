@@ -355,7 +355,7 @@ function viewCompanies(rows){
 function viewCountries(rows){
   const Y=S.mainYear, P=Y-1, w=win(Y);
   let h = `<div class="frow" style="justify-content:space-between">${mainYearSelect()}<span class="note" style="margin:0">${partialNote()} Kliknij kraj, aby ustawić filtr.</span></div>`;
-  const byC = new Map(); for(const r of D.rows){ if(!S.comp.has(r[2])||!S.prod.has(r[4])||!S.dt.has(r[6])) continue; if(!byC.has(r[3])) byC.set(r[3], []); byC.get(r[3]).push(r); }
+  const byC = new Map(); for(const r of slice({country:-1})){ if(!byC.has(r[3])) byC.set(r[3], []); byC.get(r[3]).push(r); }
   const list = [...byC.entries()].map(([ci,rs])=>({ci, cur:yearTotal(rs,Y,w), prev:yearTotal(rs,P,w), yrs:S.years.map(y=>monthly(rs,y).reduce((a,b)=>a+b,0))})).filter(x=>x.cur||x.prev).sort((a,b)=>b.cur-a.cur);
   const tot = list.reduce((a,x)=>a+x.cur,0);
   h += `<div class="card"><h2>Rynki ${Y}${winLabel()} vs ${P}</h2><p class="note">${metricName()} · 15 największych rynków w ${Y}</p>${legendHTML([{label:String(P),color:yearColor(P),box:true},{label:String(Y),color:yearColor(Y),box:true}])}<div class="chart tall" id="ch-ctry"><canvas></canvas></div></div>`;
