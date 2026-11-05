@@ -381,8 +381,13 @@ function viewCountries(rows){
   const tot = list.reduce((a,x)=>a+x.cur,0);
   h += `<div class="card"><h2>Rynki ${Y}${winLabel()} vs ${P}</h2><p class="note">${metricName()} · 15 największych rynków w ${Y}</p>${legendHTML([{label:String(P),color:yearColor(P),box:true},{label:String(Y),color:yearColor(Y),box:true}])}<div class="chart tall" id="ch-ctry"><canvas></canvas></div></div>`;
   h += `<div class="card"><h2>Wszystkie rynki</h2><p class="note">${metricName()} · posortowane wg ${Y}; r/r i udział liczone${winLabel()}</p><div class="tbl"><table><thead><tr><th>Kraj</th>${S.years.map(y=>`<th>${y}</th>`).join("")}<th>r/r ${Y}</th><th>Udział ${Y}</th></tr></thead><tbody>`;
+  const totYrs = S.years.map((_,i)=>list.reduce((a,x)=>a+x.yrs[i],0)); const totPrev=list.reduce((a,x)=>a+x.prev,0);
+  const sumRow = `<tr class="tot"><td>Suma – wszystkie rynki</td>${totYrs.map(v=>`<td>${fmt(v)}</td>`).join("")}${yoyCell(yoy(tot,totPrev))}<td>100%</td></tr>`;
+  const yrCmp = S.years.map(y=>{ const ww=(y===CUR_Y)?LAST_FULL_M:12; const c=sumTo(monthly(rows,y),ww), p=sumTo(monthly(rows,y-1),ww); return {c,p,ww}; });
+  const yoyRow = `<tr><td class="dim">Zmiana r/r (vs rok poprzedni)</td>${yrCmp.map(x=> x.p? yoyCell(yoy(x.c,x.p)).replace('<td','<td style="font-weight:600"') : '<td class="dim">–</td>').join("")}<td></td><td></td></tr><tr><td class="dim" style="font-size:11px">okres porównania</td>${yrCmp.map(x=>`<td class="dim" style="font-size:11px">${x.ww===12?'pełny rok':'I–'+x.ww+' obu lat'}</td>`).join("")}<td></td><td></td></tr>`;
+  h += sumRow;
   for(const x of list){ h += `<tr class="clk" data-ci="${x.ci}"><td>${esc(D.countries[x.ci])}</td>${x.yrs.map(v=>`<td>${fmt(v)}</td>`).join("")}${yoyCell(yoy(x.cur,x.prev))}<td>${tot?(x.cur/tot*100).toFixed(1).replace(".",",")+"%":"–"}</td></tr>`; }
-  h += `</tbody></table></div></div>`;
+  h += sumRow + yoyRow + `</tbody></table></div></div>`;
   return {html:h, after:()=>{ bindMainYear();
     const top=list.slice(0,15); const o=baseOpts({indexAxis:"y"}); o.scales={ y:{grid:{display:false},border:{color:cssv("--line")},ticks:{color:cssv("--muted")}}, x:{grid:{color:cssv("--grid")},border:{display:false},beginAtZero:true,ticks:{color:cssv("--muted"),callback:o.scales.y.ticks.callback}} };
     o.plugins.tooltip.callbacks.label=(c)=>` ${c.dataset.label}: ${fmt(c.parsed.x)}`;
