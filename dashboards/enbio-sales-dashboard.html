@@ -283,7 +283,13 @@ function viewOverview(rows){
   const ms = S.years.map(y=>monthly(rows,y));
   for(let m=0;m<12;m++){ const c=ms[S.years.indexOf(Y)]?.[m], p=ms[S.years.indexOf(P)]?.[m]; const partial = (Y===CUR_Y && m+1===CUR_M);
     h += `<tr><td>${MONL[m]}${partial?'<span class="badge">w toku</span>':''}</td>${S.years.map((y,i)=>`<td class="${(y>CUR_Y||(y===CUR_Y&&m+1>CUR_M))?'dim':''}">${(y>CUR_Y||(y===CUR_Y&&m+1>CUR_M))?'':fmt(ms[i][m])}</td>`).join("")}${(partial || (Y===CUR_Y && m+1>CUR_M))? '<td class="dim">–</td>' : yoyCell(S.years.includes(P)? yoy(c,p) : yoy(c, monthly(rows,P)[m]))}</tr>`; }
-  h += `<tr class="tot"><td>Suma</td>${S.years.map((y,i)=>`<td>${fmt(ms[i].reduce((a,b)=>a+b,0))}</td>`).join("")}${yoyCell(yoy(cur,prev))}</tr></tbody></table></div></div>`;
+  h += `<tr class="tot"><td>Suma</td>${S.years.map((y,i)=>`<td>${fmt(ms[i].reduce((a,b)=>a+b,0))}</td>`).join("")}${yoyCell(yoy(cur,prev))}</tr>`;
+  // year-over-year rows under the totals: each year vs its previous year (current year: same months only)
+  const yrCmp = S.years.map(y=>{ const ww = (y===CUR_Y)? LAST_FULL_M : 12; const c=sumTo(monthly(rows,y),ww), p=sumTo(monthly(rows,y-1),ww); return {y, c, p, ww}; });
+  h += `<tr><td>Zmiana r/r (vs rok poprzedni)</td>${yrCmp.map(x=> x.p? yoyCell(yoy(x.c,x.p)).replace('<td','<td style="font-weight:600"') : '<td class="dim">–</td>').join("")}<td></td></tr>`;
+  h += `<tr><td>Różnica r/r</td>${yrCmp.map(x=> x.p? `<td class="${x.c-x.p>=0?'up':'down'}">${x.c-x.p>=0?'+':''}${fmt(x.c-x.p)}</td>` : '<td class="dim">–</td>').join("")}<td></td></tr>`;
+  h += `<tr><td class="dim" style="font-size:11px">okres porównania</td>${yrCmp.map(x=>`<td class="dim" style="font-size:11px">${x.ww===12? 'pełny rok' : 'I–'+x.ww+' obu lat'}</td>`).join("")}<td></td></tr>`;
+  h += `</tbody></table></div></div>`;
   // key accounts breakdown
   { const base = slice({ka:new Set(D.keyAccounts.map((_,i)=>i+1))}).filter(r=>r[11]!==0); const kaRows = S.kaOnly? base : base;
     h += `<div class="card"><h2>Większe strzały – ile ważą w liczbach</h2><p class="note">${metricName()} · stali klienci z dużymi, nieregularnymi zamówieniami; w nawiasie miesiące z większymi dostawami (dla wybranych produktów – OEM widać po dołączeniu chipa OEM). ${S.ka.size===D.keyAccounts.length && !S.kaOnly ? "Obecnie wliczeni w wykresy." : S.kaOnly ? "Obecnie widać tylko ich." : "Odznaczeni są wyłączeni z wykresów."}</p><div class="tbl"><table><thead><tr><th>Klient</th>${S.years.map(y=>`<th>${y}</th>`).join("")}</tr></thead><tbody>`;
