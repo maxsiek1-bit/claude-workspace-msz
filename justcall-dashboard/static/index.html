@@ -27,6 +27,8 @@
   --cat-1: #2a78d6;
   --cat-2: #eb6834;
   --cat-3: #1baf7a;
+  --cat-4: #eda100;
+  --cat-5: #e87ba4;
   --good: #0ca30c;
   --good-ink: #0a7a0a;
   --warn: #fab219;
@@ -43,7 +45,7 @@
     --bg: #0e1015; --surface: #171a21; --surface-2: #1c2029; --ink: #eceef3; --ink-2: #b5bbc9;
     --muted: #8c93a5; --line: #262b35; --line-strong: #353b48; --accent: #6fa3f2; --accent-soft: #1b2a45;
     --seq-1: #1a2b44; --seq-2: #184f95; --seq-3: #256abf; --seq-4: #3987e5; --seq-5: #6da7ec; --seq-6: #b7d3f6;
-    --none: #343946; --cat-1: #3987e5; --cat-2: #d95926; --cat-3: #199e70; --good-ink: #4cc74c; --warn-ink: #f2c04d; --crit-ink: #ec7a7a;
+    --none: #343946; --cat-1: #3987e5; --cat-2: #d95926; --cat-3: #199e70; --cat-4: #c98500; --cat-5: #d55181; --good-ink: #4cc74c; --warn-ink: #f2c04d; --crit-ink: #ec7a7a;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3); color-scheme: dark;
   }
 }
@@ -51,7 +53,7 @@
   --bg: #0e1015; --surface: #171a21; --surface-2: #1c2029; --ink: #eceef3; --ink-2: #b5bbc9;
   --muted: #8c93a5; --line: #262b35; --line-strong: #353b48; --accent: #6fa3f2; --accent-soft: #1b2a45;
   --seq-1: #1a2b44; --seq-2: #184f95; --seq-3: #256abf; --seq-4: #3987e5; --seq-5: #6da7ec; --seq-6: #b7d3f6;
-  --none: #343946; --cat-1: #3987e5; --cat-2: #d95926; --cat-3: #199e70; --good-ink: #4cc74c; --warn-ink: #f2c04d; --crit-ink: #ec7a7a;
+  --none: #343946; --cat-1: #3987e5; --cat-2: #d95926; --cat-3: #199e70; --cat-4: #c98500; --cat-5: #d55181; --good-ink: #4cc74c; --warn-ink: #f2c04d; --crit-ink: #ec7a7a;
   --shadow: 0 1px 2px rgba(0, 0, 0, .3); color-scheme: dark;
 }
 
@@ -210,7 +212,9 @@ dialog h2 { font-size: 18px; margin-bottom: 12px; }
 
 /* Pipedrive */
 .r-0 { fill: var(--cat-1); } .r-1 { fill: var(--cat-2); } .r-2 { fill: var(--cat-3); } .r-x { fill: var(--none); } .r-m { fill: var(--seq-4); }
-.legend .r0 { background: var(--cat-1); } .legend .r1 { background: var(--cat-2); } .legend .r2 { background: var(--cat-3); } .legend .rx { background: var(--none); }
+.legend .r0 { background: var(--cat-1); } .legend .r1 { background: var(--cat-2); } .legend .r2 { background: var(--cat-3); } .legend .r3 { background: var(--cat-4); } .legend .r4 { background: var(--cat-5); } .legend .rx { background: var(--none); }
+.r-3 { fill: var(--cat-4); } .r-4 { fill: var(--cat-5); }
+.seg.small-seg button { padding: 3px 9px; font-size: 12.5px; }
 .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
 table.plain tbody tr { cursor: default; }
 .share { display: inline-block; width: 60px; height: 5px; border-radius: 3px; background: var(--line); vertical-align: middle; margin-left: 8px; overflow: hidden; }
@@ -999,7 +1003,7 @@ function fillMail(m, id, a) {
   return a;
 }
 function pdAgg(from, to) {
-  const regs = S.pd.regions, out = { total: 0, byRegion: {}, byDay: new Map(), channels: new Map(), owners: new Map(), won: new Map(), wonN: 0, wonByCur: {}, pipes: new Map() };
+  const regs = S.pd.regions, out = { total: 0, byRegion: {}, byDay: new Map(), byDayCh: new Map(), channels: new Map(), owners: new Map(), won: new Map(), wonN: 0, wonByCur: {}, pipes: new Map() };
   for (const r of regs.concat("Inne")) out.byRegion[r] = 0;
   const now = Date.now() / 1000;
   for (const l of S.pdLeads) {
@@ -1007,6 +1011,7 @@ function pdAgg(from, to) {
     if (!S.pdOpts.imports && l.src === "Import") continue;
     out.total++; out.byRegion[l.r] = (out.byRegion[l.r] || 0) + 1;
     const d = out.byDay.get(l.day) || {}; d[l.r] = (d[l.r] || 0) + 1; out.byDay.set(l.day, d);
+    const dc = out.byDayCh.get(l.day) || {}; const rc = dc[l.r] || (dc[l.r] = {}); rc[l.ch] = (rc[l.ch] || 0) + 1; out.byDayCh.set(l.day, dc);
     const c = out.channels.get(l.ch) || { total: 0 }; c.total++; c[l.r] = (c[l.r] || 0) + 1; out.channels.set(l.ch, c);
     const o = out.owners.get(l.o) || { n: 0, open: 0, noAct: 0, fc: [], h1: 0, h24: 0, none: 0, judged: 0, hot: 0, warm: 0, cold: 0 };
     o.n++;
@@ -1082,9 +1087,10 @@ function renderPd(from, to, pFrom, pTo, hasPrev) {
   ins.sort((a, b) => order[a[0]] - order[b[0]]);
   const insights = ins.length ? `<section class="panel"><div class="panel-head"><h2>Na co zwrócić uwagę</h2></div><div class="insights">${ins.slice(0, 8).map(([k, label, text]) => `<div class="ins"><span class="chip ${k === "warm" ? "warn" : k}">${{ crit: "■", warn: "▲", warm: "▲", good: "●", info: "◆" }[k]} ${label}</span><span>${text}</span></div>`).join("")}</div></section>` : "";
 
-  const legend = all.map((r, i) => `<span><i class="${i < 3 && r !== "Inne" ? "r" + i : "rx"}"></i>${esc(r)}</span>`).join("");
-  const leadsPanel = `<section class="panel"><div class="panel-head"><h2>Nowe leady dzień po dniu</h2><label class="toggle" for="pdImports"><input type="checkbox" id="pdImports" ${S.pdOpts.imports ? "checked" : ""}> Uwzględnij importy</label></div>
-    <div class="chart" id="leadChart"></div><div class="legend">${legend}</div>
+  if (S.pdOpts.region && !all.includes(S.pdOpts.region)) S.pdOpts.region = "";
+  const regBtns = ["", ...all].map((r) => `<button type="button" data-leadreg="${esc(r)}" aria-pressed="${(S.pdOpts.region || "") === r}">${r ? esc(r) : "Wszystkie regiony"}</button>`).join("");
+  const leadsPanel = `<section class="panel"><div class="panel-head"><h2>Nowe leady dzień po dniu${S.pdOpts.region ? ` · ${esc(S.pdOpts.region)} według źródeł` : ""}</h2><div class="filters"><div class="seg small-seg" role="group" aria-label="Region">${regBtns}</div><label class="toggle" for="pdImports"><input type="checkbox" id="pdImports" ${S.pdOpts.imports ? "checked" : ""}> Uwzględnij importy</label></div></div>
+    <div class="chart" id="leadChart"></div><div class="legend" id="leadLegend"></div>
     <p class="small" style="margin-top:8px">Regiony jak w Twoich filtrach Pipedrive (pole „Country (automatic)”, bez importu newslettera Enbio). Liczone są wszystkie leady, które wpadły, także te już rozdzielone. Leady zamienione w deal znikają z listy leadów, więc nie są tu liczone.</p></section>`;
 
   const chRows = [...cur.channels.entries()].sort((a, b) => b[1].total - a[1].total);
@@ -1185,8 +1191,22 @@ function drawStacked(el, days, valuesFor, series, tipFor) {
 function drawPd() {
   if (!S.pd || !S.pdLast) return;
   const { cur, m, days } = S.pdLast, all = S.pd.regions.concat("Inne");
-  drawStacked($("#leadChart"), days, (d) => all.map((r) => (cur.byDay.get(d) || {})[r] || 0), all.map((r, i) => r === "Inne" || i > 2 ? "r-x" : "r-" + i),
-    (d, v) => `<b>${WD_PL[weekdayOf(d)]} ${shortDate(d)}</b>${all.map((r, i) => `<div class="r"><span>${esc(r)}</span><span>${v[i]}</span></div>`).join("")}<div class="r"><span>Razem</span><span>${v.reduce((a, b) => a + b, 0)}</span></div>`);
+  const reg = S.pdOpts.region || "", legEl = $("#leadLegend");
+  if (!reg) {
+    if (legEl) legEl.innerHTML = all.map((r, i) => `<span><i class="${i < 3 && r !== "Inne" ? "r" + i : "rx"}"></i>${esc(r)}</span>`).join("") + `<span class="small">Wybierz region, aby zobaczyć, z jakich źródeł przyszły leady.</span>`;
+    drawStacked($("#leadChart"), days, (d) => all.map((r) => (cur.byDay.get(d) || {})[r] || 0), all.map((r, i) => r === "Inne" || i > 2 ? "r-x" : "r-" + i),
+      (d, v) => { const dc = cur.byDayCh.get(d) || {}; return `<b>${WD_PL[weekdayOf(d)]} ${shortDate(d)}</b>${all.map((r, i) => `<div class="r"><span>${esc(r)}</span><span>${v[i]}</span></div>${Object.entries(dc[r] || {}).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([ch, n]) => `<div class="r" style="opacity:.75"><span>&nbsp;&nbsp;${esc(ch)}</span><span>${n}</span></div>`).join("")}`).join("")}<div class="r"><span>Razem</span><span>${v.reduce((a, b) => a + b, 0)}</span></div>`; });
+  } else {
+    // top 5 sources of this region in the period, the rest folded into "Pozostałe"
+    const tot = {};
+    for (const dc of cur.byDayCh.values()) for (const [ch, n] of Object.entries(dc[reg] || {})) tot[ch] = (tot[ch] || 0) + n;
+    const ranked = Object.entries(tot).sort((a, b) => b[1] - a[1]);
+    const top = ranked.slice(0, 5).map(([ch]) => ch), rest = ranked.length > 5;
+    const keys = rest ? top.concat("Pozostałe") : top, cls = keys.map((k, i) => k === "Pozostałe" ? "r-x" : "r-" + i);
+    const vals = (d) => { const rc = (cur.byDayCh.get(d) || {})[reg] || {}; const v = top.map((ch) => rc[ch] || 0); if (rest) v.push(Object.entries(rc).filter(([ch]) => !top.includes(ch)).reduce((a, [, n]) => a + n, 0)); return v; };
+    if (legEl) legEl.innerHTML = keys.length ? keys.map((k, i) => `<span><i class="${k === "Pozostałe" ? "rx" : "r" + i}"></i>${esc(k)} <span class="small">${nf.format(k === "Pozostałe" ? ranked.slice(5).reduce((a, [, n]) => a + n, 0) : tot[k])}</span></span>`).join("") : `<span class="small">Brak leadów z regionu ${esc(reg)} w tym okresie.</span>`;
+    drawStacked($("#leadChart"), days, vals, cls, (d, v) => { const rc = (cur.byDayCh.get(d) || {})[reg] || {}; const all2 = Object.entries(rc).sort((a, b) => b[1] - a[1]); return `<b>${WD_PL[weekdayOf(d)]} ${shortDate(d)} · ${esc(reg)}</b>${all2.map(([ch, n]) => `<div class="r"><span>${esc(ch)}</span><span>${n}</span></div>`).join("") || "<div>Brak leadów</div>"}<div class="r"><span>Razem</span><span>${v.reduce((a, b) => a + b, 0)}</span></div>`; });
+  }
   drawStacked($("#mailChart"), days, (d) => [m.byDay.get(d) || 0], ["r-m"], (d, v) => `<b>${WD_PL[weekdayOf(d)]} ${shortDate(d)}</b><div class="r"><span>Wysłane e-maile</span><span>${v[0]}</span></div>`);
 }
 
@@ -1244,6 +1264,8 @@ for (const id of ["#from", "#to"]) $(id).addEventListener("change", () => {
 $("#group").addEventListener("change", (e) => { S.f.group = e.target.value; render(); });
 $("#agent").addEventListener("change", (e) => { S.f.agent = e.target.value; render(); });
 $("#pdApp").addEventListener("click", (e) => {
+  const rb = e.target.closest("[data-leadreg]");
+  if (rb) { S.pdOpts.region = rb.dataset.leadreg; store.set("pdOpts", S.pdOpts); render(); return; }
   const row = e.target.closest("[data-agent]");
   if (row) { const id = row.dataset.agent; S.f.agent = S.f.agent === id ? "" : id; render(); }
 });
