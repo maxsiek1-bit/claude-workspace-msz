@@ -71,7 +71,7 @@ def build(bld):
         base = clean_key(pref, 12); base = 255 - (255 - base) * 0.45
         bio = io.BytesIO(); Image.fromarray(base.astype(np.uint8)).save(bio, 'PNG')
         kx, ky = k2m(KEY.x0 - d['goff'][0], KEY.y0 - d['goff'][1])
-        for variant in ('tekstura', 'plan'):
+        for variant in ('tekstura', 'tekstura_opis', 'plan'):
             top = TOP if variant == 'plan' else 0
             doc = fitz.open(); page = doc.new_page(width=W, height=H + top)
             P = lambda x, y: (k2m(x, y)[0] * PPM, k2m(x, y)[1] * PPM + top)
@@ -84,15 +84,16 @@ def build(bld):
             for it in d['items']:
                 x0, y0 = P(it['rect'][0], it['rect'][1]); x1, y1 = P(it['rect'][2], it['rect'][3])
                 page.show_pdf_page(fitz.Rect(x0, y0, x1, y1), fitz.open(it['f']), 0, clip=it['pc'], keep_proportion=False)
-            if variant == 'plan':
+            if variant != 'tekstura':
                 for it in d['items']:
                     v = viewer.get(it['n'], {}); st = STATUS.get(v.get('status'), STATUS['not_available'])
                     c = P(*it['c']); t = f"{bld} {it['n'][1:]}"; t2 = f"{float(v.get('area', 0)):.2f} m²".replace('.', ',')
-                    fs = 13; tw = max(fitz.get_text_length(t, 'hebo', fs), fitz.get_text_length(t2, 'helv', fs * 0.75)) + 12
-                    box = fitz.Rect(c[0] - tw / 2, c[1] - 15, c[0] + tw / 2, c[1] + 15)
-                    page.draw_rect(box, color=st[1], fill=(1, 1, 1), width=1.6, fill_opacity=0.9, radius=0.15)
-                    page.insert_text((c[0] - fitz.get_text_length(t, 'hebo', fs) / 2, c[1] - 1.5), t, fontname='hebo', fontsize=fs, color=st[1])
-                    page.insert_text((c[0] - fitz.get_text_length(t2, 'helv', fs * 0.75) / 2, c[1] + 10.5), t2, fontname='dj', fontfile=D + 'DejaVuSans.ttf', fontsize=fs * 0.75, color=(0.15, 0.15, 0.15))
+                    kk = 2.2 if variant == 'tekstura_opis' else 1.0; fs = 13 * kk; tw = max(fitz.get_text_length(t, 'hebo', fs), fitz.get_text_length(t2, 'helv', fs * 0.75)) + 12
+                    box = fitz.Rect(c[0] - tw / 2, c[1] - 15 * kk, c[0] + tw / 2, c[1] + 15 * kk)
+                    page.draw_rect(box, color=st[1], fill=(1, 1, 1), width=1.6 * kk, fill_opacity=0.9, radius=0.15)
+                    page.insert_text((c[0] - fitz.get_text_length(t, 'hebo', fs) / 2, c[1] - 1.5 * kk), t, fontname='hebo', fontsize=fs, color=st[1])
+                    page.insert_text((c[0] - fitz.get_text_length(t2, 'helv', fs * 0.75) / 2, c[1] + 10.5 * kk), t2, fontname='dj', fontfile=D + 'DejaVuSans.ttf', fontsize=fs * 0.75, color=(0.15, 0.15, 0.15))
+            if variant == 'plan':
                 page.insert_text((30, 46), f'MARINA HEL APARTAMENTY · budynek {bld} · {fname(fl)}', fontname='djb', fontfile=D + 'DejaVuSans-Bold.ttf', fontsize=28, color=(0.1, 0.1, 0.1))
                 cnt = collections.Counter(viewer.get(it['n'], {}).get('status', 'not_available') for it in d['items'])
                 page.insert_text((30, 70), f"Złożenie z {len(d['items'])} kart lokali Euro Stylu (stan 14.11.2026). Skala: 1 m = {PPM:.0f} pt, wyliczona z powierzchni pomieszczeń (dokładność ok. ±{max(1, round(2 * scale[bld]['spread_pct']))}%). "
@@ -109,8 +110,8 @@ def build(bld):
                 doc.save(stem + '.pdf', deflate=True, garbage=3)
                 z = min(1.0, 5000 / W); doc[0].get_pixmap(matrix=fitz.Matrix(z, z)).save(stem + '.png')
             else:
-                stem = f'out/tekstury/MarinaHel_{bld}_pietro{fl}'
-                doc.save(stem + '.pdf', deflate=True, garbage=3)
+                stem = f'out/tekstury/MarinaHel_{bld}_pietro{fl}' + ('_opis' if variant == 'tekstura_opis' else '')
+                if variant == 'tekstura': doc.save(stem + '.pdf', deflate=True, garbage=3)
                 doc[0].get_pixmap(matrix=fitz.Matrix(1, 1)).save(stem + '.png')
         out_floors.append(dict(budynek=bld, pietro=fl, nazwa=fname(fl), lokali_na_planie=len(d['items']),
                                tekstura=f'out/tekstury/MarinaHel_{bld}_pietro{fl}.png', plan=f'out/plany/MarinaHel_{bld}_pietro{fl}.pdf'))

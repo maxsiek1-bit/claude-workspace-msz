@@ -55,3 +55,17 @@ Skrypty uruchamiać z katalogu projektu. `legacy/` – pierwsza wersja skryptów
 ## Pliki pomocnicze
 
 - `ROZMOWA.md` – zapis pierwszej rozmowy. `LINKI.md` – źródła i adresy.
+
+## Przeglądarka 3D (`viewer3d/`)
+
+Strona WWW (three.js) z bryłami `Budynek_A/B/C` z pliku Blendera Maxa (`Marina_Hel_Apartamenty1.blend`, nie ma go w repozytorium)
+i płaszczyznami pięter A i B. Opublikowana: https://claude.ai/artifact/Ckzwo1cb29QiaA5b1MtcwQ
+
+- `index.html` – przeglądarka: prześwit każdej bryły, włączanie pięter, przekrój na wybranym piętrze, rozsuwanie pięter, karta lokalu po kliknięciu.
+- `geo/*.json` – geometria brył (cm, oś Y w górę). `tex/*.webp` – tekstury pięter z przezroczystym tłem (wersja `_opis` z numerami). `data.json` – piętra, lokale, dopasowanie.
+- `tools/blend_export.py <plik.blend> <katalog>` (wymaga `pip install bpy`) – eksport brył do `.npz` i `analysis.json`.
+- `tools/fit.json` – dopasowanie plan → model: afiniczne, wyliczone z brył lokali w kolekcji `MH_Referencja_dewelopera` (średni błąd A 0,8 m, B 0,4 m).
+- `tools/build_assets.py <katalog z .npz>` – buduje `geo/`, `tex/`, `data.json`.
+
+Uwaga: model w Blenderze jest schematyczny – budynki są w nim głębsze niż na kartach (A ok. 14%, B ok. 30%), więc plany są do niego rozciągnięte.
+Poziomy podłóg w modelu: 3,62 / 6,57 / 9,52 / 12,47 / 15,58 m (A: piętra 1–5, B: parter–piętro 4); parter A 0,67 m.
