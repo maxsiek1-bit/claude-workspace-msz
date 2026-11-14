@@ -36,5 +36,17 @@ for v in kit['variants'].values():      # środek i prostokąt obejmujący zespo
     Rm = np.array([[np.cos(th), np.sin(th)], [-np.sin(th), np.cos(th)]]); u = pts @ Rm.T
     c = Rm.T @ ((u.min(0) + u.max(0)) / 2); v['center'] = c.round(2).tolist(); v['axis_deg'] = 17.12; v['size'] = (u.max(0) - u.min(0)).round(1).tolist()
     print(v['name'], v['size'], v['center'])
+# plany pięter (tekstury z numerami lokali) dla każdego typu: poziom podłogi w modelu i prostokąt tekstury we współrzędnych modelu
+import os
+os.makedirs('planer/tex', exist_ok=True)
+def fl(k, lst): 
+    out = []
+    for f in lst:
+        shutil.copy('viewer3d/' + f['tex'], 'planer/' + f['tex']); out.append(dict(fl=f['fl'], name=f['name'], z=f['z'], quad=f['quad'], tex=f['tex']))
+    kit['buildings'][k]['floors'] = out
+FA = [f for f in D['floors'] if f['b'] == 'A']; FB = [f for f in D['floors'] if f['b'] == 'B']
+fl('A', [dict(f, tex=f['texl']) for f in FA]); fl('B', [dict(f, tex=f['texl']) for f in FB])
+fl('A2', [dict(f, tex=next(x for x in D['v2']['floors'] if x['fl'] == f['fl'])['texl']) for f in FA])
+fl('C3', [dict(f, tex=f['texl']) for f in D['v3']['floors']]); kit['buildings']['C']['floors'] = []
 kit['axis_deg'] = 17.12      # kierunek długiej elewacji budynków w układzie modelu
 json.dump(kit, open('planer/kit.json', 'w'), ensure_ascii=False, separators=(',', ':'))

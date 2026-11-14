@@ -63,7 +63,7 @@ function mkWorker(){
   try{const src=document.getElementById('gen-core').textContent+'\nonmessage=function(e){var r=GenCore.generate(e.data.inp);postMessage({seq:e.data.seq,full:e.data.full,r:r})};';
     return new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})))}catch(e){return null}}
 function planNow(){
-  const seq=++planSeq,ok=p=>p.v.length>=3,site=S.polys[0].v;
+  const seq=++planSeq,ok=p=>p.v.length>=3,site=S.polys[0].v;PLAN.sel=0;
   if(site.length<3){GEN=null;ZESP=null;planUI();drawPlan();return}
   const inp={site:site.map(px2m),excl:S.polys.filter(p=>p.kind==='excl'&&ok(p)).map(p=>p.v.map(px2m)),build:S.polys.filter(p=>p.kind==='build'&&ok(p)).map(p=>p.v.map(px2m)),
     types:planTypes(),params:{sb:PLAN.sb,se:PLAN.se,dist:PLAN.dist,step:4,goal:PLAN.goal,maxCover:PLAN.maxCover/100}};
@@ -93,7 +93,8 @@ function drawPlan(){
 function planUI(){
   if(!KIT)return;
   document.querySelectorAll('#pl-var button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===PLAN.preset));
-  for(const [id,key,unit] of [['pl-sb','sb',' m'],['pl-se','se',' m'],['pl-dist','dist',' m'],['pl-cov','maxCover',' %']]){$(id).value=PLAN[key];$(id+'v').textContent=fmt(PLAN[key],0)+unit}
+  for(const [id,key,unit] of [['pl-sb','sb',' m'],['pl-se','se',' m'],['pl-dist','dist',' m']]){$(id).value=PLAN[key];$(id+'v').textContent=fmt(PLAN[key],0)+unit}
+  if(document.activeElement!==$('pl-cov'))$('pl-cov').value=PLAN.maxCover;
   $('pl-goal').value=PLAN.goal;
   $('pl-types').innerHTML=Object.keys(KIT.buildings).map(k=>{const b=KIT.buildings[k];
     return '<tr><td><label class="chk"><input type="checkbox" data-type="'+k+'"'+(PLAN.types[k]?' checked':'')+'> <i class="sw" style="background:'+BCOL[k]+'"></i> '+b.name+'</label></td><td class="n">'+b.kond+'</td><td class="n">'+(b.lokale==null?'b.d.':b.lokale)+'</td><td class="n">'+(b.pu==null?'b.d.':fmt(b.pu,0))+'</td><td class="n">'+fmt(b.pow_zabudowy,0)+'</td></tr>'}).join('');
@@ -106,20 +107,27 @@ function planUI(){
       +row('Lokali'+(s.unk?' (bez bud. C)':''),fmt(s.lokale,0),1)+row('Powierzchnia użytkowa lokali',fmt(s.pu,0)+' m²',1)
       +row('Powierzchnia zabudowy',fmt(s.zab,0)+' m²')+row('Udział zabudowy w terenie',fmt(100*s.pokrycie,1)+' %',0,s.pokrycie>PLAN.maxCover/100+1e-6)
       +row('Intensywność zabudowy',fmt(s.intens,2))+row('Teren niezabudowany (bez dróg)',fmt(100*(1-s.pokrycie),1)+' %')+row('Lokali na hektar',fmt(s.lok_ha,0));
-    $('totz').textContent=fmt(s.n,0)+' bud. · '+fmt(s.lokale,0)+' lok.';
+    $('kpi-n').textContent=fmt(s.n,0);$('kpi-lok').textContent=fmt(s.lokale,0)+(s.unk?'*':'');$('kpi-pu').textContent=fmt(s.pu,0);$('kpi-cov').textContent=fmt(100*s.pokrycie,1)+' %';
+    $('kpi-var').textContent=sel?L[sel].name:'najlepszy wariant według celu: '+GOALS[PLAN.goal];
     const g=GEN.variants[0],gs=g?statsOf(g.items,terrain):null,zs=ZESP?statsOf(ZESP.items,terrain):null,cmp=(l,s2,k)=>'<tr'+(k?' class="key"':'')+'><td>'+l+'</td><td class="n">'+(s2?fmt(s2.n,0):'…')+'</td><td class="n">'+(s2?fmt(s2.lokale,0)+(s2.unk?'*':''):'…')+'</td><td class="n">'+(s2?fmt(s2.pu,0):'…')+'</td><td class="n">'+(s2?fmt(100*s2.pokrycie,0)+' %':'…')+'</td></tr>';
     $('pl-cmp').innerHTML=cmp('Generator (najlepszy)',gs,1)+cmp('Zespoły A+B+C w siatce',zs);
-  }else{$('pl-res').innerHTML=row('Narysuj granicę terenu','–');$('pl-cmp').innerHTML='';$('totz').textContent='–'}
+  }else{$('pl-res').innerHTML=row('Narysuj granicę terenu','–');$('pl-cmp').innerHTML='';for(const k of ['kpi-n','kpi-lok','kpi-pu','kpi-cov'])$(k).textContent='–';$('kpi-var').textContent=''}
 }
 
 /* --- Podgląd 3D: prawdziwe bryły na rzeźbie terenu --- */
-const G3={};let plan3Seq=0;
+const G3={},TEX3={},V3={op:1,fl:{0:true,1:true,2:true,3:true,4:true,5:true}};let plan3Seq=0;
+function ui3(){$('v3-fl').innerHTML=[5,4,3,2,1,0].map(f=>'<label class="chk"><input type="checkbox" data-fl="'+f+'"'+(V3.fl[f]?' checked':'')+'> '+(f?'piętro '+f:'parter')+'</label>').join('')}
+function apply3(){        // prześwit brył i widoczność planów pięter
+  for(const k in G3)G3[k].mats.forEach(m=>{const v=m.userData.base*V3.op;m.opacity=v;m.transparent=v<.999;m.depthWrite=v>=.999;m.needsUpdate=true});
+  if(T&&T.bld)T.bld.children.forEach(c=>{if(c.userData.fl!=null)c.visible=!!V3.fl[c.userData.fl]&&V3.op<.999;else c.visible=V3.op>.005});
+}
+function tex3(u){if(!TEX3[u]){const t=new THREE.TextureLoader().load(u);t.encoding=THREE.sRGBEncoding;t.anisotropy=T.R.capabilities.getMaxAnisotropy();TEX3[u]=t}return TEX3[u]}
 async function geo3(k){
   if(G3[k])return G3[k];const b=KIT.buildings[k],gj=await (await fetch(b.file)).json();
   const pos=new Float32Array(gj.pos.length);for(let i=0;i<pos.length;i++)pos[i]=gj.pos[i]/100;
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setIndex(new THREE.BufferAttribute(new Uint32Array(gj.idx),1));
   const mats=b.groups.map((gr,i)=>{g.addGroup(gr.start,gr.count,i);const gl=/szklo/i.test(gr.mat);
-    return new THREE.MeshLambertMaterial({color:new THREE.Color(gr.color[0],gr.color[1],gr.color[2]),side:THREE.DoubleSide,flatShading:true,transparent:gl,opacity:gl?(gr.color[3]<1?.35:.8):1})});
+    const m=new THREE.MeshLambertMaterial({color:new THREE.Color(gr.color[0],gr.color[1],gr.color[2]),side:THREE.DoubleSide,flatShading:true});m.userData.base=gl?(gr.color[3]<1?.35:.8):1;return m});
   g.computeVertexNormals();
   let cx=0,cy=0;for(const q of b.outline){cx+=q[0];cy+=q[1]}
   return G3[k]={g,mats,c:[cx/b.outline.length,cy/b.outline.length]};
@@ -132,10 +140,17 @@ async function plan3(){
   if(seq!==plan3Seq)return;
   while(T.bld.children.length)T.bld.remove(T.bld.children[0]);
   const ax=KIT.axis_deg*Math.PI/180,M=new THREE.Matrix4(),Rm=new THREE.Matrix4(),Tm=new THREE.Matrix4();
-  for(const k of ids){const G=G3[k],list=v.items.filter(it=>it.id===k),im=new THREE.InstancedMesh(G.g,G.mats,list.length);
+  for(const k of ids){const G=G3[k],list=v.items.filter(it=>it.id===k),im=new THREE.InstancedMesh(G.g,G.mats,list.length),mats=[];im.renderOrder=2;
     list.forEach((it,n)=>{const p=m2px([it.x,it.y]),bx=wx(p[0]),bz=wx(p[1]),gy=hAt(bx,bz)-KIT.buildings[k].z[0]-.2;
-      M.makeTranslation(bx,gy,bz);Rm.makeRotationY(it.rot-ax);Tm.makeTranslation(-G.c[0],0,G.c[1]);im.setMatrixAt(n,M.multiply(Rm).multiply(Tm))});
-    im.instanceMatrix.needsUpdate=true;im.frustumCulled=false;T.bld.add(im)}
+      M.makeTranslation(bx,gy,bz);Rm.makeRotationY(it.rot-ax);Tm.makeTranslation(-G.c[0],0,G.c[1]);const mm=M.multiply(Rm).multiply(Tm).clone();mats.push(mm);im.setMatrixAt(n,mm)});
+    im.instanceMatrix.needsUpdate=true;im.frustumCulled=false;T.bld.add(im);
+    for(const f of KIT.buildings[k].floors||[]){        // płaszczyzny planów pięter: ten sam układ co bryła
+      const q=f.quad,y=f.z+.08,pg=new THREE.BufferGeometry();
+      pg.setAttribute('position',new THREE.BufferAttribute(new Float32Array([q[0][0],y,-q[0][1],q[1][0],y,-q[1][1],q[2][0],y,-q[2][1],q[3][0],y,-q[3][1]]),3));
+      pg.setAttribute('uv',new THREE.BufferAttribute(new Float32Array([0,1,1,1,1,0,0,0]),2));pg.setIndex([0,1,2,0,2,3]);
+      const pm=new THREE.InstancedMesh(pg,new THREE.MeshBasicMaterial({map:tex3(f.tex),transparent:true,alphaTest:.5,side:THREE.DoubleSide}),list.length);
+      mats.forEach((mm,n)=>pm.setMatrixAt(n,mm));pm.instanceMatrix.needsUpdate=true;pm.frustumCulled=false;pm.userData.fl=f.fl;pm.renderOrder=1;T.bld.add(pm)}}
+  apply3();
 }
 /* --- Eksport planu --- */
 function planExport(){
@@ -156,12 +171,20 @@ function planInit(){
   const PRESET={base:['A','B','C'],v2:['A2','B','C'],v3:['A2','B','C3']};
   const ch=()=>{PLAN.sel=0;planPersist();planUI();planSchedule()};
   document.querySelectorAll('#pl-var button').forEach(b=>b.addEventListener('click',()=>{PLAN.preset=b.dataset.v;PLAN.types={};PRESET[PLAN.preset].forEach(k=>PLAN.types[k]=true);ch()}));
-  for(const [id,key] of [['pl-sb','sb'],['pl-se','se'],['pl-dist','dist'],['pl-cov','maxCover']])$(id).addEventListener('input',e=>{PLAN[key]=+e.target.value;ch()});
+  for(const [id,key] of [['pl-sb','sb'],['pl-se','se'],['pl-dist','dist']])$(id).addEventListener('input',e=>{PLAN[key]=+e.target.value;ch()});
+  $('pl-cov').addEventListener('input',e=>{const v=+e.target.value;if(v>=1&&v<=100){PLAN.maxCover=v;ch()}});
+  $('pl-cov').addEventListener('blur',e=>{e.target.value=PLAN.maxCover});
+  $('v3-op').addEventListener('input',e=>{V3.op=1-(+e.target.value);$('v3-opv').textContent=Math.round(+e.target.value*100)+'%';apply3()});
+  $('v3-fl').addEventListener('change',e=>{const f=e.target.dataset.fl;if(f!=null){V3.fl[f]=e.target.checked;apply3()}});
+  $('v3-all').addEventListener('click',()=>{for(let i=0;i<6;i++)V3.fl[i]=true;ui3();apply3()});
+  $('v3-none').addEventListener('click',()=>{for(let i=0;i<6;i++)V3.fl[i]=false;ui3();apply3()});
+  ui3();
   $('pl-goal').addEventListener('change',e=>{PLAN.goal=e.target.value;ch()});
   $('pl-types').addEventListener('change',e=>{const k=e.target.dataset.type;if(k){PLAN.types[k]=e.target.checked;ch()}});
   $('pl-vars').addEventListener('click',e=>{const b=e.target.closest('[data-var]');if(!b)return;PLAN.sel=+b.dataset.var;planPersist();planUI();drawPlan();if(is3)plan3();
     if(document.activeElement!==$('json'))$('json').value=JSON.stringify(exportData(),null,1)});
   $('pl-csv').addEventListener('click',()=>{const t=planCSV();if(!t)return;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>say('Skopiowano statystyki w formacie CSV.'),()=>{$('json').value=t;$('det').open=true;say('Nie udało się skopiować. Statystyki CSV są w polu „Dane JSON”.')})});
+  const ed=$('edit'),vm=()=>{svg.classList.toggle('viewing',!ed.open);if(!ed.open&&tool!=='pt'&&!is3)setTool('pt');else if(!is3)render()};ed.addEventListener('toggle',vm);vm();
   fetch('kit.json').then(r=>r.json()).then(k=>{KIT=k;if(!PLAN.types){PLAN.types={};PRESET[PLAN.preset].forEach(x=>PLAN.types[x]=true)}planSig='';planUI();planSchedule()})
     .catch(()=>{$('pl-state').textContent='Nie udało się wczytać danych budynków (kit.json).'});
 }

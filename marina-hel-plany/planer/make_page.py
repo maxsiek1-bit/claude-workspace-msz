@@ -35,6 +35,25 @@ rep('</style>', '''.seg{display:grid;grid-template-columns:1fr 1fr;border:1px so
 .leg i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 #pl-state{color:var(--mut);font-size:12px;min-height:1.4em}
 .plan{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px}
+header{align-items:center}.views{margin-left:auto}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi b{font:600 28px/1.05 var(--head);font-variant-numeric:tabular-nums;color:var(--accent)}
+.kpi span{font-size:12px;color:var(--mut)}
+.plan .total{font-family:var(--sans);font-size:12px;margin:0 0 10px}.plan .total b{font-size:13px}
+.line{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.line label,.line>span{color:var(--mut);font-size:13px}
+.line input[type=number]{width:5.2em;font:600 15px var(--sans);text-align:right;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 7px}
+.line select{flex:1;min-width:0}
+.fold{border:1px solid var(--line);border-radius:8px;background:var(--card);padding:0 12px}
+.fold>summary{cursor:pointer;padding:10px 0;font-weight:600;color:var(--fg);list-style-position:inside}
+.fold[open]{padding-bottom:12px}
+.side{gap:8px}.side section{margin:0}
+#edit{margin:0}#edit .bar{margin-bottom:8px}#edit .saved{margin:0 0 8px}
+#map.viewing .hnd,#map.viewing .lab{display:none}#map.viewing [data-k]{pointer-events:none}
+.v3{position:absolute;left:8px;top:8px;width:230px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.v3 .line input[type=range]{flex:1;min-width:0;accent-color:var(--accent)}.v3 .v{font-size:12px;color:var(--mut);width:36px;text-align:right}
+#v3-fl{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}#v3-fl .chk{color:var(--fg)}.v3 .note{margin-top:6px}
 .types td,.types th{padding:3px 4px;font-size:12px}.types .chk{color:var(--fg)}.types .sw{display:inline-block;vertical-align:-2px}
 #pl-vars{display:flex;flex-direction:column;gap:3px}
 .var{display:flex;justify-content:space-between;gap:8px;text-align:left;font-size:12px;padding:5px 8px}
@@ -43,38 +62,75 @@ rep('</style>', '''.seg{display:grid;grid-template-columns:1fr 1fr;border:1px so
 </style>''')
 # ---- nagłówek i panel generatora ----
 rep('<h1>Edytor obrysu terenu</h1>', '<h1>Planer zabudowy terenu</h1>')
-rep('<div class="total">Dostępne pod zabudowę <b id="tot">–</b> · <span id="totha">–</span></div>',
-    '<div class="total">Dostępne pod zabudowę <b id="tot">–</b> · <span id="totha">–</span> · generator: <b id="totz">–</b></div>')
 rep('''    <div class="side">
       <section>
         <h2>Warstwy</h2>''', '''    <div class="side">
       <section class="plan">
-        <h2>Zabudowa: automatyczne wypełnienie</h2>
+        <div class="kpis">
+          <div class="kpi"><b id="kpi-n">–</b><span>budynków</span></div>
+          <div class="kpi"><b id="kpi-lok">–</b><span>lokali</span></div>
+          <div class="kpi"><b id="kpi-pu">–</b><span>m² powierzchni użytkowej</span></div>
+          <div class="kpi"><b id="kpi-cov">–</b><span>terenu zabudowane</span></div>
+        </div>
+        <p class="note" id="kpi-var"></p>
         <div class="seg" id="pl-var" role="group" aria-label="Zestaw typów budynków">
           <button data-v="base" aria-pressed="false">Wersja podstawowa</button>
           <button data-v="v2" aria-pressed="false">Po modyfikacji</button>
           <button data-v="v3" aria-pressed="true">Po modyfikacji + lustrzane A w miejscu C</button>
         </div>
-        <table class="types"><thead><tr><th>Typ budynku</th><th class="n">Kond.</th><th class="n">Lokale</th><th class="n">PU</th><th class="n">Zab.</th></tr></thead><tbody id="pl-types"></tbody></table>
-        <div class="prm" style="margin-top:10px">
+        <div class="line"><label for="pl-cov">Zabudowa terenu do</label><input type="number" id="pl-cov" min="1" max="100" step="1" value="100" inputmode="numeric"><span>% powierzchni</span></div>
+        <div class="line"><label for="pl-goal">Cel</label><select id="pl-goal"><option value="lokale">Najwięcej lokali</option><option value="pu">Największa powierzchnia użytkowa</option><option value="budynki">Najwięcej budynków</option><option value="zabudowa">Największa powierzchnia zabudowy</option></select></div>
+        <div id="pl-state" role="status"></div>
+      </section>
+      <details class="fold"><summary>Warianty do porównania</summary><div id="pl-vars"></div></details>
+      <details class="fold"><summary>Typy budynków</summary>
+        <table class="types"><thead><tr><th>Typ</th><th class="n">Kond.</th><th class="n">Lokale</th><th class="n">PU</th><th class="n">Zab.</th></tr></thead><tbody id="pl-types"></tbody></table>
+      </details>
+      <details class="fold"><summary>Odstępy i odsunięcia</summary>
+        <div class="prm">
           <label for="pl-sb">Odsunięcie od granicy</label><input type="range" id="pl-sb" min="0" max="30" step="1" value="4"><span class="v" id="pl-sbv"></span>
           <label for="pl-se">Od stref wyłączonych</label><input type="range" id="pl-se" min="0" max="30" step="1" value="0"><span class="v" id="pl-sev"></span>
           <label for="pl-dist">Odległość między budynkami</label><input type="range" id="pl-dist" min="0" max="40" step="1" value="8"><span class="v" id="pl-distv"></span>
-          <label for="pl-cov">Maks. udział zabudowy</label><input type="range" id="pl-cov" min="5" max="100" step="5" value="100"><span class="v" id="pl-covv"></span>
         </div>
-        <div class="grp" style="margin-bottom:6px"><span>Cel</span><select id="pl-goal" aria-label="Cel optymalizacji"><option value="lokale">Największa liczba lokali</option><option value="pu">Największa powierzchnia użytkowa</option><option value="budynki">Największa liczba budynków</option><option value="zabudowa">Największa powierzchnia zabudowy</option></select></div>
-        <div id="pl-state" role="status"></div>
-        <h2 style="margin-top:8px">Warianty (wartość celu)</h2>
-        <div id="pl-vars"></div>
-        <h2 style="margin-top:12px">Wynik wybranego wariantu</h2>
+      </details>
+      <details class="fold"><summary>Szczegóły wyniku i porównanie</summary>
         <table><tbody id="pl-res"></tbody></table>
-        <h2 style="margin-top:12px">Porównanie</h2>
-        <table><thead><tr><th>Układ</th><th class="n">Bud.</th><th class="n">Lokali</th><th class="n">PU [m²]</th><th class="n">Zab.</th></tr></thead><tbody id="pl-cmp"></tbody></table>
+        <table style="margin-top:10px"><thead><tr><th>Układ</th><th class="n">Bud.</th><th class="n">Lokali</th><th class="n">PU [m²]</th><th class="n">Zab.</th></tr></thead><tbody id="pl-cmp"></tbody></table>
         <div class="grp" style="margin-top:8px"><button id="pl-csv">Kopiuj statystyki CSV</button></div>
-        <p class="note">Generator ustawia pojedyncze budynki wybranych typów, w czterech obrotach co 90° względem kierunku siatki, i sprawdza kolizje na prawdziwych obrysach. To analiza chłonności, nie projekt: nie ma jeszcze dróg, parkingów ani warunku dojazdu, a wartości domyślne są przykładowe. * Lokale bez budynku C – nie mam dla niego danych o lokalach.</p>
-      </section>
+        <p class="note">To analiza chłonności terenu, nie projekt: nie ma jeszcze dróg, parkingów ani warunku dojazdu, a wartości domyślne są przykładowe. * Lokale bez budynku C – nie mam dla niego danych o lokalach.</p>
+      </details>
+      <details class="fold"><summary>Teren: warstwy i bilans</summary>
       <section>
         <h2>Warstwy</h2>''')
+rep('''      <section>
+        <h2 id="seg-h">Odcinki</h2>''', '''      </details>
+      <details class="fold"><summary>Długości boków</summary>
+      <section>
+        <h2 id="seg-h">Odcinki</h2>''')
+rep('''      <section>
+        <details id="det">''', '''      </details>
+      <section>
+        <details id="det" class="fold">''')
+# ---- nagłówek: tytuł i przełącznik widoku; narzędzia edycji i zapisane tereny schowane w zwijanej sekcji ----
+_i0 = h.index('<header>'); _i1 = h.index('<div class="main">'); _top = h[_i0:_i1]
+_lines = _top.split('\n')
+_saved = next(l for l in _lines if '<div class="saved"' in l); _view = next(l for l in _lines if 'id="v-2d"' in l); _total = next(l for l in _lines if 'class="total"' in l)
+_b0 = _top.index('<div class="bar">'); _b1 = _top.index('<div id="msg"')
+_bar = _top[_b0:_b1].replace(_view + '\n', '')
+h = h[:_i0] + '<header>\n    <h1>Planer zabudowy terenu</h1>\n' + _view.replace('class="grp"', 'class="grp views"') + '\n  </header>\n' \
+    + '  <details class="fold" id="edit"><summary>Edycja terenu: granica, strefy, zapisane tereny</summary>\n  ' + _bar + _saved.replace('class="saved"', 'class="saved grp"') + '\n  <div id="msg" role="status"></div>\n  </details>\n\n  ' + h[_i1:]
+rep('''        <p class="note" id="kpi-var"></p>''', '''        <p class="note" id="kpi-var"></p>
+        ''' + _total.strip().replace('Dostępne pod zabudowę', 'Teren dostępny pod zabudowę'))
+# ---- nakładka 3D: prześwit brył i piętra ----
+rep('<div class="modes" id="modes" hidden>', '''<div class="v3" id="v3" hidden>
+        <div class="line"><label for="v3-op">Prześwit brył</label><input type="range" id="v3-op" min="0" max="1" step="0.01" value="0"><span class="v" id="v3-opv">0%</span></div>
+        <div class="line"><span>Plany pięter</span><button id="v3-all">Wszystkie</button><button id="v3-none">Żadne</button></div>
+        <div id="v3-fl"></div>
+        <p class="note">Plany mieszkań widać po zwiększeniu prześwitu.</p>
+      </div>
+      <div class="modes" id="modes" hidden>''')
+rep("$('modes').hidden=!is3;", "$('modes').hidden=!is3;$('v3').hidden=!is3;")
+rep("gL=el('g',{},svg),gP=el('g',{},svg)", "gL=el('g',{class:'lab'},svg),gP=el('g',{class:'hnd'},svg)")
 # ---- skrypt: warstwa budynków, przykład startowy, haki ----
 rep("gF=el('g',{},svg),gS=el('g',{},svg)", "gF=el('g',{},svg),gB=el('g',{},svg),gS=el('g',{},svg)")
 rep("const INIT={mpp:MPP,seq:1,active:0,polys:[{kind:'site',name:'Granica terenu',v:[]}]};",

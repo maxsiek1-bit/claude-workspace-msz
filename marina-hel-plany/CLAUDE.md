@@ -108,3 +108,7 @@ Zamysł docelowy i dane techniczne terenu: `planer/src/INSTRUKCJA.md`.
   Niezrobione: drogi wewnętrzne, wjazdy, parkingi, warunek dojazdu, przypinanie budynków, edycja i dodawanie własnych typów, udziały typów, osobna odległość dla ścian z oknami, DXF/PDF.
 - Teren Maxa „MS zabudowa” jest w pamięci przeglądarki starego edytora; do planera trzeba go wkleić przez „Dane JSON” → „Wczytaj z pola”. Planer startuje z przykładowym obrysem.
 - Wynik to analiza chłonności terenu, nie projekt; parametry domyślne są przykładowe.
+- Układ strony planera (od 14.11.2026, na prośbę Maxa „po menadżersku”): na górze cztery duże liczby (budynki, lokale, PU, udział zabudowy), zestaw typów,
+  pole „Zabudowa terenu do … %” (limit udziału zabudowy wpisywany z klawiatury) i cel; wszystko inne w zwijanych sekcjach. Edycja terenu jest zwinięta –
+  wtedy mapa jest tylko do oglądania (bez uchwytów i wymiarów). Wybrany wariant po każdym przeliczeniu wraca do najlepszego.
+- Podgląd 3D planera: nakładka z suwakiem prześwitu brył i przełącznikami pięter; plany pięter z numerami lokali (`tex/`, z `viewer3d/tex`) jako InstancedMesh w każdym budynku.

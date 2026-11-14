@@ -82,6 +82,25 @@ textarea{width:100%;height:160px;font-family:var(--mono);font-size:12px;color:va
 .leg i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 #pl-state{color:var(--mut);font-size:12px;min-height:1.4em}
 .plan{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px}
+header{align-items:center}.views{margin-left:auto}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi b{font:600 28px/1.05 var(--head);font-variant-numeric:tabular-nums;color:var(--accent)}
+.kpi span{font-size:12px;color:var(--mut)}
+.plan .total{font-family:var(--sans);font-size:12px;margin:0 0 10px}.plan .total b{font-size:13px}
+.line{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.line label,.line>span{color:var(--mut);font-size:13px}
+.line input[type=number]{width:5.2em;font:600 15px var(--sans);text-align:right;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 7px}
+.line select{flex:1;min-width:0}
+.fold{border:1px solid var(--line);border-radius:8px;background:var(--card);padding:0 12px}
+.fold>summary{cursor:pointer;padding:10px 0;font-weight:600;color:var(--fg);list-style-position:inside}
+.fold[open]{padding-bottom:12px}
+.side{gap:8px}.side section{margin:0}
+#edit{margin:0}#edit .bar{margin-bottom:8px}#edit .saved{margin:0 0 8px}
+#map.viewing .hnd,#map.viewing .lab{display:none}#map.viewing [data-k]{pointer-events:none}
+.v3{position:absolute;left:8px;top:8px;width:230px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.v3 .line input[type=range]{flex:1;min-width:0;accent-color:var(--accent)}.v3 .v{font-size:12px;color:var(--mut);width:36px;text-align:right}
+#v3-fl{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}#v3-fl .chk{color:var(--fg)}.v3 .note{margin-top:6px}
 .types td,.types th{padding:3px 4px;font-size:12px}.types .chk{color:var(--fg)}.types .sw{display:inline-block;vertical-align:-2px}
 #pl-vars{display:flex;flex-direction:column;gap:3px}
 .var{display:flex;justify-content:space-between;gap:8px;text-align:left;font-size:12px;padding:5px 8px}
@@ -92,12 +111,10 @@ textarea{width:100%;height:160px;font-family:var(--mono);font-size:12px;color:va
 <div class="app">
   <header>
     <h1>Planer zabudowy terenu</h1>
-    <div class="total">Dostępne pod zabudowę <b id="tot">–</b> · <span id="totha">–</span> · generator: <b id="totz">–</b></div>
-    <div class="saved" role="group" aria-label="Zapisane tereny"><span>Zapisane tereny</span><select id="sv-list" aria-label="Zapisany teren"></select><button id="sv-load">Wczytaj</button><button id="sv-del">Usuń</button><input id="sv-name" value="MS zabudowa" maxlength="40" aria-label="Nazwa terenu do zapisania"><button id="sv-save">Zapisz teren</button><button id="copy2">Kopiuj JSON do eksportu</button></div>
+    <div class="grp views" role="group" aria-label="Widok"><button id="v-2d" aria-pressed="true">Rzut 2D</button><button id="v-3d" aria-pressed="false">Podgląd 3D</button></div>
   </header>
-
+  <details class="fold" id="edit"><summary>Edycja terenu: granica, strefy, zapisane tereny</summary>
   <div class="bar">
-    <div class="grp" role="group" aria-label="Widok"><button id="v-2d" aria-pressed="true">Rzut 2D</button><button id="v-3d" aria-pressed="false">Podgląd 3D</button></div>
     <div class="grp" role="group" aria-label="Narzędzie">
       <button id="t-add" data-tool="add" aria-pressed="true">Dodaj punkt</button>
       <button id="t-pt" data-tool="pt" aria-pressed="false">Przesuń punkt</button>
@@ -117,42 +134,61 @@ textarea{width:100%;height:160px;font-family:var(--mono);font-size:12px;color:va
       <label class="chk"><input type="checkbox" id="c-names" checked> Numery punktów</label>
     </div>
   </div>
+      <div class="saved grp" role="group" aria-label="Zapisane tereny"><span>Zapisane tereny</span><select id="sv-list" aria-label="Zapisany teren"></select><button id="sv-load">Wczytaj</button><button id="sv-del">Usuń</button><input id="sv-name" value="MS zabudowa" maxlength="40" aria-label="Nazwa terenu do zapisania"><button id="sv-save">Zapisz teren</button><button id="copy2">Kopiuj JSON do eksportu</button></div>
   <div id="msg" role="status"></div>
+  </details>
 
   <div class="main">
     <div class="mapbox">
       <svg id="map" xmlns="http://www.w3.org/2000/svg" aria-label="Mapa z obrysem"></svg>
       <canvas id="gl" hidden aria-label="Podgląd 3D terenu"></canvas>
+      <div class="v3" id="v3" hidden>
+        <div class="line"><label for="v3-op">Prześwit brył</label><input type="range" id="v3-op" min="0" max="1" step="0.01" value="0"><span class="v" id="v3-opv">0%</span></div>
+        <div class="line"><span>Plany pięter</span><button id="v3-all">Wszystkie</button><button id="v3-none">Żadne</button></div>
+        <div id="v3-fl"></div>
+        <p class="note">Plany mieszkań widać po zwiększeniu prześwitu.</p>
+      </div>
       <div class="modes" id="modes" hidden><button id="m-orbit" aria-pressed="true">Z lotu ptaka</button><button id="m-walk" aria-pressed="false">Spacer</button></div>
       <div class="pad" id="pad" role="group" aria-label="Przesuwanie widoku"><button data-key="w" aria-label="Do przodu">▲</button><button data-key="a" aria-label="W lewo">◀</button><button data-key="s" aria-label="Do tyłu">▼</button><button data-key="d" aria-label="W prawo">▶</button></div>
       <div class="zoom"><button id="z-in" aria-label="Powiększ">+</button><button id="z-out" aria-label="Pomniejsz">−</button><button id="z-fit" aria-label="Dopasuj widok">⤢</button></div>
     </div>
     <div class="side">
       <section class="plan">
-        <h2>Zabudowa: automatyczne wypełnienie</h2>
+        <div class="kpis">
+          <div class="kpi"><b id="kpi-n">–</b><span>budynków</span></div>
+          <div class="kpi"><b id="kpi-lok">–</b><span>lokali</span></div>
+          <div class="kpi"><b id="kpi-pu">–</b><span>m² powierzchni użytkowej</span></div>
+          <div class="kpi"><b id="kpi-cov">–</b><span>terenu zabudowane</span></div>
+        </div>
+        <p class="note" id="kpi-var"></p>
+        <div class="total">Teren dostępny pod zabudowę <b id="tot">–</b> · <span id="totha">–</span></div>
         <div class="seg" id="pl-var" role="group" aria-label="Zestaw typów budynków">
           <button data-v="base" aria-pressed="false">Wersja podstawowa</button>
           <button data-v="v2" aria-pressed="false">Po modyfikacji</button>
           <button data-v="v3" aria-pressed="true">Po modyfikacji + lustrzane A w miejscu C</button>
         </div>
-        <table class="types"><thead><tr><th>Typ budynku</th><th class="n">Kond.</th><th class="n">Lokale</th><th class="n">PU</th><th class="n">Zab.</th></tr></thead><tbody id="pl-types"></tbody></table>
-        <div class="prm" style="margin-top:10px">
+        <div class="line"><label for="pl-cov">Zabudowa terenu do</label><input type="number" id="pl-cov" min="1" max="100" step="1" value="100" inputmode="numeric"><span>% powierzchni</span></div>
+        <div class="line"><label for="pl-goal">Cel</label><select id="pl-goal"><option value="lokale">Najwięcej lokali</option><option value="pu">Największa powierzchnia użytkowa</option><option value="budynki">Najwięcej budynków</option><option value="zabudowa">Największa powierzchnia zabudowy</option></select></div>
+        <div id="pl-state" role="status"></div>
+      </section>
+      <details class="fold"><summary>Warianty do porównania</summary><div id="pl-vars"></div></details>
+      <details class="fold"><summary>Typy budynków</summary>
+        <table class="types"><thead><tr><th>Typ</th><th class="n">Kond.</th><th class="n">Lokale</th><th class="n">PU</th><th class="n">Zab.</th></tr></thead><tbody id="pl-types"></tbody></table>
+      </details>
+      <details class="fold"><summary>Odstępy i odsunięcia</summary>
+        <div class="prm">
           <label for="pl-sb">Odsunięcie od granicy</label><input type="range" id="pl-sb" min="0" max="30" step="1" value="4"><span class="v" id="pl-sbv"></span>
           <label for="pl-se">Od stref wyłączonych</label><input type="range" id="pl-se" min="0" max="30" step="1" value="0"><span class="v" id="pl-sev"></span>
           <label for="pl-dist">Odległość między budynkami</label><input type="range" id="pl-dist" min="0" max="40" step="1" value="8"><span class="v" id="pl-distv"></span>
-          <label for="pl-cov">Maks. udział zabudowy</label><input type="range" id="pl-cov" min="5" max="100" step="5" value="100"><span class="v" id="pl-covv"></span>
         </div>
-        <div class="grp" style="margin-bottom:6px"><span>Cel</span><select id="pl-goal" aria-label="Cel optymalizacji"><option value="lokale">Największa liczba lokali</option><option value="pu">Największa powierzchnia użytkowa</option><option value="budynki">Największa liczba budynków</option><option value="zabudowa">Największa powierzchnia zabudowy</option></select></div>
-        <div id="pl-state" role="status"></div>
-        <h2 style="margin-top:8px">Warianty (wartość celu)</h2>
-        <div id="pl-vars"></div>
-        <h2 style="margin-top:12px">Wynik wybranego wariantu</h2>
+      </details>
+      <details class="fold"><summary>Szczegóły wyniku i porównanie</summary>
         <table><tbody id="pl-res"></tbody></table>
-        <h2 style="margin-top:12px">Porównanie</h2>
-        <table><thead><tr><th>Układ</th><th class="n">Bud.</th><th class="n">Lokali</th><th class="n">PU [m²]</th><th class="n">Zab.</th></tr></thead><tbody id="pl-cmp"></tbody></table>
+        <table style="margin-top:10px"><thead><tr><th>Układ</th><th class="n">Bud.</th><th class="n">Lokali</th><th class="n">PU [m²]</th><th class="n">Zab.</th></tr></thead><tbody id="pl-cmp"></tbody></table>
         <div class="grp" style="margin-top:8px"><button id="pl-csv">Kopiuj statystyki CSV</button></div>
-        <p class="note">Generator ustawia pojedyncze budynki wybranych typów, w czterech obrotach co 90° względem kierunku siatki, i sprawdza kolizje na prawdziwych obrysach. To analiza chłonności, nie projekt: nie ma jeszcze dróg, parkingów ani warunku dojazdu, a wartości domyślne są przykładowe. * Lokale bez budynku C – nie mam dla niego danych o lokalach.</p>
-      </section>
+        <p class="note">To analiza chłonności terenu, nie projekt: nie ma jeszcze dróg, parkingów ani warunku dojazdu, a wartości domyślne są przykładowe. * Lokale bez budynku C – nie mam dla niego danych o lokalach.</p>
+      </details>
+      <details class="fold"><summary>Teren: warstwy i bilans</summary>
       <section>
         <h2>Warstwy</h2>
         <div id="layers"></div>
@@ -163,13 +199,16 @@ textarea{width:100%;height:160px;font-family:var(--mono);font-size:12px;color:va
         <table><tbody id="tb-b"></tbody></table>
         <p class="note" id="bal-note"></p>
       </section>
+      </details>
+      <details class="fold"><summary>Długości boków</summary>
       <section>
         <h2 id="seg-h">Odcinki</h2>
         <div class="scroll"><table><thead><tr><th>Odcinek</th><th class="n">Długość [m]</th></tr></thead><tbody id="tb-s"></tbody></table></div>
         <p class="note">Wpisz długość, aby ustawić odcinek dokładnie. Przesuwa się drugi punkt odcinka, wzdłuż jego kierunku.</p>
       </section>
+      </details>
       <section>
-        <details id="det">
+        <details id="det" class="fold">
           <summary>Dane JSON (eksport i import)</summary>
           <textarea id="json" spellcheck="false" aria-label="Dane obrysu w JSON"></textarea>
           <div class="grp"><button id="copy">Kopiuj JSON</button><button id="load">Wczytaj z pola</button></div>
@@ -434,7 +473,7 @@ function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.set
 const defs=el('defs',{},svg), pat=el('pattern',{id:'trees',width:44,height:44,patternUnits:'userSpaceOnUse'},defs);
 el('rect',{width:44,height:44,fill:'#18a34a'},pat);
 [[11,12,9],[33,10,7],[22,30,10],[40,36,6],[4,36,6]].forEach(c=>{el('circle',{cx:c[0],cy:c[1],r:c[2],fill:'#0b5a26'},pat);el('circle',{cx:c[0]-c[2]*.25,cy:c[1]-c[2]*.25,r:c[2]*.55,fill:'#2fc863'},pat)});
-const gImg=el('g',{},svg),gF=el('g',{},svg),gB=el('g',{},svg),gS=el('g',{},svg),gL=el('g',{},svg),gP=el('g',{},svg);
+const gImg=el('g',{},svg),gF=el('g',{},svg),gB=el('g',{},svg),gS=el('g',{},svg),gL=el('g',{class:'lab'},svg),gP=el('g',{class:'hnd'},svg);
 el('image',{href:IMGWIDE,x:X0,y:X0,width:EXT,height:EXT},gImg);
 el('image',{href:IMG,x:0,y:0,width:IMGW,height:IMGH},gImg);
 
@@ -562,7 +601,7 @@ function mkWorker(){
   try{const src=document.getElementById('gen-core').textContent+'\nonmessage=function(e){var r=GenCore.generate(e.data.inp);postMessage({seq:e.data.seq,full:e.data.full,r:r})};';
     return new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})))}catch(e){return null}}
 function planNow(){
-  const seq=++planSeq,ok=p=>p.v.length>=3,site=S.polys[0].v;
+  const seq=++planSeq,ok=p=>p.v.length>=3,site=S.polys[0].v;PLAN.sel=0;
   if(site.length<3){GEN=null;ZESP=null;planUI();drawPlan();return}
   const inp={site:site.map(px2m),excl:S.polys.filter(p=>p.kind==='excl'&&ok(p)).map(p=>p.v.map(px2m)),build:S.polys.filter(p=>p.kind==='build'&&ok(p)).map(p=>p.v.map(px2m)),
     types:planTypes(),params:{sb:PLAN.sb,se:PLAN.se,dist:PLAN.dist,step:4,goal:PLAN.goal,maxCover:PLAN.maxCover/100}};
@@ -592,7 +631,8 @@ function drawPlan(){
 function planUI(){
   if(!KIT)return;
   document.querySelectorAll('#pl-var button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===PLAN.preset));
-  for(const [id,key,unit] of [['pl-sb','sb',' m'],['pl-se','se',' m'],['pl-dist','dist',' m'],['pl-cov','maxCover',' %']]){$(id).value=PLAN[key];$(id+'v').textContent=fmt(PLAN[key],0)+unit}
+  for(const [id,key,unit] of [['pl-sb','sb',' m'],['pl-se','se',' m'],['pl-dist','dist',' m']]){$(id).value=PLAN[key];$(id+'v').textContent=fmt(PLAN[key],0)+unit}
+  if(document.activeElement!==$('pl-cov'))$('pl-cov').value=PLAN.maxCover;
   $('pl-goal').value=PLAN.goal;
   $('pl-types').innerHTML=Object.keys(KIT.buildings).map(k=>{const b=KIT.buildings[k];
     return '<tr><td><label class="chk"><input type="checkbox" data-type="'+k+'"'+(PLAN.types[k]?' checked':'')+'> <i class="sw" style="background:'+BCOL[k]+'"></i> '+b.name+'</label></td><td class="n">'+b.kond+'</td><td class="n">'+(b.lokale==null?'b.d.':b.lokale)+'</td><td class="n">'+(b.pu==null?'b.d.':fmt(b.pu,0))+'</td><td class="n">'+fmt(b.pow_zabudowy,0)+'</td></tr>'}).join('');
@@ -605,20 +645,27 @@ function planUI(){
       +row('Lokali'+(s.unk?' (bez bud. C)':''),fmt(s.lokale,0),1)+row('Powierzchnia użytkowa lokali',fmt(s.pu,0)+' m²',1)
       +row('Powierzchnia zabudowy',fmt(s.zab,0)+' m²')+row('Udział zabudowy w terenie',fmt(100*s.pokrycie,1)+' %',0,s.pokrycie>PLAN.maxCover/100+1e-6)
       +row('Intensywność zabudowy',fmt(s.intens,2))+row('Teren niezabudowany (bez dróg)',fmt(100*(1-s.pokrycie),1)+' %')+row('Lokali na hektar',fmt(s.lok_ha,0));
-    $('totz').textContent=fmt(s.n,0)+' bud. · '+fmt(s.lokale,0)+' lok.';
+    $('kpi-n').textContent=fmt(s.n,0);$('kpi-lok').textContent=fmt(s.lokale,0)+(s.unk?'*':'');$('kpi-pu').textContent=fmt(s.pu,0);$('kpi-cov').textContent=fmt(100*s.pokrycie,1)+' %';
+    $('kpi-var').textContent=sel?L[sel].name:'najlepszy wariant według celu: '+GOALS[PLAN.goal];
     const g=GEN.variants[0],gs=g?statsOf(g.items,terrain):null,zs=ZESP?statsOf(ZESP.items,terrain):null,cmp=(l,s2,k)=>'<tr'+(k?' class="key"':'')+'><td>'+l+'</td><td class="n">'+(s2?fmt(s2.n,0):'…')+'</td><td class="n">'+(s2?fmt(s2.lokale,0)+(s2.unk?'*':''):'…')+'</td><td class="n">'+(s2?fmt(s2.pu,0):'…')+'</td><td class="n">'+(s2?fmt(100*s2.pokrycie,0)+' %':'…')+'</td></tr>';
     $('pl-cmp').innerHTML=cmp('Generator (najlepszy)',gs,1)+cmp('Zespoły A+B+C w siatce',zs);
-  }else{$('pl-res').innerHTML=row('Narysuj granicę terenu','–');$('pl-cmp').innerHTML='';$('totz').textContent='–'}
+  }else{$('pl-res').innerHTML=row('Narysuj granicę terenu','–');$('pl-cmp').innerHTML='';for(const k of ['kpi-n','kpi-lok','kpi-pu','kpi-cov'])$(k).textContent='–';$('kpi-var').textContent=''}
 }
 
 /* --- Podgląd 3D: prawdziwe bryły na rzeźbie terenu --- */
-const G3={};let plan3Seq=0;
+const G3={},TEX3={},V3={op:1,fl:{0:true,1:true,2:true,3:true,4:true,5:true}};let plan3Seq=0;
+function ui3(){$('v3-fl').innerHTML=[5,4,3,2,1,0].map(f=>'<label class="chk"><input type="checkbox" data-fl="'+f+'"'+(V3.fl[f]?' checked':'')+'> '+(f?'piętro '+f:'parter')+'</label>').join('')}
+function apply3(){        // prześwit brył i widoczność planów pięter
+  for(const k in G3)G3[k].mats.forEach(m=>{const v=m.userData.base*V3.op;m.opacity=v;m.transparent=v<.999;m.depthWrite=v>=.999;m.needsUpdate=true});
+  if(T&&T.bld)T.bld.children.forEach(c=>{if(c.userData.fl!=null)c.visible=!!V3.fl[c.userData.fl]&&V3.op<.999;else c.visible=V3.op>.005});
+}
+function tex3(u){if(!TEX3[u]){const t=new THREE.TextureLoader().load(u);t.encoding=THREE.sRGBEncoding;t.anisotropy=T.R.capabilities.getMaxAnisotropy();TEX3[u]=t}return TEX3[u]}
 async function geo3(k){
   if(G3[k])return G3[k];const b=KIT.buildings[k],gj=await (await fetch(b.file)).json();
   const pos=new Float32Array(gj.pos.length);for(let i=0;i<pos.length;i++)pos[i]=gj.pos[i]/100;
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setIndex(new THREE.BufferAttribute(new Uint32Array(gj.idx),1));
   const mats=b.groups.map((gr,i)=>{g.addGroup(gr.start,gr.count,i);const gl=/szklo/i.test(gr.mat);
-    return new THREE.MeshLambertMaterial({color:new THREE.Color(gr.color[0],gr.color[1],gr.color[2]),side:THREE.DoubleSide,flatShading:true,transparent:gl,opacity:gl?(gr.color[3]<1?.35:.8):1})});
+    const m=new THREE.MeshLambertMaterial({color:new THREE.Color(gr.color[0],gr.color[1],gr.color[2]),side:THREE.DoubleSide,flatShading:true});m.userData.base=gl?(gr.color[3]<1?.35:.8):1;return m});
   g.computeVertexNormals();
   let cx=0,cy=0;for(const q of b.outline){cx+=q[0];cy+=q[1]}
   return G3[k]={g,mats,c:[cx/b.outline.length,cy/b.outline.length]};
@@ -631,10 +678,17 @@ async function plan3(){
   if(seq!==plan3Seq)return;
   while(T.bld.children.length)T.bld.remove(T.bld.children[0]);
   const ax=KIT.axis_deg*Math.PI/180,M=new THREE.Matrix4(),Rm=new THREE.Matrix4(),Tm=new THREE.Matrix4();
-  for(const k of ids){const G=G3[k],list=v.items.filter(it=>it.id===k),im=new THREE.InstancedMesh(G.g,G.mats,list.length);
+  for(const k of ids){const G=G3[k],list=v.items.filter(it=>it.id===k),im=new THREE.InstancedMesh(G.g,G.mats,list.length),mats=[];im.renderOrder=2;
     list.forEach((it,n)=>{const p=m2px([it.x,it.y]),bx=wx(p[0]),bz=wx(p[1]),gy=hAt(bx,bz)-KIT.buildings[k].z[0]-.2;
-      M.makeTranslation(bx,gy,bz);Rm.makeRotationY(it.rot-ax);Tm.makeTranslation(-G.c[0],0,G.c[1]);im.setMatrixAt(n,M.multiply(Rm).multiply(Tm))});
-    im.instanceMatrix.needsUpdate=true;im.frustumCulled=false;T.bld.add(im)}
+      M.makeTranslation(bx,gy,bz);Rm.makeRotationY(it.rot-ax);Tm.makeTranslation(-G.c[0],0,G.c[1]);const mm=M.multiply(Rm).multiply(Tm).clone();mats.push(mm);im.setMatrixAt(n,mm)});
+    im.instanceMatrix.needsUpdate=true;im.frustumCulled=false;T.bld.add(im);
+    for(const f of KIT.buildings[k].floors||[]){        // płaszczyzny planów pięter: ten sam układ co bryła
+      const q=f.quad,y=f.z+.08,pg=new THREE.BufferGeometry();
+      pg.setAttribute('position',new THREE.BufferAttribute(new Float32Array([q[0][0],y,-q[0][1],q[1][0],y,-q[1][1],q[2][0],y,-q[2][1],q[3][0],y,-q[3][1]]),3));
+      pg.setAttribute('uv',new THREE.BufferAttribute(new Float32Array([0,1,1,1,1,0,0,0]),2));pg.setIndex([0,1,2,0,2,3]);
+      const pm=new THREE.InstancedMesh(pg,new THREE.MeshBasicMaterial({map:tex3(f.tex),transparent:true,alphaTest:.5,side:THREE.DoubleSide}),list.length);
+      mats.forEach((mm,n)=>pm.setMatrixAt(n,mm));pm.instanceMatrix.needsUpdate=true;pm.frustumCulled=false;pm.userData.fl=f.fl;pm.renderOrder=1;T.bld.add(pm)}}
+  apply3();
 }
 /* --- Eksport planu --- */
 function planExport(){
@@ -655,12 +709,20 @@ function planInit(){
   const PRESET={base:['A','B','C'],v2:['A2','B','C'],v3:['A2','B','C3']};
   const ch=()=>{PLAN.sel=0;planPersist();planUI();planSchedule()};
   document.querySelectorAll('#pl-var button').forEach(b=>b.addEventListener('click',()=>{PLAN.preset=b.dataset.v;PLAN.types={};PRESET[PLAN.preset].forEach(k=>PLAN.types[k]=true);ch()}));
-  for(const [id,key] of [['pl-sb','sb'],['pl-se','se'],['pl-dist','dist'],['pl-cov','maxCover']])$(id).addEventListener('input',e=>{PLAN[key]=+e.target.value;ch()});
+  for(const [id,key] of [['pl-sb','sb'],['pl-se','se'],['pl-dist','dist']])$(id).addEventListener('input',e=>{PLAN[key]=+e.target.value;ch()});
+  $('pl-cov').addEventListener('input',e=>{const v=+e.target.value;if(v>=1&&v<=100){PLAN.maxCover=v;ch()}});
+  $('pl-cov').addEventListener('blur',e=>{e.target.value=PLAN.maxCover});
+  $('v3-op').addEventListener('input',e=>{V3.op=1-(+e.target.value);$('v3-opv').textContent=Math.round(+e.target.value*100)+'%';apply3()});
+  $('v3-fl').addEventListener('change',e=>{const f=e.target.dataset.fl;if(f!=null){V3.fl[f]=e.target.checked;apply3()}});
+  $('v3-all').addEventListener('click',()=>{for(let i=0;i<6;i++)V3.fl[i]=true;ui3();apply3()});
+  $('v3-none').addEventListener('click',()=>{for(let i=0;i<6;i++)V3.fl[i]=false;ui3();apply3()});
+  ui3();
   $('pl-goal').addEventListener('change',e=>{PLAN.goal=e.target.value;ch()});
   $('pl-types').addEventListener('change',e=>{const k=e.target.dataset.type;if(k){PLAN.types[k]=e.target.checked;ch()}});
   $('pl-vars').addEventListener('click',e=>{const b=e.target.closest('[data-var]');if(!b)return;PLAN.sel=+b.dataset.var;planPersist();planUI();drawPlan();if(is3)plan3();
     if(document.activeElement!==$('json'))$('json').value=JSON.stringify(exportData(),null,1)});
   $('pl-csv').addEventListener('click',()=>{const t=planCSV();if(!t)return;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>say('Skopiowano statystyki w formacie CSV.'),()=>{$('json').value=t;$('det').open=true;say('Nie udało się skopiować. Statystyki CSV są w polu „Dane JSON”.')})});
+  const ed=$('edit'),vm=()=>{svg.classList.toggle('viewing',!ed.open);if(!ed.open&&tool!=='pt'&&!is3)setTool('pt');else if(!is3)render()};ed.addEventListener('toggle',vm);vm();
   fetch('kit.json').then(r=>r.json()).then(k=>{KIT=k;if(!PLAN.types){PLAN.types={};PRESET[PLAN.preset].forEach(x=>PLAN.types[x]=true)}planSig='';planUI();planSchedule()})
     .catch(()=>{$('pl-state').textContent='Nie udało się wczytać danych budynków (kit.json).'});
 }
@@ -751,7 +813,7 @@ function setMode3(m){mode3=m;$('m-orbit').setAttribute('aria-pressed',m==='orbit
 function setView(v){
   if(v==='3d'&&!init3())return say('Podgląd 3D nie uruchomił się: potrzebne jest połączenie z internetem (biblioteka three.js) i przeglądarka z WebGL.',true);
   is3=v==='3d';$('v-2d').setAttribute('aria-pressed',!is3);$('v-3d').setAttribute('aria-pressed',is3);
-  if(is3)svg.setAttribute('hidden','');else svg.removeAttribute('hidden');gl.hidden=!is3;$('modes').hidden=!is3;
+  if(is3)svg.setAttribute('hidden','');else svg.removeAttribute('hidden');gl.hidden=!is3;$('modes').hidden=!is3;$('v3').hidden=!is3;
   if(is3){const v0=S.polys[0].v;if(v0.length>=3){const c=centroid(v0);T.orb.x=wx(c[0]);T.orb.z=wx(c[1])}zones3();plan3();setMode3(mode3);requestAnimationFrame(frame)}
   else{say(HINT[tool]);render()}
 }
