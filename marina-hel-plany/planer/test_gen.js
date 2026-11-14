@@ -29,6 +29,17 @@ for (const [name, types, prm] of [
     if (prm.maxCover) ok(v.stats.pokrycie <= prm.maxCover + 1e-9, v.name + ': przekroczony limit zabudowy');
   }
 }
+{ // układ z widokiem: zespół U otwarty na widok, droga wzdłuż jednego boku, nikt nie stoi przed nikim
+  const V = kit.variants.v3, ax = kit.axis_deg * Math.PI / 180, c = V.center, rl = (p, a) => p.map(q => [q[0] * Math.cos(a) - q[1] * Math.sin(a), q[0] * Math.sin(a) + q[1] * Math.cos(a)]);
+  const parts = V.b.map(k => rl(kit.buildings[k].outline.map(q => [q[0] - c[0], q[1] - c[1]]), -ax));
+  const strip = [[0, 0], [300, 0], [300, 90], [0, 90]], road = { pts: [[0, 95], [300, 95]], d: 6 }, view = -Math.PI / 2;       // widok na południe, droga od północy
+  const inp = { site: strip, excl: [], build: [], roads: [road], types: [{ id: 'Z', parts, fixedRot: view - Math.PI, lokale: 262, pu: 11192, zab: 4783, kond: 6 }], params: { sb: 0, se: 0, dist: 8, step: 2, goal: 'lokale', scanAngle: view - Math.PI / 2, viewAngle: view } };
+  const r = G.generate(inp), it = r.variants[0].items;
+  console.log('układ z widokiem: zespołów', it.length, 'czas', r.ms, 'ms');
+  ok(it.length >= 2, 'za mało zespołów w układzie z widokiem');
+  it.forEach((a, i) => { a.parts.forEach(P => { ok(dense(P).every(p => G.inside(p[0], p[1], strip)), 'zespół poza granicą'); ok(Math.min(...dense(P).map(p => d2seg(p, road.pts[0], road.pts[1]))) >= road.d - 0.05, 'zespół za blisko drogi'); });
+    const xs = a.parts.flat().map(p => p[0]); for (let j = 0; j < i; j++) { const xj = it[j].parts.flat().map(p => p[0]); ok(Math.min(...xs) >= Math.max(...xj) + 8 - 1e-6 || Math.max(...xs) <= Math.min(...xj) - 8 + 1e-6, 'zespoły zasłaniają sobie widok'); } });
+}
 { // duży teren ok. 10 ha: czas
   const big = [[0, 0], [354, 15], [378, 300], [27, 324]], inp = { site: big, excl: [[[156, 114], [222, 111], [225, 168], [159, 171]]], build: [], types: ['A2', 'C3', 'B'].map(T), params: { sb: 4, se: 0, dist: 8, step: 4, goal: 'lokale' } };
   const q = G.generate(Object.assign({}, inp, { params: Object.assign({}, inp.params, { maxVariants: 2 }) })), r = G.generate(inp);

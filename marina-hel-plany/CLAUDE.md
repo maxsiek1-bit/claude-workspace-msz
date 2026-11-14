@@ -99,7 +99,7 @@ Zamysł docelowy i dane techniczne terenu: `planer/src/INSTRUKCJA.md`.
   kolejności typów: duże / gęste / małe najpierw. Szybkie odrzucanie na rastrze zajętości, każde udane ustawienie potwierdzane dokładnym testem na obrysach
   (granica + odsunięcie, strefy wyłączone + odsunięcie, strefy pod zabudowę, odległość między budynkami, limit udziału zabudowy). Cel: lokale / PU / liczba budynków / zabudowa.
 - `test_gen.js` – `node planer/test_gen.js`: niezależna kontrola (budynek w granicy, poza strefą wyłączoną, odsunięcia, odległości, limit) i czas na terenie 10 ha.
-- `generator.js` – część interfejsu wklejana do edytora: biblioteka typów (A, A skrócony, B, C, lustrzane A; zestawy = trzy wersje), parametry, wybór celu,
+- `ui.js` – część interfejsu wklejana do edytora: biblioteka typów (A, A skrócony, B, C, lustrzane A; zestawy = trzy wersje), parametry, wybór celu,
   lista wariantów, wyniki, porównanie z układem „zespoły A+B+C w siatce”, rysunek 2D, bryły w 3D (InstancedMesh), eksport planu w JSON (EPSG:2180) i statystyk CSV.
   Generator liczy się w Web Workerze: najpierw 2 warianty (szybki wynik), potem wszystkie.
 - `build_kit.py` → `kit.json` (obrysy budynków, kondygnacje, liczby lokali: A 123 / 5109,9 m², A skrócony 110 / 4604,5 m², B 42 / 1983,1 m², C brak danych) i kopie brył w `geo/`.
@@ -112,3 +112,11 @@ Zamysł docelowy i dane techniczne terenu: `planer/src/INSTRUKCJA.md`.
   pole „Zabudowa terenu do … %” (limit udziału zabudowy wpisywany z klawiatury) i cel; wszystko inne w zwijanych sekcjach. Edycja terenu jest zwinięta –
   wtedy mapa jest tylko do oglądania (bez uchwytów i wymiarów). Wybrany wariant po każdym przeliczeniu wraca do najlepszego.
 - Podgląd 3D planera: nakładka z suwakiem prześwitu brył i przełącznikami pięter; plany pięter z numerami lokali (`tex/`, z `viewer3d/tex`) jako InstancedMesh w każdym budynku.
+- Priorytet Maxa (14.11.2026): każdy lokal ma mieć widok na pole golfowe (zachodnia strona terenu) i słońce; droga biegnie od strony wsi (wschód). Wzorcem jest zespół U:
+  dwa lustrzane L i klocek w środku, otwarty na widok.
+- Układ „Z widokiem” (domyślny): warstwa „Droga” (łamana rysowana w edytorze; budynki trzymają się od osi drogi o pół szerokości + 2 m), kierunek widoku = od drogi
+  (albo wybrany kierunek świata), zasada widoku w `gen_core.js` (`viewAngle`): rzuty budynków na kierunek drogi nie mogą się nakładać, więc nikt nie stoi przed nikim.
+  Warianty: zespoły U otwarte na widok (trzy wersje) i rzędy pojedynczych typów długą elewacją do widoku. Zespół U ma ok. 77 m głębokości – nie mieści się w pasie o szerokości 78 m z drogą.
+  Układ „Gęste wypełnienie” to poprzedni generator (bez zasady widoku). Nasłonecznienie nie jest liczone.
+- Piętra (górny pasek P, 1–5) usuwają kondygnacje z brył: `build_kit.py` tnie każdą bryłę na kondygnacje (`geo/*_kond.json`), wyłączona znika, a wyższe opadają;
+  liczby lokali i PU liczą się z włączonych pięter (`kit.json` → `floors[].lokale/pu`). Prześwit i piętra są w górnym pasku; „Zapisane tereny” i przyciski obrotu są ukryte.

@@ -43,11 +43,24 @@ var GenCore = (function () {
   }
   /* Przygotowanie typu: obrys wyśrodkowany i ustawiony długą osią wzdłuż +x, cztery obroty co 90°. */
   function prepType(t, prm) {
+    if (t.parts) {                       // typ złożony (zespół budynków): części już w układzie lokalnym
+      var r0 = 0; t.parts.forEach(function (p) { p.forEach(function (q) { r0 = Math.max(r0, Math.hypot(q[0], q[1])); }); });
+      return { t: t, c: [0, 0], parts: t.parts, r: r0 };
+    }
     var cx = 0, cy = 0; t.outline.forEach(function (q) { cx += q[0]; cy += q[1]; }); cx /= t.outline.length; cy /= t.outline.length;
     var loc = rot(t.outline.map(function (q) { return [q[0] - cx, q[1] - cy]; }), -(t.axis_deg || 0) * Math.PI / 180), r = 0;
     loc.forEach(function (q) { r = Math.max(r, Math.hypot(q[0], q[1])); });
-    return { t: t, c: [cx, cy], loc: loc, r: r };
+    return { t: t, c: [cx, cy], parts: [loc], r: r };
   }
+  /* Czy wielokąt jest bliżej niż d od odcinka a-b (albo go przecina). */
+  function polySegClose(P, a, b, d) {
+    var d2 = d * d, n = P.length, i;
+    for (i = 0; i < n; i++) if (segX(P[i], P[(i + 1) % n], a, b)) return true;
+    if (inside(a[0], a[1], P)) return true;
+    for (i = 0; i < n; i++) if (ptSeg2(P[i], a, b) < d2 || ptSeg2(a, P[i], P[(i + 1) % n]) < d2 || ptSeg2(b, P[i], P[(i + 1) % n]) < d2) return true;
+    return false;
+  }
+  function roadSegs(inp) { var o = []; (inp.roads || []).forEach(function (r) { for (var i = 0; i + 1 < r.pts.length; i++) o.push([r.pts[i], r.pts[i + 1], r.d]); }); return o; }
   function buildableArea(site, excl, build, sb, se) {       // powierzchnia obszaru do zabudowy po odsunięciach, liczona na siatce 1 m
     var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; site.forEach(function (q) { x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); });
     var se_ = edgesOf([site]), ee = edgesOf(excl), n = 0, st = Math.max(1, Math.sqrt((x1 - x0) * (y1 - y0) / 40000));
@@ -76,13 +89,14 @@ var GenCore = (function () {
     var site = inp.site, excl = inp.excl || [], build = inp.build || [], sb = inp.params.sb, se = inp.params.se;
     var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; site.forEach(function (q) { x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); });
     var cs = Math.max(1, Math.sqrt((x1 - x0) * (y1 - y0) / 250000)), W = Math.ceil((x1 - x0) / cs) + 2, H = Math.ceil((y1 - y0) / cs) + 2, ok = new Uint8Array(W * H);
-    var sE = edgesOf([site]), eE = edgesOf(excl), k, sb2 = sb * sb, se2 = se * se;
+    var sE = edgesOf([site]), eE = edgesOf(excl), rS = roadSegs(inp), k, sb2 = sb * sb, se2 = se * se;
     for (var j = 0; j < H; j++) for (var i = 0; i < W; i++) {
       var x = x0 + (i - 0.5) * cs, y = y0 + (j - 0.5) * cs, p = [x, y], g = inside(x, y, site);
       for (k = 0; k < excl.length && g; k++) if (inside(x, y, excl[k])) g = false;
       if (g && build.length) { g = false; for (k = 0; k < build.length; k++) if (inside(x, y, build[k])) { g = true; break; } }
       if (g && sb > 0) for (k = 0; k < sE.length; k++) if (ptSeg2(p, sE[k][0], sE[k][1]) < sb2) { g = false; break; }
       if (g && se > 0) for (k = 0; k < eE.length; k++) if (ptSeg2(p, eE[k][0], eE[k][1]) < se2) { g = false; break; }
+      if (g) for (k = 0; k < rS.length; k++) if (ptSeg2(p, rS[k][0], rS[k][1]) < rS[k][2] * rS[k][2]) { g = false; break; }
       ok[j * W + i] = g ? 1 : 0;
     }
     return { x0: x0 - cs, y0: y0 - cs, cs: cs, W: W, H: H, ok: ok };
@@ -98,8 +112,12 @@ var GenCore = (function () {
     var siteE = edgesOf([site]), exclE = edgesOf(excl), buildE = edgesOf(build), ca = Math.cos(alpha), sa = Math.sin(alpha);
     var u0 = 1e9, u1 = -1e9, v0 = 1e9, v1 = -1e9;
     site.forEach(function (q) { var u = q[0] * ca + q[1] * sa, v = -q[0] * sa + q[1] * ca; u0 = Math.min(u0, u); u1 = Math.max(u1, u); v0 = Math.min(v0, v); v1 = Math.max(v1, v); });
-    var shapes = P.map(function (p) { return [0, 1, 2, 3].map(function (k) { var a = alpha + k * Math.PI / 2, raw = rot(p.loc, a);
-      return { raw: raw, smp: samples(raw), sb: sb > 0 ? rot(offsetPoly(p.loc, sb), a) : raw, se: se > 0 ? rot(offsetPoly(p.loc, se), a) : raw, a: a }; }); });
+    var rS = roadSegs(inp), view = prm.viewAngle, Lx = view == null ? 0 : -Math.sin(view), Ly = view == null ? 0 : Math.cos(view);
+    var shapes = P.map(function (p) { var ks = p.t.fixedRot != null ? [p.t.fixedRot] : [0, 1, 2, 3].map(function (k) { return alpha + k * Math.PI / 2; });
+      return ks.map(function (a) { var parts = p.parts.map(function (loc) { var raw = rot(loc, a);
+          return { raw: raw, sb: sb > 0 ? rot(offsetPoly(loc, sb), a) : raw, se: se > 0 ? rot(offsetPoly(loc, se), a) : raw }; }), smp = [], lo = 1e9, hi = -1e9;
+        parts.forEach(function (pt) { samples(pt.raw).forEach(function (q) { smp.push(q); var l = q[0] * Lx + q[1] * Ly; lo = Math.min(lo, l); hi = Math.max(hi, l); }); });
+        return { parts: parts, smp: smp, a: a, lo: lo, hi: hi }; }); });
     var items = [], placed = [], zab = 0, cap = (prm.maxCover == null ? 1 : prm.maxCover) * terrain;
     var W = G.W, H = G.H, cs = G.cs, gx = G.x0, gy = G.y0, free = new Uint8Array(G.ok);       // kopia: 1 = wolne
     function rasterOK(smp, x, y) { for (var i = 0; i < smp.length; i++) { var ci = Math.floor((smp[i][0] + x - gx) / cs), cj = Math.floor((smp[i][1] + y - gy) / cs);
@@ -112,28 +130,32 @@ var GenCore = (function () {
         if (hit) free[j * W + i] = 0; }
     }
     function exact(ti, k, x, y) {
-      var sh = shapes[ti][k], pS = shift(sh.sb, x, y), i, j;
-      for (i = 0; i < pS.length; i++) if (!inside(pS[i][0], pS[i][1], site)) return null;
-      if (crosses(pS, siteE)) return null;
-      var raw = shift(sh.raw, x, y);
-      if (build.length) { var okb = false; for (j = 0; j < build.length && !okb; j++) { okb = true; for (i = 0; i < raw.length; i++) if (!inside(raw[i][0], raw[i][1], build[j])) { okb = false; break; } } if (!okb || crosses(raw, buildE)) return null; }
-      if (excl.length) { var pE = sh.se === sh.raw ? raw : shift(sh.se, x, y);
-        for (j = 0; j < excl.length; j++) { for (i = 0; i < pE.length; i++) if (inside(pE[i][0], pE[i][1], excl[j])) return null; if (inside(excl[j][0][0], excl[j][0][1], pE)) return null; }
-        if (crosses(pE, exclE)) return null; }
-      var r = P[ti].r;
-      for (j = 0; j < placed.length; j++) { var q = placed[j], dx = q.x - x, dy = q.y - y, rr = r + q.r + dist;
-        if (dx * dx + dy * dy < rr * rr && tooClose(raw, q.pts, dist)) return null; }
-      return raw;
+      var sh = shapes[ti][k], i, j, out = [], pi, r = P[ti].r;
+      if (view != null) { var s0 = x * Lx + y * Ly;          // zasada widoku: nikt nie stoi przed nikim (rzuty na kierunek drogi się nie nakładają)
+        for (j = 0; j < placed.length; j++) if (s0 + sh.lo < placed[j].hi + dist && s0 + sh.hi > placed[j].lo - dist) return null; }
+      for (pi = 0; pi < sh.parts.length; pi++) { var pt = sh.parts[pi], pS = shift(pt.sb, x, y);
+        for (i = 0; i < pS.length; i++) if (!inside(pS[i][0], pS[i][1], site)) return null;
+        if (crosses(pS, siteE)) return null;
+        var raw = shift(pt.raw, x, y);
+        if (build.length) { var okb = false; for (j = 0; j < build.length && !okb; j++) { okb = true; for (i = 0; i < raw.length; i++) if (!inside(raw[i][0], raw[i][1], build[j])) { okb = false; break; } } if (!okb || crosses(raw, buildE)) return null; }
+        if (excl.length) { var pE = pt.se === pt.raw ? raw : shift(pt.se, x, y);
+          for (j = 0; j < excl.length; j++) { for (i = 0; i < pE.length; i++) if (inside(pE[i][0], pE[i][1], excl[j])) return null; if (inside(excl[j][0][0], excl[j][0][1], pE)) return null; }
+          if (crosses(pE, exclE)) return null; }
+        for (j = 0; j < rS.length; j++) if (polySegClose(raw, rS[j][0], rS[j][1], rS[j][2])) return null;
+        for (j = 0; j < placed.length; j++) { var q = placed[j], dx = q.x - x, dy = q.y - y, rr = r + q.r + dist;
+          if (dx * dx + dy * dy < rr * rr) for (i = 0; i < q.parts.length; i++) if (tooClose(raw, q.parts[i], dist)) return null; }
+        out.push(raw); }
+      return out;
     }
     for (var v = v0; v <= v1; v += step) for (var u = u0; u <= u1; u += step) {
       var x = u * ca - v * sa, y = u * sa + v * ca, done = false;
       for (var oi = 0; oi < order.length && !done; oi++) { var ti = order[oi], t = P[ti].t;
         if (zab + t.zab > cap + 1e-6) continue;
-        for (var ri = 0; ri < rots.length && !done; ri++) { var k = rots[ri];
+        for (var ri = 0; ri < rots.length && !done; ri++) { var k = rots[ri]; if (k >= shapes[ti].length) continue;
           if (!rasterOK(shapes[ti][k].smp, x, y)) continue;
-          var pts = exact(ti, k, x, y);
-          if (pts) { placed.push({ x: x, y: y, r: P[ti].r, pts: pts }); zab += t.zab; done = true; block(pts);
-            items.push({ t: ti, id: t.id, x: x, y: y, rot: shapes[ti][k].a, pts: pts }); } } }
+          var parts = exact(ti, k, x, y);
+          if (parts) { var s1 = x * Lx + y * Ly; placed.push({ x: x, y: y, r: P[ti].r, parts: parts, lo: s1 + shapes[ti][k].lo, hi: s1 + shapes[ti][k].hi }); zab += t.zab; done = true; parts.forEach(block);
+            items.push({ t: ti, id: t.id, x: x, y: y, rot: shapes[ti][k].a, pts: parts[0], parts: parts }); } } }
     }
     return items;
   }
@@ -149,6 +171,7 @@ var GenCore = (function () {
     function addAng(a, name) { a = norm(a); for (var i = 0; i < angs.length; i++) { var d = Math.abs(angs[i] - a); if (Math.min(d, H - d) < 0.035) return; } angs.push(a); names.push(name); }
     edges.forEach(function (e, i) { if (e.l >= 0.4 * edges[0].l) addAng(e.a, i ? 'wzdłuż boku ' + Math.round(e.l) + ' m' : 'wzdłuż najdłuższego boku'); });
     for (var d = 0; d < 90; d += 15) addAng(d * Math.PI / 180, 'obrót ' + d + '°');
+    if (prm.scanAngle != null) { angs = [prm.scanAngle]; names = [prm.name || 'rząd z widokiem']; }
     // kolejności typów: od najcenniejszego według celu, od najgęstszego, od najmniejszego
     var idx = types.map(function (t, i) { return i; }), val = function (i) { var s = stats([{ t: i }], types, 1); return value(prm.goal, s); };
     var orders = [['duże najpierw', idx.slice().sort(function (a, b) { return val(b) - val(a) || types[b].zab - types[a].zab; })],
@@ -156,10 +179,11 @@ var GenCore = (function () {
                   ['małe najpierw', idx.slice().sort(function (a, b) { return types[a].zab - types[b].zab; })]];
     var seen = {}; orders = orders.filter(function (o) { var k = o[1].join(','); if (seen[k]) return false; seen[k] = 1; return true; });
     var rotSets = [['', [0, 2, 1, 3]], [' / poprzecznie', [1, 3, 0, 2]]], out = [], limit = prm.maxVariants || 60;
+    if (prm.scanAngle != null) { rotSets = [['', [0, 1, 2, 3]]]; orders = [['', orders[0][1]]]; }
     for (var ai = 0; ai < angs.length; ai++) for (var oi = 0; oi < orders.length; oi++) for (var ri = 0; ri < rotSets.length; ri++) {
       if (out.length >= limit || (prm.budgetMs && Date.now() - t0 > prm.budgetMs && out.length)) break;
       var items = fill(inp, P, angs[ai], orders[oi][1], rotSets[ri][1], terrain, G), s = stats(items, types, terrain);
-      out.push({ name: names[ai] + ', ' + orders[oi][0] + rotSets[ri][0], angle_deg: angs[ai] * 180 / Math.PI, items: items, stats: s, value: value(prm.goal, s) });
+      out.push({ name: prm.scanAngle != null ? names[ai] : names[ai] + ', ' + orders[oi][0] + rotSets[ri][0], angle_deg: angs[ai] * 180 / Math.PI, items: items, stats: s, value: value(prm.goal, s) });
     }
     out.sort(function (a, b) { return b.value - a.value || b.stats.n - a.stats.n; });
     return { area_m2: areaSb, terrain_m2: terrain, variants: out, centers: P.map(function (p) { return p.c; }), ms: Date.now() - t0 };

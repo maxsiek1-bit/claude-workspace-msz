@@ -1,7 +1,7 @@
-"""Składa planer/index.html: edytor obrysu terenu (planer/src/edytor_obrysu.html) + generator zabudowy (generator.js)
+"""Składa planer/index.html: edytor obrysu terenu (planer/src/edytor_obrysu.html) + generator zabudowy (ui.js)
 + niebieski interfejs jak w przeglądarce 3D budynków. Uruchamiać z katalogu projektu."""
 import re
-h = open('planer/src/edytor_obrysu.html', encoding='utf-8').read(); gen = open('planer/generator.js', encoding='utf-8').read()
+h = open('planer/src/edytor_obrysu.html', encoding='utf-8').read(); gen = open('planer/ui.js', encoding='utf-8').read()
 def rep(old, new, count=1):
     global h
     assert h.count(old) >= 1, 'brak: ' + old[:70]
@@ -35,7 +35,7 @@ rep('</style>', '''.seg{display:grid;grid-template-columns:1fr 1fr;border:1px so
 .leg i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 #pl-state{color:var(--mut);font-size:12px;min-height:1.4em}
 .plan{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px}
-header{align-items:center}.views{margin-left:auto}
+header{align-items:center}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .kpi{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .kpi b{font:600 28px/1.05 var(--head);font-variant-numeric:tabular-nums;color:var(--accent)}
@@ -51,9 +51,10 @@ header{align-items:center}.views{margin-left:auto}
 .side{gap:8px}.side section{margin:0}
 #edit{margin:0}#edit .bar{margin-bottom:8px}#edit .saved{margin:0 0 8px}
 #map.viewing .hnd,#map.viewing .lab{display:none}#map.viewing [data-k]{pointer-events:none}
-.v3{position:absolute;left:8px;top:8px;width:230px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
-.v3 .line input[type=range]{flex:1;min-width:0;accent-color:var(--accent)}.v3 .v{font-size:12px;color:var(--mut);width:36px;text-align:right}
-#v3-fl{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}#v3-fl .chk{color:var(--fg)}.v3 .note{margin-top:6px}
+.xray{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-left:auto;font-size:13px;color:var(--mut)}
+.xray input[type=range]{width:150px;accent-color:var(--accent)}.xray .v{width:36px;font-family:var(--mono);font-size:12px}.xray .sep{margin-left:8px}
+#v3-fl{display:flex;gap:3px}#v3-fl button{padding:5px 9px;min-width:34px}.xray button{padding:5px 9px}.views{margin-left:0}
+.sw.road{background:#3b4046}
 .types td,.types th{padding:3px 4px;font-size:12px}.types .chk{color:var(--fg)}.types .sw{display:inline-block;vertical-align:-2px}
 #pl-vars{display:flex;flex-direction:column;gap:3px}
 .var{display:flex;justify-content:space-between;gap:8px;text-align:left;font-size:12px;padding:5px 8px}
@@ -78,6 +79,8 @@ rep('''    <div class="side">
           <button data-v="v2" aria-pressed="false">Po modyfikacji</button>
           <button data-v="v3" aria-pressed="true">Po modyfikacji + lustrzane A w miejscu C</button>
         </div>
+        <div class="line"><label for="pl-mode">Układ</label><select id="pl-mode"><option value="widok">Z widokiem: nikt nie stoi przed nikim</option><option value="geste">Gęste wypełnienie terenu</option></select></div>
+        <div class="line"><label for="pl-view">Widok w stronę</label><select id="pl-view"><option value="auto">od drogi (automatycznie)</option><option value="N">północ</option><option value="NE">północny wschód</option><option value="E">wschód</option><option value="SE">południowy wschód</option><option value="S">południe</option><option value="SW">południowy zachód</option><option value="W">zachód</option><option value="NW">północny zachód</option></select></div>
         <div class="line"><label for="pl-cov">Zabudowa terenu do</label><input type="number" id="pl-cov" min="1" max="100" step="1" value="100" inputmode="numeric"><span>% powierzchni</span></div>
         <div class="line"><label for="pl-goal">Cel</label><select id="pl-goal"><option value="lokale">Najwięcej lokali</option><option value="pu">Największa powierzchnia użytkowa</option><option value="budynki">Najwięcej budynków</option><option value="zabudowa">Największa powierzchnia zabudowy</option></select></div>
         <div id="pl-state" role="status"></div>
@@ -91,6 +94,7 @@ rep('''    <div class="side">
           <label for="pl-sb">Odsunięcie od granicy</label><input type="range" id="pl-sb" min="0" max="30" step="1" value="4"><span class="v" id="pl-sbv"></span>
           <label for="pl-se">Od stref wyłączonych</label><input type="range" id="pl-se" min="0" max="30" step="1" value="0"><span class="v" id="pl-sev"></span>
           <label for="pl-dist">Odległość między budynkami</label><input type="range" id="pl-dist" min="0" max="40" step="1" value="8"><span class="v" id="pl-distv"></span>
+          <label for="pl-road">Szerokość drogi</label><input type="range" id="pl-road" min="3" max="20" step="1" value="8"><span class="v" id="pl-roadv"></span>
         </div>
       </details>
       <details class="fold"><summary>Szczegóły wyniku i porównanie</summary>
@@ -117,19 +121,17 @@ _lines = _top.split('\n')
 _saved = next(l for l in _lines if '<div class="saved"' in l); _view = next(l for l in _lines if 'id="v-2d"' in l); _total = next(l for l in _lines if 'class="total"' in l)
 _b0 = _top.index('<div class="bar">'); _b1 = _top.index('<div id="msg"')
 _bar = _top[_b0:_b1].replace(_view + '\n', '')
-h = h[:_i0] + '<header>\n    <h1>Planer zabudowy terenu</h1>\n' + _view.replace('class="grp"', 'class="grp views"') + '\n  </header>\n' \
-    + '  <details class="fold" id="edit"><summary>Edycja terenu: granica, strefy, zapisane tereny</summary>\n  ' + _bar + _saved.replace('class="saved"', 'class="saved grp"') + '\n  <div id="msg" role="status"></div>\n  </details>\n\n  ' + h[_i1:]
+_bar = _bar.replace('<div class="grp"><span>Zakres</span>', '<div class="grp" hidden><span>Zakres</span>').replace('<div class="grp"><span>Obrót</span>', '<div class="grp" hidden><span>Obrót</span>').replace('id="t-rot" data-tool="rot"', 'id="t-rot" hidden data-tool="rot"')
+_saved = _saved.replace('<div class="saved"', '<div hidden class="saved"')
+_xray = '''    <div class="xray" role="group" aria-label="Prześwit budynków i piętra">
+      <label for="v3-op">Prześwit budynków</label><input type="range" id="v3-op" min="0" max="1" step="0.01" value="0"><span class="v" id="v3-opv">0%</span>
+      <span class="sep">Piętra</span><div id="v3-fl"></div><button id="v3-all">Wszystkie</button><button id="v3-none">Żadne</button>
+    </div>
+'''
+h = h[:_i0] + '<header>\n    <h1>Planer zabudowy terenu</h1>\n' + _xray + _view.replace('class="grp"', 'class="grp views"') + '\n  </header>\n' \
+    + '  <details class="fold" id="edit"><summary>Edycja terenu: granica, strefy, droga</summary>\n  ' + _bar + _saved.replace('class="saved"', 'class="saved grp"') + '\n  <div id="msg" role="status"></div>\n  </details>\n\n  ' + h[_i1:]
 rep('''        <p class="note" id="kpi-var"></p>''', '''        <p class="note" id="kpi-var"></p>
         ''' + _total.strip().replace('Dostępne pod zabudowę', 'Teren dostępny pod zabudowę'))
-# ---- nakładka 3D: prześwit brył i piętra ----
-rep('<div class="modes" id="modes" hidden>', '''<div class="v3" id="v3" hidden>
-        <div class="line"><label for="v3-op">Prześwit brył</label><input type="range" id="v3-op" min="0" max="1" step="0.01" value="0"><span class="v" id="v3-opv">0%</span></div>
-        <div class="line"><span>Plany pięter</span><button id="v3-all">Wszystkie</button><button id="v3-none">Żadne</button></div>
-        <div id="v3-fl"></div>
-        <p class="note">Plany mieszkań widać po zwiększeniu prześwitu.</p>
-      </div>
-      <div class="modes" id="modes" hidden>''')
-rep("$('modes').hidden=!is3;", "$('modes').hidden=!is3;$('v3').hidden=!is3;")
 rep("gL=el('g',{},svg),gP=el('g',{},svg)", "gL=el('g',{class:'lab'},svg),gP=el('g',{class:'hnd'},svg)")
 # ---- skrypt: warstwa budynków, przykład startowy, haki ----
 rep("gF=el('g',{},svg),gS=el('g',{},svg)", "gF=el('g',{},svg),gB=el('g',{},svg),gS=el('g',{},svg)")
@@ -148,6 +150,19 @@ core = open('planer/gen_core.js', encoding='utf-8').read()
 rep('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>', '<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>\n<script id="gen-core">' + core + '</script>')
 rep("zones3();setMode3(mode3);requestAnimationFrame(frame)}", "zones3();plan3();setMode3(mode3);requestAnimationFrame(frame)}")
 rep("if(!SV['MS zabudowa']&&S.polys[0].v.length>=3){", "if(!SV['MS zabudowa']&&S.polys[0].v.length>=3&&JSON.stringify(S.polys)!==JSON.stringify(SAMPLE.polys)){")
+rep("excl:{fill:'url(#trees)',op:.92,stroke:'#063d18',ord:2}};", "excl:{fill:'url(#trees)',op:.92,stroke:'#063d18',ord:2},road:{fill:'none',op:0,stroke:'#e9edf0',ord:3}};")
+rep("function segs(v){const r=[];for(let i=0;i+1<v.length;i++)r.push([i,i+1]);if(v.length>=3)r.push([v.length-1,0]);return r}",
+    "function segs(v){const open=S.polys.some(p=>p.v===v&&p.kind==='road'),r=[];for(let i=0;i+1<v.length;i++)r.push([i,i+1]);if(v.length>=3&&!open)r.push([v.length-1,0]);return r}")
+rep("    const p=S.polys[i],K=KIND[p.kind],v=p.v,on=i===S.active;\n    if(v.length>=3){",
+    "    const p=S.polys[i],K=KIND[p.kind],v=p.v,on=i===S.active;\n"
+    "    if(p.kind==='road'&&v.length>=2)el('polyline',{points:v.map(q=>q.join(',')).join(' '),fill:'none',stroke:'#3b4046','stroke-width':PLAN.roadW/S.mpp,'stroke-linejoin':'round','stroke-linecap':'round','stroke-opacity':.9,'pointer-events':'none'},gF);\n"
+    "    if(v.length>=3&&p.kind!=='road'){")
+rep("""'</span></button><span class="n">'+(p.v.length>=3?fmt(areaM(p.v),0)+' m²':'–')+'</span>""",
+    """'</span></button><span class="n">'+(p.kind==='road'?(p.v.length>=2?fmt(segs(p.v).reduce((t,s)=>t+segLen(p.v,s),0),0)+' m':'–'):p.v.length>=3?fmt(areaM(p.v),0)+' m²':'–')+'</span>""")
+rep("const H3={site:1.5,build:3,excl:7},C3={site:0xffd23f,build:0xbfe58a,excl:0x18a34a};", "const H3={site:1.5,build:3,excl:7,road:.4},C3={site:0xffd23f,build:0xbfe58a,excl:0x18a34a,road:0x3b4046};")
+rep('<button id="add-excl">+ Strefa wyłączona</button>', '<button id="add-excl">+ Strefa wyłączona</button><button id="add-road">+ Droga</button>')
+rep("$('add-excl').onclick=()=>addZone('excl');", "$('add-excl').onclick=()=>addZone('excl');$('add-road').onclick=()=>addZone('road');")
+rep("S.polys.push({kind,name:(kind==='excl'?'Wyłączona ':'Zabudowa ')+n,v:[]})", "S.polys.push({kind,name:(kind==='excl'?'Wyłączona ':kind==='road'?'Droga ':'Zabudowa ')+n,v:[]})")
 # start generatora na końcu skryptu edytora
 i = h.rindex('})();'); h = h[:i] + 'planInit();\n' + h[i:]
 open('planer/index.html', 'w', encoding='utf-8').write(h)
