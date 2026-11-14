@@ -57,6 +57,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 .seg { display: grid; grid-template-columns: 1fr 1fr; margin-top: 10px; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
 .seg button { border: 0; border-radius: 0; padding: 8px 6px; font-size: 13px; }
+.seg button[data-v="v3"] { grid-column: 1 / -1; border-top: 1px solid var(--line); }
 .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
 #vinfo { margin-top: 8px; }
 .presets { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -94,6 +95,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
       <div class="seg" id="variant" role="group" aria-label="Wersja budynku">
         <button data-v="base" aria-pressed="true">Wersja podstawowa</button>
         <button data-v="v2" aria-pressed="false">Po modyfikacji</button>
+        <button data-v="v3" aria-pressed="false">Po modyfikacji + lustrzane A w miejscu C</button>
       </div>
       <p class="note" id="vinfo" hidden></p>
     </div>
@@ -127,7 +129,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
   const $ = id => document.getElementById(id);
   const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   const pl = (x, d = 2) => Number(x).toFixed(d).replace('.', ',');
-  const ST = { available: ['dostępny', '--ok'], reserved: ['zarezerwowany', '--res'], sold: ['sprzedany', '--sold'], not_available: ['niedostępny', '--na'] };
+  const ST = { variant: ['wariant – lustrzana kopia lokalu z budynku A', '--muted'], available: ['dostępny', '--ok'], reserved: ['zarezerwowany', '--res'], sold: ['sprzedany', '--sold'], not_available: ['niedostępny', '--na'] };
   const canvas = $('c'), stage = canvas.parentElement;
   let D;
   try { D = await (await fetch('data.json')).json(); }
@@ -236,11 +238,14 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     [a, c].forEach(p => { const k = new THREE.Mesh(new THREE.SphereGeometry(0.45, 12, 8), redMat); k.position.copy(V(p)); k.renderOrder = 5; cur.add(k); });
     tag(label, V(a).add(V(c)).multiplyScalar(0.5).add(new THREE.Vector3(0, 1.2, 0)));
   }
-  (D.dims || []).filter(d => d.b === 'C').forEach(d => drawDim(d.a, d.c, d.label, d.ext));
+  function clearDims(g) { while (g.children.length) { const o = g.children.pop(); if (o.geometry) o.geometry.dispose(); if (o.material && o.material.map) { o.material.map.dispose(); o.material.dispose(); } } }
+  function drawStaticC() { clearDims(dimG.C); cur = dimG.C; (D.dims || []).filter(d => d.b === 'C').forEach(d => drawDim(d.a, d.c, d.label, d.ext)); }
+  drawStaticC();
   // Wymiary A i B: obrys i wysokość tylko tych pięter, które są włączone.
   function rebuildDims(k) {
     const g = dimG[k];
-    while (g.children.length) { const o = g.children.pop(); if (o.geometry) o.geometry.dispose(); if (o.material && o.material.map) { o.material.map.dispose(); o.material.dispose(); } }
+    if (k === 'C' && variant !== 'v3') { drawStaticC(); render(); return; }
+    clearDims(g);
     const all = floorsBy[k], on0 = all.filter(f => f.on), on = on0.length ? on0 : all;      // bez włączonych pięter: wymiary całego budynku
     let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
     on.forEach(f => { x0 = Math.min(x0, f.bbox[0]); y0 = Math.min(y0, f.bbox[1]); x1 = Math.max(x1, f.bbox[2]); y1 = Math.max(y1, f.bbox[3]); });
@@ -261,7 +266,8 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
   // ---- płaszczyzny pięter ----
   const loader = new THREE.TextureLoader(); const maxAniso = renderer.capabilities.getMaxAnisotropy();
   function tex(url, cb) { loader.load(url, t => { t.anisotropy = maxAniso; cb(t); render(); }); }
-  const floorsBy = { A: [], B: [] };
+  const floorsBy = { A: [], B: [], C: [] };
+  if (D.v3) { D.v3.floors.forEach(f => { f.avail = false; D.floors.push(f); }); D.fitC = D.v3.fit; }      // piętra lustrzanego budynku: widoczne tylko w wersji 3
   D.floors.forEach(f => {
     const q = f.quad, y = f.z + 0.08;
     const g = new THREE.BufferGeometry();
@@ -269,12 +275,13 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array([0, 1, 1, 1, 1, 0, 0, 0]), 2));
     g.setIndex([0, 1, 2, 0, 2, 3]);
     const m = new THREE.MeshBasicMaterial({ transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, visible: false });
-    const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 1; mesh.userData.f = f; scene.add(mesh);
+    const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 1; mesh.userData.f = f; mesh.visible = f.avail !== false; scene.add(mesh);
     f.mesh = mesh; f.on = true; f.idx = floorsBy[f.b].length; floorsBy[f.b].push(f);
-    f.units = D.units.filter(u => u.b === f.b && u.fl === f.fl);
+    f.units = (f.b === 'C' ? D.v3.units : D.units).filter(u => u.b === f.b && u.fl === f.fl);
   });
   function setLabels(on) {
     D.floors.forEach(f => {
+      if (f.avail === false) return;
       const key = variant + (on ? 'l' : 'p');
       const use = t => { f.mesh.material.map = t; f.mesh.material.visible = true; f.mesh.material.needsUpdate = true; };
       if (f[key]) use(f[key]); else tex(on ? f.texl : f.tex, t => { f[key] = t; if ($('labels').checked === on) use(t); });
@@ -291,21 +298,22 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
   const blds = $('blds');
   for (const k of ['A', 'B', 'C']) {
     const d = document.createElement('div'); d.className = 'bld';
-    let h = `<div class="row"><label><input type="checkbox" id="on${k}" checked> <span class="name">Budynek ${k}</span></label></div>
+    let h = `<div class="row"><label><input type="checkbox" id="on${k}" checked> <span class="name" id="name${k}">Budynek ${k}</span></label></div>
       <div class="row"><label for="op${k}" style="flex:none">Prześwit bryły</label><input type="range" id="op${k}" min="0" max="1" step="0.01" value="1"><span class="val" id="opv${k}">0%</span></div>`;
-    if (floorsBy[k]) {
-      h += `<div class="row"><h3 style="flex:1">Plany pięter</h3><button data-all="${k}">Wszystkie</button><button data-none="${k}">Żadne</button></div><div class="floors">`;
+    if (floorsBy[k].length) {
+      h += `<div id="flwrap${k}"${k === 'C' ? ' hidden' : ''}><div class="row"><h3 style="flex:1">Plany pięter</h3><button data-all="${k}">Wszystkie</button><button data-none="${k}">Żadne</button></div><div class="floors">`;
       floorsBy[k].slice().reverse().forEach(f => {
         h += `<label><input type="checkbox" id="fl${k}${f.fl}" checked> ${f.name} <span class="cnt" id="cnt${k}${f.fl}">· ${f.units.length} lok.</span></label><button data-cut="${k}${f.fl}">Przekrój</button>`;
       });
-      h += '</div>';
-    } else h += '<p class="note">Sama bryła – nie mam kart lokali tego budynku.</p>';
+      h += '</div></div>';
+    }
+    if (k === 'C') h += '<p class="note" id="noteC">Sama bryła – nie mam kart lokali tego budynku.</p>';
     d.innerHTML = h; blds.appendChild(d);
     $('on' + k).addEventListener('change', e => { B[k].on = e.target.checked; setOpacity(k, B[k].opacity); });
     $('op' + k).addEventListener('input', e => { const t = +e.target.value; $('opv' + k).textContent = Math.round(t * 100) + '%'; setOpacity(k, 1 - t); });
   }
   function setTransp(k, t) { $('op' + k).value = t; $('opv' + k).textContent = Math.round(t * 100) + '%'; setOpacity(k, 1 - t); }
-  function setFloor(f, on) { const ch = f.on !== on; f.on = on; f.mesh.visible = on; $('fl' + f.b + f.fl).checked = on; if (sel && sel.f === f && !on) select(null); if (ch) rebuildDims(f.b); render(); }
+  function setFloor(f, on) { const ch = f.on !== on; f.on = on; f.mesh.visible = on && f.avail !== false; $('fl' + f.b + f.fl).checked = on; if (sel && sel.f === f && !on) select(null); if (ch) rebuildDims(f.b); render(); }
   D.floors.forEach(f => $('fl' + f.b + f.fl).addEventListener('change', e => setFloor(f, e.target.checked)));
   blds.addEventListener('click', e => {
     const t = e.target; if (!(t instanceof HTMLButtonElement)) return;
@@ -328,7 +336,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
 
   // ---- wybór lokalu ----
   const ray = new THREE.Raycaster(); let sel = null, down = null;
-  const inv = {}; ['A', 'B'].forEach(k => { const a = D['fit' + k].A, t = D['fit' + k].t, det = a[0][0] * a[1][1] - a[0][1] * a[1][0];
+  const inv = {}; ['A', 'B', 'C'].filter(k => D['fit' + k]).forEach(k => { const a = D['fit' + k].A, t = D['fit' + k].t, det = a[0][0] * a[1][1] - a[0][1] * a[1][0];
     inv[k] = (x, y) => { const u = x - t[0], v = y - t[1]; return [(a[1][1] * u - a[0][1] * v) / det, (-a[1][0] * u + a[0][0] * v) / det]; };
     inv[k].fwd = (px, py) => [a[0][0] * px + a[0][1] * py + t[0], a[1][0] * px + a[1][1] * py + t[1]]; });
   const inside = (p, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const a = poly[i], b = poly[j];
@@ -346,7 +354,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     const ins = u.rooms.filter(r => !/BALKON|TARAS|OGR|LOGGIA|w tym/i.test(r[0])), out = u.rooms.filter(r => /BALKON|TARAS|OGR|LOGGIA|w tym/i.test(r[0]));
     const rows = r => `<tr><td>${r[0].charAt(0) + r[0].slice(1).toLowerCase()}</td><td>${pl(r[1])} m²</td></tr>`;
     box.innerHTML = `<button class="close" id="infoClose" aria-label="Zamknij">×</button><h2>${u.b} ${u.n}</h2>
-      <div class="st" style="color:var(${st[1]})">${st[0]}</div>
+      <div class="st" style="color:var(${st[1]})">${st[0]}${u.src ? ' ' + u.src : ''}</div>
       <table><tr><td>Budynek ${u.b}, ${f.name}</td><td></td></tr>
       <tr><td><b>Powierzchnia użytkowa${u.est ? ' (szacunek)' : ''}</b></td><td><b>${u.est ? '~' : ''}${pl(u.pu)} m²</b></td></tr>
       <tr><td>Obrys lokalu (w przybliżeniu)</td><td>${pl(u.w, 1)} × ${pl(u.d, 1)} m</td></tr>
@@ -359,7 +367,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return;
     const r = canvas.getBoundingClientRect();
     ray.setFromCamera({ x: (e.clientX - r.left) / r.width * 2 - 1, y: -(e.clientY - r.top) / r.height * 2 + 1 }, camera);
-    const hits = ray.intersectObjects(D.floors.filter(f => f.on).map(f => f.mesh));
+    const hits = ray.intersectObjects(D.floors.filter(f => f.on && f.avail !== false).map(f => f.mesh));
     for (const h of hits) {
       const f = h.object.userData.f, p = inv[f.b](h.point.x, -h.point.z);
       const u = f.units.find(u => u.poly.some(poly => inside(p, poly)));
@@ -372,25 +380,35 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
   // ---- wersje: podstawowa / po modyfikacji (skrócony budynek A) ----
   const baseA = floorsBy.A.map(f => ({ tex: f.tex, texl: f.texl, bbox: f.bbox, units: f.units }));
   async function setVariant(v) {
-    if (v === variant || !D.v2) return;
-    const b = B.A;
-    if (v === 'v2' && !b.v2) { $('status').textContent = 'Wczytywanie wersji po modyfikacji…'; $('status').hidden = false; b.v2 = await buildShell(D.v2.building); $('status').hidden = true; }
-    variant = v; const s = v === 'v2' ? b.v2 : b.base;
-    b.base.mesh.visible = false; if (b.v2) b.v2.mesh.visible = false;
-    b.mesh = s.mesh; b.mats = s.mats; b.def = s.def; setOpacity('A', b.opacity);
+    if (v === variant || !D.v2 || (v === 'v3' && !D.v3)) return;
+    const a = B.A, c = B.C, useA2 = v !== 'base', useC3 = v === 'v3', st = $('status');
+    if ((useA2 && !a.v2) || (useC3 && !c.v3)) {
+      st.textContent = 'Wczytywanie wersji…'; st.hidden = false;
+      if (useA2 && !a.v2) a.v2 = await buildShell(D.v2.building);
+      if (useC3 && !c.v3) c.v3 = await buildShell(D.v3.building);
+      st.hidden = true;
+    }
+    variant = v;
+    [[a, 'A', useA2 ? a.v2 : a.base, a.v2], [c, 'C', useC3 ? c.v3 : c.base, c.v3]].forEach(([b, k, s, alt]) => {
+      b.base.mesh.visible = false; if (alt) alt.mesh.visible = false;
+      b.mesh = s.mesh; b.mats = s.mats; b.def = s.def; setOpacity(k, b.opacity);
+    });
     floorsBy.A.forEach((f, i) => {
-      const o = v === 'v2' ? D.v2.floors.find(x => x.fl === f.fl) : baseA[i];
+      const o = useA2 ? D.v2.floors.find(x => x.fl === f.fl) : baseA[i];
       f.tex = o.tex; f.texl = o.texl; f.bbox = o.bbox;
-      f.units = v === 'v2' ? D.v2.units.filter(u => u.fl === f.fl) : baseA[i].units;
+      f.units = useA2 ? D.v2.units.filter(u => u.fl === f.fl) : baseA[i].units;
       $('cntA' + f.fl).textContent = '· ' + f.units.length + ' lok.';
     });
-    select(null); setLabels($('labels').checked); rebuildDims('A');
+    floorsBy.C.forEach(f => { f.avail = useC3; f.mesh.visible = f.on && useC3; });
+    if ($('flwrapC')) { $('flwrapC').hidden = !useC3; $('noteC').hidden = useC3; $('nameC').textContent = useC3 ? 'Budynek C (lustrzane A)' : 'Budynek C'; }
+    select(null); setLabels($('labels').checked); rebuildDims('A'); rebuildDims('C');
     document.querySelectorAll('#variant button').forEach(x => x.setAttribute('aria-pressed', x.dataset.v === v));
     const info = $('vinfo'), m = D.v2;
-    if (v === 'v2') {
-      info.textContent = 'Budynek A skrócony o ' + pl(m.skrocenie_m, 1) + ' m na wszystkich piętrach: bez klatki schodowej od strony szczytu i bez ' + m.usuniete.length + ' lokali (' + m.usuniete.join(', ') + '). ' +
-        'Lokale A 512 i A 513 połączone w jeden. Lokali w budynku A: ' + m.lokali_przed + ' → ' + m.lokali_po + ', suma PU: ' + pl(m.pu_przed, 0) + ' → ' + pl(m.pu_po, 0) + ' m² (−' + pl(m.pu_mniej, 0) + ' m²). Budynki B i C bez zmian.';
-      info.hidden = false;
+    if (useA2) {
+      let t = 'Budynek A skrócony o ' + pl(m.skrocenie_m, 1) + ' m na wszystkich piętrach: bez klatki schodowej od strony szczytu i bez ' + m.usuniete.length + ' lokali (' + m.usuniete.join(', ') + '). ' +
+        'Lokale A 512 i A 513 połączone w jeden. Lokali w budynku A: ' + m.lokali_przed + ' → ' + m.lokali_po + ', suma PU: ' + pl(m.pu_przed, 0) + ' → ' + pl(m.pu_po, 0) + ' m² (−' + pl(m.pu_mniej, 0) + ' m²).';
+      t += useC3 ? ' W miejscu budynku C stoi lustrzane odbicie skróconego budynku A: ' + D.v3.lokali + ' lokali, ' + pl(D.v3.pu, 0) + ' m² PU. Jest o ok. ' + pl(D.v3.dluzszy_niz_C_m, 0) + ' m dłuższe niż pierwotny budynek C. Numery lokali C powtarzają numery z A, a drobne napisy na planach są odbite. Budynek B bez zmian.' : ' Budynki B i C bez zmian.';
+      info.textContent = t; info.hidden = false;
     } else info.hidden = true;
     render();
   }

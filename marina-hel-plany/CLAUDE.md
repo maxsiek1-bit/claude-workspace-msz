@@ -79,3 +79,10 @@ Poziomy podłóg w modelu: 3,62 / 6,57 / 9,52 / 12,47 / 15,58 m (A: piętra 1–
 znika klatka schodowa od strony szczytu i 12 lokali (A 109, 110, 212, 213, 218, 312, 313, 318, 412, 413, 418, 509), szczyt z A 510 / A 511 jest dosunięty,
 a reszta A 512 (ok. 37%) połączona z A 513 (PU szacunkowe). Lokali A na planach: 122 → 109, suma PU 5062 → 4557 m².
 Wynik: `geo/Budynek_A_v2.json`, `tex/A*_v2.webp`, `data.json` → `v2`. Wersja podstawowa zostaje bez zmian. Ściana między A 512 a A 513 jest nadal narysowana na planie.
+
+### Wersja 3: po modyfikacji + lustrzane A w miejscu C
+
+`tools/build_variant3.py` (po `build_variant.py`) – skrócony budynek A zostaje na miejscu, a zamiast budynku C stoi jego lustrzane odbicie:
+odbicie względem osi równoległej do długiej elewacji A, potem przesunięcie maksymalizujące pokrycie z obrysem C (`tools/mirror.json`, pokrycie 0,63).
+Lustrzany budynek jest o ok. 23 m dłuższy niż pierwotny C i nie nachodzi na budynek B. Ma 109 lokali / 4557 m² PU (kopie lokali A, numery „C nnn”, status „wariant”).
+Plany są odbite (drobne napisy na rzutach też), etykiety lokali dorysowane na nowo. Wynik: `geo/Budynek_C_v3.json`, `tex/C*_v3.webp`, `data.json` → `v3`.
