@@ -4,6 +4,7 @@
 <style>
 /* Układ: scena 3D na całą wysokość + panel sterowania z boku (na telefonie pod sceną). */
 :root {
+  --dim: #c0140f;
   --bg: #e9edf0; --panel: #f7f9fa; --line: #cfd7dc; --fg: #17222b; --muted: #5a6b78;
   --accent: #0b6e8e; --accent-fg: #ffffff; --scene: #dfe6ea; --ground: #c9d3d9;
   --ok: #1f8a3b; --res: #c9780a; --sold: #b93a26; --na: #6b747b;
@@ -24,6 +25,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font
 .stage { position: relative; min-width: 0; min-height: 0; background: var(--scene); }
 canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .hint { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); bottom: 12px; color: var(--muted); font-size: 12px; pointer-events: none; }
+.dimbtn { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; background: var(--panel); padding: 7px 10px; font-size: 13px; }
+.dimbtn[aria-pressed="true"] { color: var(--dim); border-color: var(--dim); }
 .pad { position: absolute; right: 12px; bottom: 40px; display: grid; grid-template-columns: repeat(3, 40px); gap: 4px; }
 .pad button { height: 40px; padding: 0; font-size: 16px; background: var(--panel); touch-action: none; user-select: none; }
 .hint { right: 150px; }
@@ -70,6 +73,10 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     <canvas id="c"></canvas>
     <div class="status" id="status">Wczytywanie modelu…</div>
     <div class="info" id="info" hidden></div>
+    <button class="dimbtn" id="dimBtn" aria-pressed="true" title="Wymiary zewnętrzne: włącz / wyłącz">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="2" y="8" width="20" height="8" rx="1"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/></svg>
+      <span>Wymiary</span>
+    </button>
     <div class="pad" id="pad" aria-label="Poruszanie się po scenie">
       <button data-k="u" title="W górę (E)">⤒</button><button data-k="f" title="Do przodu (W)">▲</button><button data-k="d" title="W dół (Q)">⤓</button>
       <button data-k="l" title="W lewo (A)">◀</button><button data-k="b" title="Do tyłu (S)">▼</button><button data-k="r" title="W prawo (D)">▶</button>
@@ -99,6 +106,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
       <div class="row"><label for="speed" style="flex:none">Tempo chodzenia</label><input type="range" id="speed" min="0.2" max="3" step="0.1" value="1"></div>
     </section>
     <div id="blds"></div>
+    <p class="note">Czerwone wymiary: długość i szerokość budynków A i B to obrys kondygnacji z balkonami według kart lokali (dokładność ok. ±3% dla A, ±1% dla B). Wartości z gwiazdką (wysokości oraz cały budynek C) są zmierzone na modelu 3D i są orientacyjne.</p>
     <p class="note">Model 3D jest schematyczny (głębokość budynków jest w nim większa niż na kartach), więc plany są do niego rozciągnięte. Prawdziwe wymiary lokali pokazuje karta po kliknięciu lokalu.</p>
   </aside>
 </div>
@@ -191,6 +199,31 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     b.mats.forEach(m => { const v = m.userData.base * o; m.opacity = v; m.transparent = v < 0.999; m.depthWrite = v >= 0.999; m.needsUpdate = true; });
     b.mesh.visible = o > 0.005 && b.on !== false; render();
   }
+
+  // ---- wymiary zewnętrzne: czerwone linie odsunięte od brył ----
+  const dims = new THREE.Group(); scene.add(dims);
+  const RED = 0xe0201b, redMat = new THREE.MeshBasicMaterial({ color: RED });
+  const V = p => new THREE.Vector3(p[0], p[2], -p[1]);
+  function bar(p, q, t) {
+    const a = V(p), b = V(q), len = a.distanceTo(b); if (len < 0.01) return;
+    const m = new THREE.Mesh(new THREE.BoxGeometry(len, t, t), redMat);
+    m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), b.clone().sub(a).normalize()); m.renderOrder = 5; dims.add(m);
+  }
+  function tag(text, pos) {
+    const c = document.createElement('canvas'), x = c.getContext('2d'); x.font = '600 56px Inter, system-ui, sans-serif';
+    const w = Math.ceil(x.measureText(text).width) + 48; c.width = w; c.height = 84;
+    x.font = '600 56px Inter, system-ui, sans-serif'; x.fillStyle = '#ffffff'; x.strokeStyle = '#e0201b'; x.lineWidth = 6;
+    x.beginPath(); x.rect(3, 3, w - 6, 78); x.fill(); x.stroke(); x.fillStyle = '#c0140f'; x.textBaseline = 'middle'; x.textAlign = 'center'; x.fillText(text, w / 2, 44);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false, transparent: true }));
+    s.scale.set(w / 84 * 3.4, 3.4, 1); s.position.copy(pos); s.renderOrder = 6; dims.add(s);
+  }
+  (D.dims || []).forEach(d => {
+    bar(d.a, d.c, 0.28); d.ext.forEach(e => bar(e[0], e[1], 0.14));
+    [d.a, d.c].forEach(p => { const k = new THREE.Mesh(new THREE.SphereGeometry(0.45, 12, 8), redMat); k.position.copy(V(p)); k.renderOrder = 5; dims.add(k); });
+    tag(d.label, V(d.a).add(V(d.c)).multiplyScalar(0.5).add(new THREE.Vector3(0, 1.2, 0)));
+  });
+  const dimBtn = $('dimBtn');
+  dimBtn.addEventListener('click', () => { dims.visible = !dims.visible; dimBtn.setAttribute('aria-pressed', dims.visible); render(); });
 
   // ---- płaszczyzny pięter ----
   const loader = new THREE.TextureLoader(); const maxAniso = renderer.capabilities.getMaxAnisotropy();

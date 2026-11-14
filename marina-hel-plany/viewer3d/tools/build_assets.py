@@ -38,5 +38,29 @@ for B in 'AB':
 for u in lok:
     data['units'].append(dict(id=u['id'], b=u['budynek'], n=u['numer'], fl=u['pietro'], st=u['status'], pu=u['pu_m2'], w=u['szer_x_m'], d=u['gleb_y_m'],
                               poly=u['obrys_m'], rooms=[[r['nazwa'], r['m2']] for r in u['pomieszczenia']]))
+# ---- wymiary zewnętrzne (czerwone linie) ----
+import math
+cw = json.load(open('data/czesci_wspolne.json')); dims = []
+def add(b, p, q, label, exts): dims.append(dict(b=b, a=[round(float(v), 2) for v in p], c=[round(float(v), 2) for v in q], label=label, ext=[[[round(float(v), 2) for v in e] for e in ex] for ex in exts]))
+fmt = lambda v: ('%.1f' % v).replace('.', ',')
+O = 4.0; ZG = 0.4
+for B in 'AB':
+    A = np.array(fit[B]['A']); tt = np.array(fit[B]['t']); M = lambda x, y, z=ZG: list(A @ np.array([x, y]) + tt) + [z]
+    fl = [r['obrys_bbox_m'] for r in cw if r['budynek'] == B and (r['pietro'] >= 2 if B == 'A' else 1 <= r['pietro'] <= 3)]
+    x0, y0, x1, y1 = np.median(np.array(fl), 0)
+    zb, zt = an['Budynek_' + B]['bbmin'][2], an['Budynek_' + B]['bbmax'][2]
+    ys, yo, s = (y0, y1, -1) if B == 'A' else (y1, y0, 1)       # strona zewnętrzna: A od długiej elewacji, B od frontu
+    add(B, M(x0, ys + s * O), M(x1, ys + s * O), fmt(x1 - x0) + ' m', [[M(x0, ys), M(x0, ys + s * (O + 1))], [M(x1, ys), M(x1, ys + s * (O + 1))]])
+    add(B, M(x0 - O, y0), M(x0 - O, y1), fmt(y1 - y0) + ' m', [[M(x0, y0), M(x0 - O - 1, y0)], [M(x0, y1), M(x0 - O - 1, y1)]])
+    add(B, M(x0 - O, ys + s * O, zb), M(x0 - O, ys + s * O, zt), '~' + fmt(zt - zb) + ' m*', [[M(x0 - O - 1, ys + s * O, zt), M(x0, ys, zt)]])
+th = an['Budynek_C']['rot'][2]; R = np.array([[math.cos(th), -math.sin(th)], [math.sin(th), math.cos(th)]])
+co = np.load(os.path.join(src, 'Budynek_C.npz'))['co']; uv = co[:, :2] @ R            # obrót o -th
+x0, y0 = uv.min(0); x1, y1 = uv.max(0); M = lambda x, y, z=ZG: list(R @ np.array([x, y])) + [z]
+zb, zt = float(co[:, 2].min()), float(co[:, 2].max()); ZR = ZG
+add('C', M(x0, y0 - O, ZR), M(x1, y0 - O, ZR), '~' + fmt(x1 - x0) + ' m*', [[M(x0, y0, ZR), M(x0, y0 - O - 1, ZR)], [M(x1, y0, ZR), M(x1, y0 - O - 1, ZR)]])
+add('C', M(x1 + O, y0, ZR), M(x1 + O, y1, ZR), '~' + fmt(y1 - y0) + ' m*', [[M(x1, y0, ZR), M(x1 + O + 1, y0, ZR)], [M(x1, y1, ZR), M(x1 + O + 1, y1, ZR)]])
+add('C', M(x1 + O, y0 - O, zb), M(x1 + O, y0 - O, zt), '~' + fmt(zt - zb) + ' m*', [[M(x1 + O + 1, y0 - O, zt), M(x1, y0, zt)]])
+data['dims'] = dims
+for d in dims: print(d['b'], d['label'])
 json.dump(data, open('viewer3d/data.json', 'w'), ensure_ascii=False, separators=(',', ':'))
 print({k: v['verts'] for k, v in data['buildings'].items()}, len(data['floors']), len(data['units']))

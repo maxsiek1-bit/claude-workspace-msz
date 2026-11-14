@@ -49,7 +49,8 @@ def run(bld):
         vis[units] = (vis[units] * 0.5 + np.array([120, 200, 120]) * 0.5).astype(np.uint8)
         ys, xs = np.where(inside)
         os.makedirs('out/kontrola', exist_ok=True); Image.fromarray(vis).save(f'out/kontrola/czesci_wspolne_{bld}_pietro{fl}.png')
-        res.append(dict(budynek=bld, pietro=fl, obrys_budynku_m=[round(float((xs.max() - xs.min()) * mpp), 1), round(float((ys.max() - ys.min()) * mpp), 1)],
+        bx = [round(float(((KEY.x0, KEY.y0)[i % 2] + v / Z - g[i % 2] - (ox, oy)[i % 2]) * sk), 2) for i, v in enumerate((xs.min(), ys.min(), xs.max(), ys.max()))]
+        res.append(dict(budynek=bld, pietro=fl, obrys_bbox_m=bx, obrys_budynku_m=[round(float((xs.max() - xs.min()) * mpp), 1), round(float((ys.max() - ys.min()) * mpp), 1)],
                         pow_zabudowy_kondygnacji_m2=round(float(inside.sum() * mpp * mpp)), pow_lokali_brutto_m2=round(float(units.sum() * mpp * mpp)),
                         strefy=comps))
     return res
