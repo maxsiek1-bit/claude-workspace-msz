@@ -31,10 +31,8 @@ for B in 'AB':
     for fl in sorted(zf):
         for suf in ('', '_opis'):
             im = Image.open(f'out/tekstury/MarinaHel_{B}_pietro{fl}{suf}.png').convert('RGB'); a = np.asarray(im)
-            mask = fmask(a)
-            if B == 'A' and fl == 0:      # parter A: plan obejmuje też halę garażową pod dziedzińcem i schody terenowe - zostaje tylko obrys budynku
-                ref = fmask(np.asarray(Image.open('out/tekstury/MarinaHel_A_pietro2.png').convert('RGB')))
-                mask &= ndi.maximum_filter1d(ndi.maximum_filter1d(ref.view(np.uint8), 81, axis=0), 81, axis=1) > 0
+            mk = np.asarray(Image.open(f'out/maski/MarinaHel_{B}_pietro{fl}.png')) > 0      # maska z masks.py, +7 cm zapasu na linie obrysu
+            mask = ndi.maximum_filter1d(ndi.maximum_filter1d(mk.view(np.uint8), 7, axis=0), 7, axis=1) > 0
             rgba = np.dstack([a, (mask * 255).astype(np.uint8)]); im2 = Image.fromarray(rgba, 'RGBA')
             if im2.width > 4096: im2 = im2.resize((4096, round(im2.height * 4096 / im2.width)), Image.LANCZOS)
             im2.save(f'viewer3d/tex/{B}{fl}{suf}.webp', quality=80, method=4)

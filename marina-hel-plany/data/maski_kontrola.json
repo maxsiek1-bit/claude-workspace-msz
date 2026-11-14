@@ -1,0 +1,1452 @@
+[
+ {
+  "budynek": "A",
+  "pietro": 0,
+  "wyciete_wieksze_niz_1m2": [
+   {
+    "m2": 950.5,
+    "x": 6.6,
+    "y": 30.2,
+    "w": 66.3,
+    "h": 14.3
+   },
+   {
+    "m2": 59.2,
+    "x": 91.7,
+    "y": 17.4,
+    "w": 4.1,
+    "h": 14.4
+   },
+   {
+    "m2": 53.4,
+    "x": 7.9,
+    "y": 9.6,
+    "w": 3.2,
+    "h": 16.7
+   },
+   {
+    "m2": 41.1,
+    "x": 78.5,
+    "y": 36.4,
+    "w": 5.2,
+    "h": 7.9
+   },
+   {
+    "m2": 1.2,
+    "x": 32.5,
+    "y": 10.6,
+    "w": 25.0,
+    "h": 0.1
+   }
+  ],
+  "lokale": [
+   {
+    "id": "AU1",
+    "obszar_m2": 94.4,
+    "oczekiwane_m2": 78.6,
+    "zewn_m2": 0,
+    "stosunek": 1.2
+   },
+   {
+    "id": "AU2",
+    "obszar_m2": 103.2,
+    "oczekiwane_m2": 78.6,
+    "zewn_m2": 0,
+    "stosunek": 1.312
+   }
+  ]
+ },
+ {
+  "budynek": "A",
+  "pietro": 1,
+  "wyciete_wieksze_niz_1m2": [
+   {
+    "m2": 68.1,
+    "x": 54.2,
+    "y": 27.6,
+    "w": 16.8,
+    "h": 4.0
+   },
+   {
+    "m2": 7.9,
+    "x": 57.5,
+    "y": 44.1,
+    "w": 19.7,
+    "h": 0.4
+   },
+   {
+    "m2": 7.7,
+    "x": 17.4,
+    "y": 27.6,
+    "w": 1.0,
+    "h": 7.7
+   },
+   {
+    "m2": 1.5,
+    "x": 92.0,
+    "y": 10.1,
+    "w": 1.2,
+    "h": 1.2
+   },
+   {
+    "m2": 1.2,
+    "x": 71.8,
+    "y": 31.6,
+    "w": 0.1,
+    "h": 12.3
+   }
+  ],
+  "lokale": [
+   {
+    "id": "A101",
+    "obszar_m2": 113.6,
+    "oczekiwane_m2": 97.5,
+    "zewn_m2": 38.5,
+    "stosunek": 1.165
+   },
+   {
+    "id": "A102",
+    "obszar_m2": 105.0,
+    "oczekiwane_m2": 101.4,
+    "zewn_m2": 24.0,
+    "stosunek": 1.035
+   },
+   {
+    "id": "A103",
+    "obszar_m2": 52.6,
+    "oczekiwane_m2": 42.3,
+    "zewn_m2": 9.6,
+    "stosunek": 1.245
+   },
+   {
+    "id": "A104",
+    "obszar_m2": 51.3,
+    "oczekiwane_m2": 45.5,
+    "zewn_m2": 16.7,
+    "stosunek": 1.128
+   },
+   {
+    "id": "A105",
+    "obszar_m2": 81.4,
+    "oczekiwane_m2": 70.6,
+    "zewn_m2": 27.4,
+    "stosunek": 1.152
+   },
+   {
+    "id": "A106",
+    "obszar_m2": 79.3,
+    "oczekiwane_m2": 67.1,
+    "zewn_m2": 26.7,
+    "stosunek": 1.182
+   },
+   {
+    "id": "A107",
+    "obszar_m2": 75.7,
+    "oczekiwane_m2": 68.7,
+    "zewn_m2": 25.2,
+    "stosunek": 1.102
+   },
+   {
+    "id": "A108",
+    "obszar_m2": 85.0,
+    "oczekiwane_m2": 72.9,
+    "zewn_m2": 28.8,
+    "stosunek": 1.167
+   },
+   {
+    "id": "A109",
+    "obszar_m2": 78.0,
+    "oczekiwane_m2": 66.1,
+    "zewn_m2": 26.3,
+    "stosunek": 1.179
+   },
+   {
+    "id": "A110",
+    "obszar_m2": 80.1,
+    "oczekiwane_m2": 68.3,
+    "zewn_m2": 27.1,
+    "stosunek": 1.172
+   },
+   {
+    "id": "A111",
+    "obszar_m2": 78.7,
+    "oczekiwane_m2": 69.2,
+    "zewn_m2": 26.4,
+    "stosunek": 1.137
+   },
+   {
+    "id": "A112",
+    "obszar_m2": 63.5,
+    "oczekiwane_m2": 59.1,
+    "zewn_m2": 10.3,
+    "stosunek": 1.075
+   },
+   {
+    "id": "A113",
+    "obszar_m2": 70.5,
+    "oczekiwane_m2": 62.7,
+    "zewn_m2": 13.4,
+    "stosunek": 1.125
+   },
+   {
+    "id": "A114",
+    "obszar_m2": 64.1,
+    "oczekiwane_m2": 52.4,
+    "zewn_m2": 12.1,
+    "stosunek": 1.223
+   },
+   {
+    "id": "A115",
+    "obszar_m2": 41.7,
+    "oczekiwane_m2": 34.3,
+    "zewn_m2": 6.9,
+    "stosunek": 1.215
+   },
+   {
+    "id": "A116",
+    "obszar_m2": 63.8,
+    "oczekiwane_m2": 58.3,
+    "zewn_m2": 12.3,
+    "stosunek": 1.095
+   },
+   {
+    "id": "A117",
+    "obszar_m2": 61.7,
+    "oczekiwane_m2": 50.3,
+    "zewn_m2": 6.3,
+    "stosunek": 1.227
+   },
+   {
+    "id": "A118",
+    "obszar_m2": 46.9,
+    "oczekiwane_m2": 36.6,
+    "zewn_m2": 7.3,
+    "stosunek": 1.28
+   },
+   {
+    "id": "A119",
+    "obszar_m2": 86.8,
+    "oczekiwane_m2": 79.2,
+    "zewn_m2": 18.7,
+    "stosunek": 1.095
+   }
+  ]
+ },
+ {
+  "budynek": "A",
+  "pietro": 2,
+  "wyciete_wieksze_niz_1m2": [
+   {
+    "m2": 11.8,
+    "x": 93.8,
+    "y": 14.9,
+    "w": 1.6,
+    "h": 7.5
+   },
+   {
+    "m2": 7.3,
+    "x": 93.8,
+    "y": 8.8,
+    "w": 1.5,
+    "h": 4.9
+   },
+   {
+    "m2": 3.1,
+    "x": 24.5,
+    "y": 29.4,
+    "w": 6.9,
+    "h": 0.5
+   }
+  ],
+  "lokale": [
+   {
+    "id": "A201",
+    "obszar_m2": 59.7,
+    "oczekiwane_m2": 49.3,
+    "zewn_m2": 9.4,
+    "stosunek": 1.211
+   },
+   {
+    "id": "A202",
+    "obszar_m2": 76.6,
+    "oczekiwane_m2": 63.7,
+    "zewn_m2": 12.1,
+    "stosunek": 1.204
+   },
+   {
+    "id": "A203",
+    "obszar_m2": 93.0,
+    "oczekiwane_m2": 77.4,
+    "zewn_m2": 18.4,
+    "stosunek": 1.201
+   },
+   {
+    "id": "A204",
+    "obszar_m2": 94.3,
+    "oczekiwane_m2": 90.8,
+    "zewn_m2": 13.4,
+    "stosunek": 1.038
+   },
+   {
+    "id": "A205",
+    "obszar_m2": 48.6,
+    "oczekiwane_m2": 38.6,
+    "zewn_m2": 5.9,
+    "stosunek": 1.258
+   },
+   {
+    "id": "A206",
+    "obszar_m2": 46.1,
+    "oczekiwane_m2": 35.8,
+    "zewn_m2": 7.0,
+    "stosunek": 1.288
+   },
+   {
+    "id": "A207",
+    "obszar_m2": 67.6,
+    "oczekiwane_m2": 56.1,
+    "zewn_m2": 12.8,
+    "stosunek": 1.205
+   },
+   {
+    "id": "A208",
+    "obszar_m2": 64.9,
+    "oczekiwane_m2": 53.0,
+    "zewn_m2": 12.5,
+    "stosunek": 1.224
+   },
+   {
+    "id": "A209",
+    "obszar_m2": 41.9,
+    "oczekiwane_m2": 33.4,
+    "zewn_m2": 6.9,
+    "stosunek": 1.255
+   },
+   {
+    "id": "A210",
+    "obszar_m2": 62.2,
+    "oczekiwane_m2": 56.3,
+    "zewn_m2": 11.9,
+    "stosunek": 1.106
+   },
+   {
+    "id": "A211",
+    "obszar_m2": 69.3,
+    "oczekiwane_m2": 57.5,
+    "zewn_m2": 13.5,
+    "stosunek": 1.204
+   },
+   {
+    "id": "A212",
+    "obszar_m2": 63.9,
+    "oczekiwane_m2": 52.2,
+    "zewn_m2": 12.4,
+    "stosunek": 1.224
+   },
+   {
+    "id": "A213",
+    "obszar_m2": 66.0,
+    "oczekiwane_m2": 53.6,
+    "zewn_m2": 12.4,
+    "stosunek": 1.231
+   },
+   {
+    "id": "A214",
+    "obszar_m2": 63.0,
+    "oczekiwane_m2": 56.1,
+    "zewn_m2": 12.4,
+    "stosunek": 1.124
+   },
+   {
+    "id": "A215",
+    "obszar_m2": 97.9,
+    "oczekiwane_m2": 78.9,
+    "zewn_m2": 17.4,
+    "stosunek": 1.24
+   },
+   {
+    "id": "A216",
+    "obszar_m2": 97.9,
+    "oczekiwane_m2": 80.2,
+    "zewn_m2": 18.2,
+    "stosunek": 1.221
+   },
+   {
+    "id": "A217",
+    "obszar_m2": 63.7,
+    "oczekiwane_m2": 59.0,
+    "zewn_m2": 10.2,
+    "stosunek": 1.081
+   },
+   {
+    "id": "A218",
+    "obszar_m2": 60.2,
+    "oczekiwane_m2": 49.4,
+    "zewn_m2": 9.8,
+    "stosunek": 1.218
+   },
+   {
+    "id": "A219",
+    "obszar_m2": 69.1,
+    "oczekiwane_m2": 62.8,
+    "zewn_m2": 13.5,
+    "stosunek": 1.101
+   },
+   {
+    "id": "A220",
+    "obszar_m2": 63.3,
+    "oczekiwane_m2": 52.2,
+    "zewn_m2": 12.0,
+    "stosunek": 1.211
+   },
+   {
+    "id": "A221",
+    "obszar_m2": 42.3,
+    "oczekiwane_m2": 34.2,
+    "zewn_m2": 6.8,
+    "stosunek": 1.236
+   },
+   {
+    "id": "A222",
+    "obszar_m2": 64.3,
+    "oczekiwane_m2": 58.4,
+    "zewn_m2": 12.5,
+    "stosunek": 1.101
+   },
+   {
+    "id": "A223",
+    "obszar_m2": 68.7,
+    "oczekiwane_m2": 56.8,
+    "zewn_m2": 12.8,
+    "stosunek": 1.21
+   },
+   {
+    "id": "A224",
+    "obszar_m2": 46.5,
+    "oczekiwane_m2": 36.2,
+    "zewn_m2": 6.9,
+    "stosunek": 1.285
+   },
+   {
+    "id": "A225",
+    "obszar_m2": 79.1,
+    "oczekiwane_m2": 72.1,
+    "zewn_m2": 11.5,
+    "stosunek": 1.097
+   },
+   {
+    "id": "A226",
+    "obszar_m2": 65.0,
+    "oczekiwane_m2": 53.7,
+    "zewn_m2": 12.2,
+    "stosunek": 1.21
+   },
+   {
+    "id": "A227",
+    "obszar_m2": 93.0,
+    "oczekiwane_m2": 77.9,
+    "zewn_m2": 12.0,
+    "stosunek": 1.195
+   },
+   {
+    "id": "A228",
+    "obszar_m2": 34.0,
+    "oczekiwane_m2": 26.3,
+    "zewn_m2": 0,
+    "stosunek": 1.293
+   }
+  ]
+ },
+ {
+  "budynek": "A",
+  "pietro": 3,
+  "wyciete_wieksze_niz_1m2": [
+   {
+    "m2": 6.7,
+    "x": 6.7,
+    "y": 19.5,
+    "w": 0.9,
+    "h": 7.0
+   }
+  ],
+  "lokale": [
+   {
+    "id": "A301",
+    "obszar_m2": 59.6,
+    "oczekiwane_m2": 49.3,
+    "zewn_m2": 9.4,
+    "stosunek": 1.21
+   },
+   {
+    "id": "A302",
+    "obszar_m2": 77.1,
+    "oczekiwane_m2": 63.7,
+    "zewn_m2": 12.1,
+    "stosunek": 1.211
+   },
+   {
+    "id": "A303",
+    "obszar_m2": 94.1,
+    "oczekiwane_m2": 77.4,
+    "zewn_m2": 18.4,
+    "stosunek": 1.216
+   },
+   {
+    "id": "A304",
+    "obszar_m2": 94.5,
+    "oczekiwane_m2": 90.8,
+    "zewn_m2": 13.4,
+    "stosunek": 1.041
+   },
+   {
+    "id": "A305",
+    "obszar_m2": 48.6,
+    "oczekiwane_m2": 38.6,
+    "zewn_m2": 5.9,
+    "stosunek": 1.257
+   },
+   {
+    "id": "A306",
+    "obszar_m2": 45.4,
+    "oczekiwane_m2": 35.8,
+    "zewn_m2": 7.0,
+    "stosunek": 1.269
+   },
+   {
+    "id": "A307",
+    "obszar_m2": 67.9,
+    "oczekiwane_m2": 56.1,
+    "zewn_m2": 12.8,
+    "stosunek": 1.211
+   },
+   {
+    "id": "A308",
+    "obszar_m2": 64.9,
+    "oczekiwane_m2": 53.0,
+    "zewn_m2": 12.5,
+    "stosunek": 1.226
+   },
+   {
+    "id": "A309",
+    "obszar_m2": 41.9,
+    "oczekiwane_m2": 33.4,
+    "zewn_m2": 6.9,
+    "stosunek": 1.254
+   },
+   {
+    "id": "A310",
+    "obszar_m2": 61.5,
+    "oczekiwane_m2": 56.3,
+    "zewn_m2": 11.9,
+    "stosunek": 1.094
+   },
+   {
+    "id": "A311",
+    "obszar_m2": 69.3,
+    "oczekiwane_m2": 57.5,
+    "zewn_m2": 13.5,
+    "stosunek": 1.205
+   },
+   {
+    "id": "A312",
+    "obszar_m2": 63.8,
+    "oczekiwane_m2": 52.2,
+    "zewn_m2": 12.4,
+    "stosunek": 1.223
+   },
+   {
+    "id": "A313",
+    "obszar_m2": 65.3,
+    "oczekiwane_m2": 53.9,
+    "zewn_m2": 12.7,
+    "stosunek": 1.211
+   },
+   {
+    "id": "A314",
+    "obszar_m2": 62.6,
+    "oczekiwane_m2": 56.1,
+    "zewn_m2": 12.4,
+    "stosunek": 1.116
+   },
+   {
+    "id": "A315",
+    "obszar_m2": 97.4,
+    "oczekiwane_m2": 81.6,
+    "zewn_m2": 20.1,
+    "stosunek": 1.194
+   },
+   {
+    "id": "A316",
+    "obszar_m2": 92.9,
+    "oczekiwane_m2": 77.8,
+    "zewn_m2": 15.8,
+    "stosunek": 1.194
+   },
+   {
+    "id": "A317",
+    "obszar_m2": 63.7,
+    "oczekiwane_m2": 59.0,
+    "zewn_m2": 10.2,
+    "stosunek": 1.081
+   },
+   {
+    "id": "A318",
+    "obszar_m2": 60.3,
+    "oczekiwane_m2": 49.4,
+    "zewn_m2": 9.8,
+    "stosunek": 1.22
+   },
+   {
+    "id": "A319",
+    "obszar_m2": 69.5,
+    "oczekiwane_m2": 62.8,
+    "zewn_m2": 13.5,
+    "stosunek": 1.108
+   },
+   {
+    "id": "A320",
+    "obszar_m2": 63.4,
+    "oczekiwane_m2": 52.2,
+    "zewn_m2": 12.0,
+    "stosunek": 1.214
+   },
+   {
+    "id": "A321",
+    "obszar_m2": 42.2,
+    "oczekiwane_m2": 34.2,
+    "zewn_m2": 6.8,
+    "stosunek": 1.236
+   },
+   {
+    "id": "A322",
+    "obszar_m2": 64.4,
+    "oczekiwane_m2": 58.5,
+    "zewn_m2": 12.6,
+    "stosunek": 1.1
+   },
+   {
+    "id": "A323",
+    "obszar_m2": 68.5,
+    "oczekiwane_m2": 56.8,
+    "zewn_m2": 12.8,
+    "stosunek": 1.206
+   },
+   {
+    "id": "A324",
+    "obszar_m2": 46.0,
+    "oczekiwane_m2": 36.2,
+    "zewn_m2": 6.9,
+    "stosunek": 1.27
+   },
+   {
+    "id": "A325",
+    "obszar_m2": 78.8,
+    "oczekiwane_m2": 71.9,
+    "zewn_m2": 11.3,
+    "stosunek": 1.097
+   },
+   {
+    "id": "A326",
+    "obszar_m2": 64.9,
+    "oczekiwane_m2": 53.8,
+    "zewn_m2": 12.2,
+    "stosunek": 1.207
+   },
+   {
+    "id": "A327",
+    "obszar_m2": 91.8,
+    "oczekiwane_m2": 77.9,
+    "zewn_m2": 12.0,
+    "stosunek": 1.179
+   },
+   {
+    "id": "A328",
+    "obszar_m2": 34.3,
+    "oczekiwane_m2": 26.3,
+    "zewn_m2": 0,
+    "stosunek": 1.304
+   }
+  ]
+ },
+ {
+  "budynek": "A",
+  "pietro": 4,
+  "wyciete_wieksze_niz_1m2": [
+   {
+    "m2": 9.0,
+    "x": 93.8,
+    "y": 12.7,
+    "w": 1.4,
+    "h": 6.2
+   },
+   {
+    "m2": 8.4,
+    "x": 93.8,
+    "y": 36.8,
+    "w": 1.5,
+    "h": 5.5
+   },
+   {
+    "m2": 7.3,
+    "x": 49.7,
+    "y": 7.2,
+    "w": 14.6,
+    "h": 0.5
+   },
+   {
+    "m2": 3.7,
+    "x": 30.3,
+    "y": 8.8,
+    "w": 1.1,
+    "h": 3.3
+   },
+   {
+    "m2": 2.2,
+    "x": 71.0,
+    "y": 7.9,
+    "w": 3.6,
+    "h": 0.6
+   },
+   {
+    "m2": 2.2,
+    "x": 91.7,
+    "y": 24.1,
+    "w": 2.1,
+    "h": 1.0
+   }
+  ],
+  "lokale": [
+   {
+    "id": "A401",
+    "obszar_m2": 59.7,
+    "oczekiwane_m2": 49.3,
+    "zewn_m2": 9.4,
+    "stosunek": 1.212
+   },
+   {
+    "id": "A402",
+    "obszar_m2": 76.9,
+    "oczekiwane_m2": 63.7,
+    "zewn_m2": 12.1,
+    "stosunek": 1.208
+   },
+   {
+    "id": "A403",
+    "obszar_m2": 93.4,
+    "oczekiwane_m2": 77.4,
+    "zewn_m2": 18.4,
+    "stosunek": 1.206
+   },
+   {
+    "id": "A404",
+    "obszar_m2": 94.9,
+    "oczekiwane_m2": 90.8,
+    "zewn_m2": 13.4,
+    "stosunek": 1.045
+   },
+   {
+    "id": "A405",
+    "obszar_m2": 48.4,
+    "oczekiwane_m2": 38.6,
+    "zewn_m2": 5.9,
+    "stosunek": 1.252
+   },
+   {
+    "id": "A406",
+    "obszar_m2": 45.7,
+    "oczekiwane_m2": 35.8,
+    "zewn_m2": 7.0,
+    "stosunek": 1.277
+   },
+   {
+    "id": "A407",
+    "obszar_m2": 68.2,
+    "oczekiwane_m2": 56.1,
+    "zewn_m2": 12.8,
+    "stosunek": 1.216
+   },
+   {
+    "id": "A408",
+    "obszar_m2": 65.0,
+    "oczekiwane_m2": 53.0,
+    "zewn_m2": 12.5,
+    "stosunek": 1.227
+   },
+   {
+    "id": "A409",
+    "obszar_m2": 41.5,
+    "oczekiwane_m2": 33.4,
+    "zewn_m2": 6.9,
+    "stosunek": 1.243
+   },
+   {
+    "id": "A410",
+    "obszar_m2": 62.3,
+    "oczekiwane_m2": 56.3,
+    "zewn_m2": 11.9,
+    "stosunek": 1.107
+   },
+   {
+    "id": "A411",
+    "obszar_m2": 69.7,
+    "oczekiwane_m2": 57.5,
+    "zewn_m2": 13.5,
+    "stosunek": 1.211
+   },
+   {
+    "id": "A412",
+    "obszar_m2": 63.6,
+    "oczekiwane_m2": 51.8,
+    "zewn_m2": 12.1,
+    "stosunek": 1.228
+   },
+   {
+    "id": "A413",
+    "obszar_m2": 64.9,
+    "oczekiwane_m2": 53.9,
+    "zewn_m2": 12.7,
+    "stosunek": 1.203
+   },
+   {
+    "id": "A414",
+    "obszar_m2": 63.0,
+    "oczekiwane_m2": 56.1,
+    "zewn_m2": 12.4,
+    "stosunek": 1.123
+   },
+   {
+    "id": "A415",
+    "obszar_m2": 92.4,
+    "oczekiwane_m2": 77.0,
+    "zewn_m2": 15.5,
+    "stosunek": 1.201
+   },
+   {
+    "id": "A416",
+    "obszar_m2": 97.5,
+    "oczekiwane_m2": 82.2,
+    "zewn_m2": 20.2,
+    "stosunek": 1.186
+   },
+   {
+    "id": "A417",
+    "obszar_m2": 63.6,
+    "oczekiwane_m2": 59.0,
+    "zewn_m2": 10.2,
+    "stosunek": 1.078
+   },
+   {
+    "id": "A418",
+    "obszar_m2": 60.4,
+    "oczekiwane_m2": 49.4,
+    "zewn_m2": 9.8,
+    "stosunek": 1.221
+   },
+   {
+    "id": "A419",
+    "obszar_m2": 69.4,
+    "oczekiwane_m2": 62.8,
+    "zewn_m2": 13.5,
+    "stosunek": 1.106
+   },
+   {
+    "id": "A420",
+    "obszar_m2": 63.4,
+    "oczekiwane_m2": 52.2,
+    "zewn_m2": 12.0,
+    "stosunek": 1.215
+   },
+   {
+    "id": "A421",
+    "obszar_m2": 41.7,
+    "oczekiwane_m2": 34.2,
+    "zewn_m2": 6.8,
+    "stosunek": 1.219
+   },
+   {
+    "id": "A422",
+    "obszar_m2": 64.0,
+    "oczekiwane_m2": 58.5,
+    "zewn_m2": 12.6,
+    "stosunek": 1.094
+   },
+   {
+    "id": "A423",
+    "obszar_m2": 69.3,
+    "oczekiwane_m2": 56.8,
+    "zewn_m2": 12.8,
+    "stosunek": 1.219
+   },
+   {
+    "id": "A424",
+    "obszar_m2": 46.3,
+    "oczekiwane_m2": 36.2,
+    "zewn_m2": 6.9,
+    "stosunek": 1.278
+   },
+   {
+    "id": "A425",
+    "obszar_m2": 78.4,
+    "oczekiwane_m2": 72.0,
+    "zewn_m2": 11.5,
+    "stosunek": 1.088
+   },
+   {
+    "id": "A426",
+    "obszar_m2": 65.8,
+    "oczekiwane_m2": 53.8,
+    "zewn_m2": 12.2,
+    "stosunek": 1.225
+   },
+   {
+    "id": "A427",
+    "obszar_m2": 92.2,
+    "oczekiwane_m2": 77.9,
+    "zewn_m2": 12.0,
+    "stosunek": 1.183
+   },
+   {
+    "id": "A428",
+    "obszar_m2": 34.2,
+    "oczekiwane_m2": 26.3,
+    "zewn_m2": 0,
+    "stosunek": 1.299
+   }
+  ]
+ },
+ {
+  "budynek": "A",
+  "pietro": 5,
+  "wyciete_wieksze_niz_1m2": [
+   {
+    "m2": 35.1,
+    "x": 91.6,
+    "y": 28.9,
+    "w": 2.2,
+    "h": 16.1
+   },
+   {
+    "m2": 1.0,
+    "x": 93.8,
+    "y": 12.6,
+    "w": 0.1,
+    "h": 10.1
+   }
+  ],
+  "lokale": [
+   {
+    "id": "A501",
+    "obszar_m2": 122.6,
+    "oczekiwane_m2": 104.6,
+    "zewn_m2": 54.2,
+    "stosunek": 1.172
+   },
+   {
+    "id": "A502",
+    "obszar_m2": 112.2,
+    "oczekiwane_m2": 94.7,
+    "zewn_m2": 47.2,
+    "stosunek": 1.185
+   },
+   {
+    "id": "A503",
+    "obszar_m2": 89.9,
+    "oczekiwane_m2": 76.6,
+    "zewn_m2": 28.5,
+    "stosunek": 1.175
+   },
+   {
+    "id": "A504",
+    "obszar_m2": 64.6,
+    "oczekiwane_m2": 53.7,
+    "zewn_m2": 15.2,
+    "stosunek": 1.202
+   },
+   {
+    "id": "A505",
+    "obszar_m2": 90.8,
+    "oczekiwane_m2": 77.7,
+    "zewn_m2": 31.8,
+    "stosunek": 1.168
+   },
+   {
+    "id": "A506",
+    "obszar_m2": 82.2,
+    "oczekiwane_m2": 70.4,
+    "zewn_m2": 24.9,
+    "stosunek": 1.168
+   },
+   {
+    "id": "A507",
+    "obszar_m2": 76.7,
+    "oczekiwane_m2": 73.8,
+    "zewn_m2": 24.2,
+    "stosunek": 1.039
+   },
+   {
+    "id": "A508",
+    "obszar_m2": 92.4,
+    "oczekiwane_m2": 80.3,
+    "zewn_m2": 28.4,
+    "stosunek": 1.151
+   },
+   {
+    "id": "A509",
+    "obszar_m2": 125.7,
+    "oczekiwane_m2": 108.2,
+    "zewn_m2": 43.4,
+    "stosunek": 1.162
+   },
+   {
+    "id": "A510",
+    "obszar_m2": 172.2,
+    "oczekiwane_m2": 154.2,
+    "zewn_m2": 81.3,
+    "stosunek": 1.117
+   },
+   {
+    "id": "A511",
+    "obszar_m2": 153.4,
+    "oczekiwane_m2": 147.2,
+    "zewn_m2": 65.7,
+    "stosunek": 1.043
+   },
+   {
+    "id": "A512",
+    "obszar_m2": 95.6,
+    "oczekiwane_m2": 88.4,
+    "zewn_m2": 34.1,
+    "stosunek": 1.081
+   },
+   {
+    "id": "A513",
+    "obszar_m2": 94.7,
+    "oczekiwane_m2": 83.2,
+    "zewn_m2": 37.7,
+    "stosunek": 1.139
+   },
+   {
+    "id": "A515",
+    "obszar_m2": 104.7,
+    "oczekiwane_m2": 87.6,
+    "zewn_m2": 27.5,
+    "stosunek": 1.196
+   },
+   {
+    "id": "A516",
+    "obszar_m2": 86.7,
+    "oczekiwane_m2": 80.2,
+    "zewn_m2": 31.2,
+    "stosunek": 1.081
+   },
+   {
+    "id": "A517",
+    "obszar_m2": 132.0,
+    "oczekiwane_m2": 111.3,
+    "zewn_m2": 47.9,
+    "stosunek": 1.186
+   },
+   {
+    "id": "A518",
+    "obszar_m2": 49.8,
+    "oczekiwane_m2": 39.9,
+    "zewn_m2": 11.7,
+    "stosunek": 1.247
+   }
+  ]
+ },
+ {
+  "budynek": "B",
+  "pietro": 0,
+  "wyciete_wieksze_niz_1m2": [
+   {
+    "m2": 503.8,
+    "x": 5.4,
+    "y": 6.1,
+    "w": 19.0,
+    "h": 26.6
+   },
+   {
+    "m2": 49.2,
+    "x": 32.9,
+    "y": 29.9,
+    "w": 10.8,
+    "h": 4.6
+   },
+   {
+    "m2": 35.0,
+    "x": 25.2,
+    "y": 6.2,
+    "w": 5.1,
+    "h": 6.9
+   },
+   {
+    "m2": 11.7,
+    "x": 33.0,
+    "y": 2.7,
+    "w": 3.4,
+    "h": 3.5
+   },
+   {
+    "m2": 5.3,
+    "x": 24.4,
+    "y": 30.5,
+    "w": 8.5,
+    "h": 0.6
+   },
+   {
+    "m2": 3.7,
+    "x": 44.1,
+    "y": 18.0,
+    "w": 3.0,
+    "h": 1.2
+   },
+   {
+    "m2": 3.0,
+    "x": 43.6,
+    "y": 5.8,
+    "w": 1.3,
+    "h": 2.3
+   },
+   {
+    "m2": 1.8,
+    "x": 43.8,
+    "y": 28.5,
+    "w": 1.4,
+    "h": 1.3
+   }
+  ],
+  "lokale": [
+   {
+    "id": "B101",
+    "obszar_m2": 92.7,
+    "oczekiwane_m2": 72.2,
+    "zewn_m2": 24.5,
+    "stosunek": 1.284
+   },
+   {
+    "id": "B102",
+    "obszar_m2": 94.4,
+    "oczekiwane_m2": 75.0,
+    "zewn_m2": 14.8,
+    "stosunek": 1.257
+   },
+   {
+    "id": "B103",
+    "obszar_m2": 73.0,
+    "oczekiwane_m2": 61.1,
+    "zewn_m2": 14.0,
+    "stosunek": 1.194
+   },
+   {
+    "id": "B105",
+    "obszar_m2": 85.3,
+    "oczekiwane_m2": 76.1,
+    "zewn_m2": 28.2,
+    "stosunek": 1.121
+   },
+   {
+    "id": "B106",
+    "obszar_m2": 152.2,
+    "oczekiwane_m2": 152.8,
+    "zewn_m2": 89.3,
+    "stosunek": 0.996
+   },
+   {
+    "id": "B107",
+    "obszar_m2": 152.1,
+    "oczekiwane_m2": 135.9,
+    "zewn_m2": 78.0,
+    "stosunek": 1.119
+   },
+   {
+    "id": "B108",
+    "obszar_m2": 86.7,
+    "oczekiwane_m2": 73.9,
+    "zewn_m2": 27.0,
+    "stosunek": 1.172
+   },
+   {
+    "id": "BU101",
+    "obszar_m2": 88.4,
+    "oczekiwane_m2": 47.7,
+    "zewn_m2": 0,
+    "stosunek": 1.853
+   }
+  ]
+ },
+ {
+  "budynek": "B",
+  "pietro": 1,
+  "wyciete_wieksze_niz_1m2": [
+   {
+    "m2": 2.4,
+    "x": 7.5,
+    "y": 18.8,
+    "w": 2.0,
+    "h": 1.2
+   },
+   {
+    "m2": 1.8,
+    "x": 31.1,
+    "y": 7.5,
+    "w": 11.9,
+    "h": 0.1
+   }
+  ],
+  "lokale": [
+   {
+    "id": "B201",
+    "obszar_m2": 66.7,
+    "oczekiwane_m2": 55.3,
+    "zewn_m2": 13.6,
+    "stosunek": 1.206
+   },
+   {
+    "id": "B202",
+    "obszar_m2": 75.3,
+    "oczekiwane_m2": 62.1,
+    "zewn_m2": 14.4,
+    "stosunek": 1.212
+   },
+   {
+    "id": "B203",
+    "obszar_m2": 91.4,
+    "oczekiwane_m2": 74.7,
+    "zewn_m2": 14.4,
+    "stosunek": 1.223
+   },
+   {
+    "id": "B204",
+    "obszar_m2": 69.8,
+    "oczekiwane_m2": 58.9,
+    "zewn_m2": 11.8,
+    "stosunek": 1.186
+   },
+   {
+    "id": "B205",
+    "obszar_m2": 70.1,
+    "oczekiwane_m2": 60.4,
+    "zewn_m2": 12.3,
+    "stosunek": 1.16
+   },
+   {
+    "id": "B206",
+    "obszar_m2": 70.4,
+    "oczekiwane_m2": 61.3,
+    "zewn_m2": 13.4,
+    "stosunek": 1.148
+   },
+   {
+    "id": "B207",
+    "obszar_m2": 103.2,
+    "oczekiwane_m2": 82.6,
+    "zewn_m2": 19.0,
+    "stosunek": 1.249
+   },
+   {
+    "id": "B208",
+    "obszar_m2": 96.6,
+    "oczekiwane_m2": 79.6,
+    "zewn_m2": 21.6,
+    "stosunek": 1.215
+   },
+   {
+    "id": "B209",
+    "obszar_m2": 73.9,
+    "oczekiwane_m2": 61.6,
+    "zewn_m2": 14.6,
+    "stosunek": 1.2
+   }
+  ]
+ },
+ {
+  "budynek": "B",
+  "pietro": 2,
+  "wyciete_wieksze_niz_1m2": [],
+  "lokale": [
+   {
+    "id": "B301",
+    "obszar_m2": 68.0,
+    "oczekiwane_m2": 55.3,
+    "zewn_m2": 13.6,
+    "stosunek": 1.23
+   },
+   {
+    "id": "B302",
+    "obszar_m2": 75.7,
+    "oczekiwane_m2": 62.1,
+    "zewn_m2": 14.4,
+    "stosunek": 1.219
+   },
+   {
+    "id": "B303",
+    "obszar_m2": 81.2,
+    "oczekiwane_m2": 74.7,
+    "zewn_m2": 14.4,
+    "stosunek": 1.088
+   },
+   {
+    "id": "B304",
+    "obszar_m2": 69.5,
+    "oczekiwane_m2": 59.6,
+    "zewn_m2": 12.5,
+    "stosunek": 1.166
+   },
+   {
+    "id": "B305",
+    "obszar_m2": 69.4,
+    "oczekiwane_m2": 60.4,
+    "zewn_m2": 12.3,
+    "stosunek": 1.15
+   },
+   {
+    "id": "B306",
+    "obszar_m2": 70.7,
+    "oczekiwane_m2": 61.3,
+    "zewn_m2": 13.4,
+    "stosunek": 1.153
+   },
+   {
+    "id": "B307",
+    "obszar_m2": 106.9,
+    "oczekiwane_m2": 89.1,
+    "zewn_m2": 25.6,
+    "stosunek": 1.199
+   },
+   {
+    "id": "B308",
+    "obszar_m2": 92.5,
+    "oczekiwane_m2": 75.5,
+    "zewn_m2": 17.6,
+    "stosunek": 1.225
+   },
+   {
+    "id": "B309",
+    "obszar_m2": 74.7,
+    "oczekiwane_m2": 61.6,
+    "zewn_m2": 14.6,
+    "stosunek": 1.213
+   }
+  ]
+ },
+ {
+  "budynek": "B",
+  "pietro": 3,
+  "wyciete_wieksze_niz_1m2": [],
+  "lokale": [
+   {
+    "id": "B401",
+    "obszar_m2": 67.9,
+    "oczekiwane_m2": 55.3,
+    "zewn_m2": 13.6,
+    "stosunek": 1.227
+   },
+   {
+    "id": "B402",
+    "obszar_m2": 75.6,
+    "oczekiwane_m2": 61.9,
+    "zewn_m2": 14.2,
+    "stosunek": 1.22
+   },
+   {
+    "id": "B403",
+    "obszar_m2": 82.8,
+    "oczekiwane_m2": 74.0,
+    "zewn_m2": 13.8,
+    "stosunek": 1.118
+   },
+   {
+    "id": "B404",
+    "obszar_m2": 69.9,
+    "oczekiwane_m2": 59.1,
+    "zewn_m2": 12.0,
+    "stosunek": 1.183
+   },
+   {
+    "id": "B405",
+    "obszar_m2": 70.1,
+    "oczekiwane_m2": 59.9,
+    "zewn_m2": 11.8,
+    "stosunek": 1.169
+   },
+   {
+    "id": "B406",
+    "obszar_m2": 69.7,
+    "oczekiwane_m2": 60.8,
+    "zewn_m2": 12.9,
+    "stosunek": 1.146
+   },
+   {
+    "id": "B407",
+    "obszar_m2": 105.3,
+    "oczekiwane_m2": 88.3,
+    "zewn_m2": 24.8,
+    "stosunek": 1.192
+   },
+   {
+    "id": "B408",
+    "obszar_m2": 97.0,
+    "oczekiwane_m2": 79.8,
+    "zewn_m2": 21.9,
+    "stosunek": 1.215
+   },
+   {
+    "id": "B409",
+    "obszar_m2": 74.1,
+    "oczekiwane_m2": 60.9,
+    "zewn_m2": 13.9,
+    "stosunek": 1.216
+   }
+  ]
+ },
+ {
+  "budynek": "B",
+  "pietro": 4,
+  "wyciete_wieksze_niz_1m2": [],
+  "lokale": [
+   {
+    "id": "B501",
+    "obszar_m2": 138.5,
+    "oczekiwane_m2": 119.2,
+    "zewn_m2": 69.2,
+    "stosunek": 1.162
+   },
+   {
+    "id": "B502",
+    "obszar_m2": 81.8,
+    "oczekiwane_m2": 67.2,
+    "zewn_m2": 28.5,
+    "stosunek": 1.218
+   },
+   {
+    "id": "B503",
+    "obszar_m2": 68.8,
+    "oczekiwane_m2": 60.0,
+    "zewn_m2": 16.1,
+    "stosunek": 1.148
+   },
+   {
+    "id": "B504",
+    "obszar_m2": 69.3,
+    "oczekiwane_m2": 61.1,
+    "zewn_m2": 16.3,
+    "stosunek": 1.133
+   },
+   {
+    "id": "B505",
+    "obszar_m2": 170.9,
+    "oczekiwane_m2": 149.8,
+    "zewn_m2": 78.2,
+    "stosunek": 1.141
+   },
+   {
+    "id": "B506",
+    "obszar_m2": 171.9,
+    "oczekiwane_m2": 147.0,
+    "zewn_m2": 75.7,
+    "stosunek": 1.169
+   }
+  ]
+ }
+]
