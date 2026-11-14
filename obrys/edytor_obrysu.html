@@ -22,6 +22,10 @@ header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 20px}
 h1{font-size:20px;font-weight:650;margin:0;letter-spacing:-.01em}
 .total{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--mut)}
 .total b{color:var(--fg);font-size:16px}
+.saved{margin-left:auto;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.saved>span{color:var(--mut);font-size:12px}
+.saved input{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:10em}
+.saved select{max-width:12em}
 .bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
 .grp{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
 .grp>span{color:var(--mut);font-size:12px;margin-right:2px}
@@ -72,6 +76,7 @@ textarea{width:100%;height:160px;font-family:var(--mono);font-size:12px;color:va
   <header>
     <h1>Edytor obrysu terenu</h1>
     <div class="total">Dostępne pod zabudowę <b id="tot">–</b> · <span id="totha">–</span></div>
+    <div class="saved" role="group" aria-label="Zapisane tereny"><span>Zapisane tereny</span><select id="sv-list" aria-label="Zapisany teren"></select><button id="sv-load">Wczytaj</button><button id="sv-del">Usuń</button><input id="sv-name" value="MS zabudowa" maxlength="40" aria-label="Nazwa terenu do zapisania"><button id="sv-save">Zapisz teren</button><button id="copy2">Kopiuj JSON do eksportu</button></div>
   </header>
 
   <div class="bar">
@@ -280,7 +285,7 @@ function render(){
 function exportData(b){
   b=b||balance();let x0=Infinity,y1=-Infinity;for(const p of S.polys)for(const q of p.v){x0=Math.min(x0,q[0]);y1=Math.max(y1,q[1])}
   const r2=x=>Math.round(x*100)/100, r1=x=>Math.round(x*10)/10;
-  return {description:'Obrys terenu ze strefami. vertices_m: metry, x na wschod, y na polnoc, poczatek w lewym dolnym rogu wszystkich punktow. vertices_puwg1992: [E, N, H] w EPSG:2180, H = wysokosc terenu w m n.p.m. z NMT. vertices_px: piksele zdjecia, y w dol. kind: site = granica, build = strefa pod zabudowe, excl = strefa wylaczona.',
+  return {name:$('sv-list').value||$('sv-name').value.trim()||'Teren',description:'Obrys terenu ze strefami. vertices_m: metry, x na wschod, y na polnoc, poczatek w lewym dolnym rogu wszystkich punktow. vertices_puwg1992: [E, N, H] w EPSG:2180, H = wysokosc terenu w m n.p.m. z NMT. vertices_px: piksele zdjecia, y w dol. kind: site = granica, build = strefa pod zabudowe, excl = strefa wylaczona.',
     units:'m',image_size_px:[IMGW,IMGH],meters_per_pixel:S.mpp,
     polygons:S.polys.map(p=>({name:p.name,kind:p.kind,area_m2:r1(areaM(p.v)),perimeter_m:r1(perim(p.v)),
       vertices_m:p.v.map(q=>[r2((q[0]-x0)*S.mpp),r2((y1-q[1])*S.mpp)]),
@@ -460,12 +465,30 @@ $('tb-s').addEventListener('change',e=>{const inp=e.target;if(!inp.classList.con
   const a=v[s[0]],b=v[s[1]],d=Math.hypot(b[0]-a[0],b[1]-a[1])||1,g=L/S.mpp/d;
   save();v[s[1]]=[a[0]+(b[0]-a[0])*g,a[1]+(b[1]-a[1])*g];render();persist();
   say('Odcinek '+(s[0]+1)+'–'+(s[1]+1)+' ma teraz '+fmt(L)+' m. Przesunięto punkt '+(s[1]+1)+'.')});
-$('copy').onclick=()=>{const ta=$('json');ta.value=JSON.stringify(exportData(),null,1);
+const doCopy=()=>{$('det').open=true;const ta=$('json');ta.value=JSON.stringify(exportData(),null,1);
   const fb=()=>{ta.focus();ta.select();say('Zaznaczono tekst. Skopiuj go skrótem Ctrl+C.')};
-  try{navigator.clipboard.writeText(ta.value).then(()=>say('Skopiowano JSON do schowka.'),fb)}catch(_){fb()}};
+  try{navigator.clipboard.writeText(ta.value).then(()=>say('Skopiowano JSON do schowka. Wklej go do pliku .json albo do innego czatu.'),fb)}catch(_){fb()}};
+$('copy').onclick=doCopy;$('copy2').onclick=doCopy;
 $('load').onclick=()=>{try{importData(JSON.parse($('json').value));say('Wczytano dane z pola.')}
   catch(_){say('Nie udało się wczytać. JSON musi mieć listę polygons z polami kind i vertices_px.',true)}};
 
-say(HINT.add);fit();render();
+/* Zapisane tereny: nazwane kopie całego stanu, trzymane w tej przeglądarce. */
+const SKEY='obrys-tereny-v1';let SV={};try{const o=JSON.parse(localStorage.getItem(SKEY));if(o&&typeof o==='object')SV=o}catch(e){}
+function svStore(){try{localStorage.setItem(SKEY,JSON.stringify(SV))}catch(e){}}
+function svFill(sel){const l=$('sv-list'),ns=Object.keys(SV);l.textContent='';
+  if(!ns.length){const o=document.createElement('option');o.value='';o.textContent='(brak)';l.appendChild(o)}
+  for(const n of ns){const o=document.createElement('option');o.value=n;o.textContent=n;l.appendChild(o)}
+  if(sel&&SV[sel])l.value=sel;$('sv-load').disabled=$('sv-del').disabled=!ns.length;$('sv-del').textContent='Usuń'}
+$('sv-save').onclick=()=>{const n=$('sv-name').value.trim();if(!n)return say('Wpisz nazwę terenu.',true);
+  const had=!!SV[n];SV[n]=clone(S);svStore();svFill(n);render();say((had?'Nadpisano':'Zapisano')+' teren „'+n+'”.')};
+$('sv-load').onclick=()=>{const n=$('sv-list').value,o=SV[n];if(!o||!valid(o))return say('Nie udało się wczytać tego terenu.',true);
+  save();S=clone(o);$('sv-name').value=n;render();persist();say('Wczytano teren „'+n+'”. „Cofnij” wraca do poprzedniego stanu.')};
+$('sv-del').onclick=e=>{const n=$('sv-list').value;if(!SV[n])return;
+  if(e.target.textContent==='Usuń'){e.target.textContent='Na pewno usunąć?';return}
+  delete SV[n];svStore();svFill();render();say('Usunięto zapisany teren „'+n+'”.')};
+$('sv-list').onchange=()=>{$('sv-del').textContent='Usuń';render()};
+let auto=false;if(!SV['MS zabudowa']&&S.polys[0].v.length>=3){SV['MS zabudowa']=clone(S);svStore();auto=true}
+svFill('MS zabudowa');
+say(auto?'Twój zaznaczony obrys został zapisany jako teren „MS zabudowa”.':HINT.add);fit();render();
 })();
 </script>
