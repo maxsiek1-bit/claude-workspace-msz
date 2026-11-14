@@ -388,9 +388,10 @@ const HINT={  pt:'Przeciągnij niebieski punkt, aby zmienić kształt. Kliknij i
   add:'Kliknij lewym przyciskiem w dowolnym miejscu mapy, aby postawić punkt. Kolejne kliknięcia dokładają następne punkty obrysu, kliknięcie na istniejącym boku wstawia punkt w tym boku.',
   del:'Kliknij punkt aktywnej warstwy, aby go usunąć.'};
 const INIT={mpp:MPP,seq:1,active:0,polys:[{kind:'site',name:'Granica terenu',v:[]}]};
-const SAMPLE={mpp:MPP,seq:2,active:0,polys:[{kind:'site',name:'Granica (przykład – zastąp swoją)',v:[[380,520],[1560,470],[1640,1420],[470,1500]]},{kind:'excl',name:'Wyłączona 1 (przykład)',v:[[900,900],[1120,890],[1130,1080],[910,1090]]}]};
+const SAMPLE={mpp:MPP,seq:2,active:0,polys:[{kind:'site',name:'Granica (przykład – zastąp swoją)',v:[[380,520],[1560,470],[1640,1420],[470,1500]]}]};
 let S=clone(SAMPLE), hist=[], tool='add', drag=null, view={x:0,y:0,w:IMGW,h:IMGH};
 try{const s=localStorage.getItem(KEY); if(s){const o=JSON.parse(s); if(valid(o)) S=o;}}catch(e){}
+{const n0=S.polys.length;S.polys=S.polys.filter((p,i)=>!i||!(p.kind==='excl'&&p.name==='Wyłączona 1 (przykład)'));if(S.polys.length!==n0){S.active=0;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}}
 
 function clone(o){return JSON.parse(JSON.stringify(o))}
 function valid(o){return o&&o.mpp>0&&Array.isArray(o.polys)&&o.polys.length&&o.polys[0].kind==='site'&&o.polys[o.active]

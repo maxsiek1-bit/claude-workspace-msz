@@ -79,8 +79,12 @@ rep('''    <div class="side">
 rep("gF=el('g',{},svg),gS=el('g',{},svg)", "gF=el('g',{},svg),gB=el('g',{},svg),gS=el('g',{},svg)")
 rep("const INIT={mpp:MPP,seq:1,active:0,polys:[{kind:'site',name:'Granica terenu',v:[]}]};",
     "const INIT={mpp:MPP,seq:1,active:0,polys:[{kind:'site',name:'Granica terenu',v:[]}]};\n"
-    "const SAMPLE={mpp:MPP,seq:2,active:0,polys:[{kind:'site',name:'Granica (przykład – zastąp swoją)',v:[[380,520],[1560,470],[1640,1420],[470,1500]]},{kind:'excl',name:'Wyłączona 1 (przykład)',v:[[900,900],[1120,890],[1130,1080],[910,1090]]}]};")
+    "const SAMPLE={mpp:MPP,seq:2,active:0,polys:[{kind:'site',name:'Granica (przykład – zastąp swoją)',v:[[380,520],[1560,470],[1640,1420],[470,1500]]}]};")
 rep("let S=clone(INIT), hist=[]", "let S=clone(SAMPLE), hist=[]")
+# jednorazowe sprzątanie: przykładowa strefa wyłączona z pierwszej wersji planera znika także z zapisanego stanu przeglądarki
+rep("try{const s=localStorage.getItem(KEY); if(s){const o=JSON.parse(s); if(valid(o)) S=o;}}catch(e){}",
+    "try{const s=localStorage.getItem(KEY); if(s){const o=JSON.parse(s); if(valid(o)) S=o;}}catch(e){}\n"
+    "{const n0=S.polys.length;S.polys=S.polys.filter((p,i)=>!i||!(p.kind==='excl'&&p.name==='Wyłączona 1 (przykład)'));if(S.polys.length!==n0){S.active=0;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}}")
 rep("  if(is3)zones3();\n}", "  if(is3)zones3();\n  drawPlan();planUI();planSchedule();\n}")
 rep("function exportData(b){", gen + "\nfunction exportData(b){")
 rep("balance_m2:b.hasSite", "plan:KIT?planExport():null,balance_m2:b.hasSite")
