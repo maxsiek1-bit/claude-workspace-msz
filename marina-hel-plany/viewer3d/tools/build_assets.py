@@ -7,6 +7,10 @@ Image.MAX_IMAGE_PIXELS = None
 src = sys.argv[1]; T = 'viewer3d/tools/'; an = json.load(open(T + 'analysis.json')); fit = json.load(open(T + 'fit.json'))
 bud = json.load(open('data/budynki.json')); lok = json.load(open('data/lokale.json'))
 data = dict(buildings={}, floors=[], units=[])
+def fmask(a, k=61):
+    ink = (a.min(2) < 245)
+    cl = ndi.minimum_filter1d(ndi.minimum_filter1d(ndi.maximum_filter1d(ndi.maximum_filter1d(np.pad(ink.view(np.uint8), k), k, axis=0), k, axis=1), k, axis=0), k, axis=1)[k:-k, k:-k]
+    return ndi.binary_fill_holes(cl > 0)
 for name in ['Budynek_A', 'Budynek_B', 'Budynek_C']:
     z = np.load(os.path.join(src, name + '.npz')); co, t, mi = z['co'], z['t'], z['mi']
     mats = list(an[name]['matcol'].keys()); order = np.argsort(mi, kind='stable'); t = t[order]; mi = mi[order]
@@ -27,9 +31,10 @@ for B in 'AB':
     for fl in sorted(zf):
         for suf in ('', '_opis'):
             im = Image.open(f'out/tekstury/MarinaHel_{B}_pietro{fl}{suf}.png').convert('RGB'); a = np.asarray(im)
-            ink = (a.min(2) < 245); k = 61
-            cl = ndi.minimum_filter1d(ndi.minimum_filter1d(ndi.maximum_filter1d(ndi.maximum_filter1d(np.pad(ink.view(np.uint8), k), k, axis=0), k, axis=1), k, axis=0), k, axis=1)[k:-k, k:-k]
-            mask = ndi.binary_fill_holes(cl > 0)
+            mask = fmask(a)
+            if B == 'A' and fl == 0:      # parter A: plan obejmuje też halę garażową pod dziedzińcem i schody terenowe - zostaje tylko obrys budynku
+                ref = fmask(np.asarray(Image.open('out/tekstury/MarinaHel_A_pietro2.png').convert('RGB')))
+                mask &= ndi.maximum_filter1d(ndi.maximum_filter1d(ref.view(np.uint8), 81, axis=0), 81, axis=1) > 0
             rgba = np.dstack([a, (mask * 255).astype(np.uint8)]); im2 = Image.fromarray(rgba, 'RGBA')
             if im2.width > 4096: im2 = im2.resize((4096, round(im2.height * 4096 / im2.width)), Image.LANCZOS)
             im2.save(f'viewer3d/tex/{B}{fl}{suf}.webp', quality=80, method=4)
