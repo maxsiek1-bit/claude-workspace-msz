@@ -1,0 +1,2579 @@
+[
+ {
+  "budynek": "A",
+  "pietro": 1,
+  "obrys_budynku_m": [
+   85.3,
+   36.8
+  ],
+  "pow_zabudowy_kondygnacji_m2": 1840,
+  "pow_lokali_brutto_m2": 808,
+  "strefy": [
+   {
+    "pow_m2": 196.7,
+    "dlugosc_m": 72.8,
+    "poprzecznie_m": 27.5,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     18.9,
+     12.1,
+     91.7,
+     39.6
+    ],
+    "nazwa": "korytarz główny (z holami)"
+   },
+   {
+    "pow_m2": 168.6,
+    "dlugosc_m": 17.0,
+    "poprzecznie_m": 10.3,
+    "szer_w_swietle_m": 10.06,
+    "bbox_m": [
+     8.2,
+     10.3,
+     18.5,
+     27.3
+    ],
+    "nazwa": "inna strefa poza lokalami 1 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 85.8,
+    "dlugosc_m": 13.1,
+    "poprzecznie_m": 6.7,
+    "szer_w_swietle_m": 6.41,
+    "bbox_m": [
+     86.4,
+     30.7,
+     93.1,
+     43.8
+    ],
+    "nazwa": "inna strefa poza lokalami 2 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 60.6,
+    "dlugosc_m": 9.2,
+    "poprzecznie_m": 6.8,
+    "szer_w_swietle_m": 6.41,
+    "bbox_m": [
+     86.3,
+     10.3,
+     93.1,
+     19.4
+    ],
+    "nazwa": "inna strefa poza lokalami 3 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 49.3,
+    "dlugosc_m": 7.7,
+    "poprzecznie_m": 7.2,
+    "szer_w_swietle_m": 6.02,
+    "bbox_m": [
+     76.4,
+     19.8,
+     84.1,
+     27.0
+    ],
+    "nazwa": "inna strefa poza lokalami 4 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 40.2,
+    "dlugosc_m": 7.1,
+    "poprzecznie_m": 6.0,
+    "szer_w_swietle_m": 6.02,
+    "bbox_m": [
+     80.1,
+     10.3,
+     86.1,
+     17.4
+    ],
+    "nazwa": "inna strefa poza lokalami 5 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 23.6,
+    "dlugosc_m": 7.3,
+    "poprzecznie_m": 3.3,
+    "szer_w_swietle_m": 3.26,
+    "bbox_m": [
+     50.6,
+     19.7,
+     53.9,
+     27.0
+    ],
+    "nazwa": "inna strefa poza lokalami 6 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 23.3,
+    "dlugosc_m": 6.4,
+    "poprzecznie_m": 3.7,
+    "szer_w_swietle_m": 3.75,
+    "bbox_m": [
+     86.4,
+     19.8,
+     92.8,
+     23.5
+    ],
+    "nazwa": "inna strefa poza lokalami 7 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 18.3,
+    "dlugosc_m": 8.2,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 2.66,
+    "bbox_m": [
+     71.7,
+     7.9,
+     79.9,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 8 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.9,
+    "dlugosc_m": 6.5,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 2.07,
+    "bbox_m": [
+     37.8,
+     7.9,
+     44.3,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 9 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.0,
+    "dlugosc_m": 5.9,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 2.17,
+    "bbox_m": [
+     54.6,
+     7.9,
+     60.5,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 10 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.1,
+    "dlugosc_m": 5.7,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.87,
+    "bbox_m": [
+     44.5,
+     7.9,
+     50.2,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 11 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 10.3,
+    "dlugosc_m": 6.2,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     18.9,
+     7.9,
+     25.1,
+     9.7
+    ],
+    "nazwa": "inna strefa poza lokalami 12 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 7.2,
+    "dlugosc_m": 4.2,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     67.2,
+     7.9,
+     71.4,
+     9.7
+    ],
+    "nazwa": "inna strefa poza lokalami 13 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.8,
+    "dlugosc_m": 3.9,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     50.4,
+     7.9,
+     54.4,
+     9.7
+    ],
+    "nazwa": "inna strefa poza lokalami 14 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.3,
+    "dlugosc_m": 3.7,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     63.3,
+     7.9,
+     67.0,
+     9.7
+    ],
+    "nazwa": "inna strefa poza lokalami 15 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.1,
+    "dlugosc_m": 3.2,
+    "poprzecznie_m": 2.5,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     25.1,
+     14.2,
+     27.6,
+     17.4
+    ],
+    "nazwa": "inna strefa poza lokalami 16 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 5.9,
+    "dlugosc_m": 3.5,
+    "poprzecznie_m": 2.3,
+    "szer_w_swietle_m": 1.09,
+    "bbox_m": [
+     72.5,
+     27.3,
+     76.0,
+     29.6
+    ],
+    "nazwa": "inna strefa poza lokalami 17 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 4.9,
+    "dlugosc_m": 2.3,
+    "poprzecznie_m": 2.1,
+    "szer_w_swietle_m": 2.17,
+    "bbox_m": [
+     60.9,
+     8.2,
+     63.0,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 18 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 3.8,
+    "dlugosc_m": 3.9,
+    "poprzecznie_m": 1.0,
+    "szer_w_swietle_m": 0.99,
+    "bbox_m": [
+     79.9,
+     19.6,
+     83.8,
+     20.6
+    ],
+    "nazwa": "inna strefa poza lokalami 19 (hol, klatka, taras/balkon lub lokal bez karty)"
+   }
+  ]
+ },
+ {
+  "budynek": "A",
+  "pietro": 2,
+  "obrys_budynku_m": [
+   87.0,
+   38.7
+  ],
+  "pow_zabudowy_kondygnacji_m2": 2096,
+  "pow_lokali_brutto_m2": 1231,
+  "strefy": [
+   {
+    "pow_m2": 212.5,
+    "dlugosc_m": 75.7,
+    "poprzecznie_m": 27.3,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     15.4,
+     12.3,
+     91.1,
+     39.6
+    ],
+    "nazwa": "korytarz główny (z holami)"
+   },
+   {
+    "pow_m2": 27.4,
+    "dlugosc_m": 7.6,
+    "poprzecznie_m": 4.2,
+    "szer_w_swietle_m": 3.16,
+    "bbox_m": [
+     76.3,
+     19.8,
+     84.0,
+     24.1
+    ],
+    "nazwa": "inna strefa poza lokalami 1 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 17.6,
+    "dlugosc_m": 7.6,
+    "poprzecznie_m": 2.9,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     74.2,
+     36.7,
+     77.1,
+     44.3
+    ],
+    "nazwa": "inna strefa poza lokalami 2 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 17.2,
+    "dlugosc_m": 8.8,
+    "poprzecznie_m": 2.3,
+    "szer_w_swietle_m": 2.27,
+    "bbox_m": [
+     8.2,
+     9.9,
+     10.5,
+     18.7
+    ],
+    "nazwa": "inna strefa poza lokalami 3 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 16.5,
+    "dlugosc_m": 8.3,
+    "poprzecznie_m": 2.3,
+    "szer_w_swietle_m": 2.27,
+    "bbox_m": [
+     8.2,
+     18.9,
+     10.5,
+     27.3
+    ],
+    "nazwa": "inna strefa poza lokalami 4 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.1,
+    "dlugosc_m": 7.9,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     74.2,
+     28.4,
+     76.0,
+     36.4
+    ],
+    "nazwa": "inna strefa poza lokalami 5 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.9,
+    "dlugosc_m": 6.5,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     37.8,
+     26.6,
+     44.2,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 6 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.7,
+    "dlugosc_m": 6.5,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     37.8,
+     8.0,
+     44.2,
+     10.8
+    ],
+    "nazwa": "inna strefa poza lokalami 7 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.5,
+    "dlugosc_m": 6.1,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     60.8,
+     26.6,
+     66.9,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 8 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.4,
+    "dlugosc_m": 6.1,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     25.3,
+     26.6,
+     31.3,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 9 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.3,
+    "dlugosc_m": 6.1,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     60.8,
+     8.0,
+     66.9,
+     10.8
+    ],
+    "nazwa": "inna strefa poza lokalami 10 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.2,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     54.6,
+     26.6,
+     60.6,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 11 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.1,
+    "dlugosc_m": 5.9,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     31.6,
+     26.6,
+     37.5,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 12 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.8,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     54.6,
+     8.0,
+     60.6,
+     10.8
+    ],
+    "nazwa": "inna strefa poza lokalami 13 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.8,
+    "dlugosc_m": 5.9,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     19.1,
+     26.6,
+     25.0,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 14 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.6,
+    "dlugosc_m": 5.8,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     80.2,
+     8.0,
+     86.0,
+     10.8
+    ],
+    "nazwa": "inna strefa poza lokalami 15 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.6,
+    "dlugosc_m": 5.6,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     44.5,
+     26.6,
+     50.0,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 16 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.6,
+    "dlugosc_m": 7.2,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     86.3,
+     44.4,
+     93.5,
+     46.1
+    ],
+    "nazwa": "inna strefa poza lokalami 17 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.1,
+    "dlugosc_m": 5.6,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     44.5,
+     8.0,
+     50.1,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 18 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 10.8,
+    "dlugosc_m": 7.2,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     86.3,
+     8.0,
+     93.4,
+     9.6
+    ],
+    "nazwa": "inna strefa poza lokalami 19 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 10.6,
+    "dlugosc_m": 5.7,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     74.3,
+     8.0,
+     80.0,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 20 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 9.2,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     18.9,
+     7.9,
+     24.9,
+     9.5
+    ],
+    "nazwa": "inna strefa poza lokalami 21 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 8.7,
+    "dlugosc_m": 5.8,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     31.7,
+     8.0,
+     37.5,
+     9.6
+    ],
+    "nazwa": "inna strefa poza lokalami 22 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.7,
+    "dlugosc_m": 4.0,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     50.3,
+     27.4,
+     54.3,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 23 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.7,
+    "dlugosc_m": 4.0,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     67.2,
+     27.4,
+     71.2,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 24 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.2,
+    "dlugosc_m": 3.9,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     50.4,
+     8.0,
+     54.3,
+     9.6
+    ],
+    "nazwa": "inna strefa poza lokalami 25 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.1,
+    "dlugosc_m": 4.0,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     67.2,
+     8.0,
+     71.3,
+     9.6
+    ],
+    "nazwa": "inna strefa poza lokalami 26 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 5.4,
+    "dlugosc_m": 3.3,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     71.5,
+     27.4,
+     74.8,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 27 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 5.1,
+    "dlugosc_m": 2.6,
+    "poprzecznie_m": 2.5,
+    "szer_w_swietle_m": 1.28,
+    "bbox_m": [
+     25.1,
+     14.8,
+     27.5,
+     17.4
+    ],
+    "nazwa": "inna strefa poza lokalami 28 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 4.9,
+    "dlugosc_m": 2.4,
+    "poprzecznie_m": 2.1,
+    "szer_w_swietle_m": 2.07,
+    "bbox_m": [
+     71.6,
+     8.5,
+     74.0,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 29 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 4.6,
+    "dlugosc_m": 2.8,
+    "poprzecznie_m": 1.7,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     88.3,
+     23.9,
+     91.1,
+     25.6
+    ],
+    "nazwa": "inna strefa poza lokalami 30 (hol, klatka, taras/balkon lub lokal bez karty)"
+   }
+  ]
+ },
+ {
+  "budynek": "A",
+  "pietro": 3,
+  "obrys_budynku_m": [
+   87.8,
+   38.7
+  ],
+  "pow_zabudowy_kondygnacji_m2": 2110,
+  "pow_lokali_brutto_m2": 1232,
+  "strefy": [
+   {
+    "pow_m2": 215.1,
+    "dlugosc_m": 75.7,
+    "poprzecznie_m": 27.2,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     15.3,
+     12.4,
+     91.0,
+     39.6
+    ],
+    "nazwa": "korytarz główny (z holami)"
+   },
+   {
+    "pow_m2": 27.5,
+    "dlugosc_m": 7.6,
+    "poprzecznie_m": 4.2,
+    "szer_w_swietle_m": 3.26,
+    "bbox_m": [
+     76.3,
+     19.9,
+     84.0,
+     24.1
+    ],
+    "nazwa": "inna strefa poza lokalami 1 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 17.9,
+    "dlugosc_m": 7.6,
+    "poprzecznie_m": 3.2,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     74.2,
+     36.7,
+     77.3,
+     44.3
+    ],
+    "nazwa": "inna strefa poza lokalami 2 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 17.1,
+    "dlugosc_m": 8.3,
+    "poprzecznie_m": 2.5,
+    "szer_w_swietle_m": 1.28,
+    "bbox_m": [
+     8.2,
+     19.0,
+     10.7,
+     27.3
+    ],
+    "nazwa": "inna strefa poza lokalami 3 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.9,
+    "dlugosc_m": 5.9,
+    "poprzecznie_m": 2.5,
+    "szer_w_swietle_m": 2.57,
+    "bbox_m": [
+     8.2,
+     9.9,
+     10.7,
+     15.7
+    ],
+    "nazwa": "inna strefa poza lokalami 4 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.9,
+    "dlugosc_m": 6.5,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     37.7,
+     8.0,
+     44.2,
+     10.8
+    ],
+    "nazwa": "inna strefa poza lokalami 5 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.7,
+    "dlugosc_m": 6.5,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     37.7,
+     26.4,
+     44.2,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 6 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.6,
+    "dlugosc_m": 6.2,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     60.7,
+     8.0,
+     66.9,
+     10.8
+    ],
+    "nazwa": "inna strefa poza lokalami 7 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.3,
+    "dlugosc_m": 6.2,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     60.7,
+     26.4,
+     66.9,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 8 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.1,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     54.5,
+     8.0,
+     60.5,
+     10.8
+    ],
+    "nazwa": "inna strefa poza lokalami 9 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.0,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     54.5,
+     26.4,
+     60.5,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 10 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.0,
+    "dlugosc_m": 7.7,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     74.2,
+     28.7,
+     75.7,
+     36.4
+    ],
+    "nazwa": "inna strefa poza lokalami 11 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.9,
+    "dlugosc_m": 6.1,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     25.2,
+     26.4,
+     31.3,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 12 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.8,
+    "dlugosc_m": 5.8,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     80.2,
+     8.0,
+     86.0,
+     10.8
+    ],
+    "nazwa": "inna strefa poza lokalami 13 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.7,
+    "dlugosc_m": 5.9,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     31.5,
+     26.4,
+     37.5,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 14 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.6,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     19.0,
+     26.4,
+     25.0,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 15 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.3,
+    "dlugosc_m": 5.5,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     44.5,
+     26.4,
+     50.0,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 16 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.1,
+    "dlugosc_m": 5.6,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     44.5,
+     8.0,
+     50.1,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 17 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.1,
+    "dlugosc_m": 7.2,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     86.2,
+     8.0,
+     93.4,
+     9.6
+    ],
+    "nazwa": "inna strefa poza lokalami 18 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 10.6,
+    "dlugosc_m": 5.7,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     74.3,
+     8.0,
+     79.9,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 19 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 10.6,
+    "dlugosc_m": 7.1,
+    "poprzecznie_m": 1.5,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     86.3,
+     44.6,
+     93.4,
+     46.1
+    ],
+    "nazwa": "inna strefa poza lokalami 20 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 9.3,
+    "dlugosc_m": 6.1,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     18.9,
+     8.0,
+     24.9,
+     9.6
+    ],
+    "nazwa": "inna strefa poza lokalami 21 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 9.0,
+    "dlugosc_m": 5.8,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     31.6,
+     8.0,
+     37.5,
+     9.6
+    ],
+    "nazwa": "inna strefa poza lokalami 22 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 8.4,
+    "dlugosc_m": 5.9,
+    "poprzecznie_m": 1.5,
+    "szer_w_swietle_m": 1.48,
+    "bbox_m": [
+     93.8,
+     30.6,
+     95.2,
+     36.5
+    ],
+    "nazwa": "inna strefa poza lokalami 23 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.3,
+    "dlugosc_m": 4.0,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     67.2,
+     27.6,
+     71.2,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 24 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.2,
+    "dlugosc_m": 3.9,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     50.3,
+     8.0,
+     54.3,
+     9.6
+    ],
+    "nazwa": "inna strefa poza lokalami 25 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.2,
+    "dlugosc_m": 4.0,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     67.2,
+     8.0,
+     71.2,
+     9.6
+    ],
+    "nazwa": "inna strefa poza lokalami 26 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.2,
+    "dlugosc_m": 4.0,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     50.3,
+     27.6,
+     54.3,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 27 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.0,
+    "dlugosc_m": 2.7,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.43,
+    "bbox_m": [
+     88.3,
+     23.9,
+     91.0,
+     26.5
+    ],
+    "nazwa": "inna strefa poza lokalami 28 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 5.0,
+    "dlugosc_m": 2.4,
+    "poprzecznie_m": 2.1,
+    "szer_w_swietle_m": 2.07,
+    "bbox_m": [
+     71.6,
+     8.5,
+     74.0,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 29 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 4.9,
+    "dlugosc_m": 3.3,
+    "poprzecznie_m": 1.6,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     71.5,
+     27.6,
+     74.7,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 30 (hol, klatka, taras/balkon lub lokal bez karty)"
+   }
+  ]
+ },
+ {
+  "budynek": "A",
+  "pietro": 4,
+  "obrys_budynku_m": [
+   87.8,
+   38.7
+  ],
+  "pow_zabudowy_kondygnacji_m2": 2104,
+  "pow_lokali_brutto_m2": 1229,
+  "strefy": [
+   {
+    "pow_m2": 235.8,
+    "dlugosc_m": 76.1,
+    "poprzecznie_m": 27.2,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     15.4,
+     12.4,
+     91.5,
+     39.6
+    ],
+    "nazwa": "korytarz główny (z holami)"
+   },
+   {
+    "pow_m2": 27.7,
+    "dlugosc_m": 7.7,
+    "poprzecznie_m": 4.2,
+    "szer_w_swietle_m": 3.26,
+    "bbox_m": [
+     76.4,
+     19.9,
+     84.1,
+     24.1
+    ],
+    "nazwa": "inna strefa poza lokalami 1 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 19.7,
+    "dlugosc_m": 9.0,
+    "poprzecznie_m": 4.5,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     71.5,
+     27.4,
+     76.0,
+     36.4
+    ],
+    "nazwa": "inna strefa poza lokalami 2 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 19.5,
+    "dlugosc_m": 8.6,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 2.57,
+    "bbox_m": [
+     8.0,
+     9.8,
+     10.6,
+     18.5
+    ],
+    "nazwa": "inna strefa poza lokalami 3 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 17.6,
+    "dlugosc_m": 7.6,
+    "poprzecznie_m": 2.9,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     74.3,
+     36.7,
+     77.2,
+     44.3
+    ],
+    "nazwa": "inna strefa poza lokalami 4 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 14.6,
+    "dlugosc_m": 5.8,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 2.57,
+    "bbox_m": [
+     8.0,
+     21.5,
+     10.6,
+     27.3
+    ],
+    "nazwa": "inna strefa poza lokalami 5 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.7,
+    "dlugosc_m": 6.5,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     37.8,
+     26.4,
+     44.3,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 6 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.1,
+    "dlugosc_m": 6.1,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.87,
+    "bbox_m": [
+     25.3,
+     26.4,
+     31.4,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 7 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.0,
+    "dlugosc_m": 6.5,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     37.8,
+     8.0,
+     44.3,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 8 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.9,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.87,
+    "bbox_m": [
+     54.6,
+     26.4,
+     60.6,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 9 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.7,
+    "dlugosc_m": 5.9,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.87,
+    "bbox_m": [
+     31.6,
+     26.4,
+     37.6,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 10 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.6,
+    "dlugosc_m": 6.1,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     60.8,
+     26.6,
+     67.0,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 11 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.5,
+    "dlugosc_m": 6.1,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     60.8,
+     8.0,
+     67.0,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 12 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.5,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     19.1,
+     26.4,
+     25.1,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 13 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.2,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     54.6,
+     8.0,
+     60.6,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 14 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.0,
+    "dlugosc_m": 5.6,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     44.5,
+     26.4,
+     50.1,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 15 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.9,
+    "dlugosc_m": 5.8,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     80.3,
+     8.0,
+     86.1,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 16 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.8,
+    "dlugosc_m": 5.7,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     44.5,
+     8.0,
+     50.2,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 17 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.8,
+    "dlugosc_m": 7.2,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     86.3,
+     8.0,
+     93.5,
+     9.8
+    ],
+    "nazwa": "inna strefa poza lokalami 18 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.7,
+    "dlugosc_m": 7.2,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     86.4,
+     44.4,
+     93.5,
+     46.1
+    ],
+    "nazwa": "inna strefa poza lokalami 19 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.2,
+    "dlugosc_m": 5.7,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     74.3,
+     8.0,
+     80.0,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 20 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 10.2,
+    "dlugosc_m": 6.1,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     18.9,
+     7.9,
+     25.0,
+     9.8
+    ],
+    "nazwa": "inna strefa poza lokalami 21 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 9.7,
+    "dlugosc_m": 5.8,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     31.7,
+     8.0,
+     37.6,
+     9.8
+    ],
+    "nazwa": "inna strefa poza lokalami 22 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 9.4,
+    "dlugosc_m": 5.9,
+    "poprzecznie_m": 1.7,
+    "szer_w_swietle_m": 1.58,
+    "bbox_m": [
+     93.6,
+     30.5,
+     95.3,
+     36.5
+    ],
+    "nazwa": "inna strefa poza lokalami 23 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.9,
+    "dlugosc_m": 4.0,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.87,
+    "bbox_m": [
+     67.2,
+     27.4,
+     71.3,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 24 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.7,
+    "dlugosc_m": 4.1,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     67.2,
+     8.0,
+     71.4,
+     9.8
+    ],
+    "nazwa": "inna strefa poza lokalami 25 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.6,
+    "dlugosc_m": 3.9,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     50.4,
+     8.0,
+     54.3,
+     9.8
+    ],
+    "nazwa": "inna strefa poza lokalami 26 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.6,
+    "dlugosc_m": 3.9,
+    "poprzecznie_m": 1.8,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     50.4,
+     27.4,
+     54.3,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 27 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 5.0,
+    "dlugosc_m": 2.4,
+    "poprzecznie_m": 2.1,
+    "szer_w_swietle_m": 2.07,
+    "bbox_m": [
+     71.7,
+     8.5,
+     74.1,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 28 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 3.0,
+    "dlugosc_m": 2.4,
+    "poprzecznie_m": 1.3,
+    "szer_w_swietle_m": 1.38,
+    "bbox_m": [
+     8.4,
+     18.8,
+     9.7,
+     21.2
+    ],
+    "nazwa": "inna strefa poza lokalami 29 (hol, klatka, taras/balkon lub lokal bez karty)"
+   }
+  ]
+ },
+ {
+  "budynek": "A",
+  "pietro": 5,
+  "obrys_budynku_m": [
+   86.2,
+   38.7
+  ],
+  "pow_zabudowy_kondygnacji_m2": 2097,
+  "pow_lokali_brutto_m2": 859,
+  "strefy": [
+   {
+    "pow_m2": 229.5,
+    "dlugosc_m": 72.2,
+    "poprzecznie_m": 27.3,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     18.9,
+     11.0,
+     91.0,
+     38.3
+    ],
+    "nazwa": "korytarz główny (z holami)"
+   },
+   {
+    "pow_m2": 80.0,
+    "dlugosc_m": 17.1,
+    "poprzecznie_m": 11.5,
+    "szer_w_swietle_m": 4.14,
+    "bbox_m": [
+     7.9,
+     17.6,
+     25.0,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 1 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 65.1,
+    "dlugosc_m": 17.0,
+    "poprzecznie_m": 9.5,
+    "szer_w_swietle_m": 2.17,
+    "bbox_m": [
+     7.9,
+     8.0,
+     24.9,
+     17.5
+    ],
+    "nazwa": "inna strefa poza lokalami 2 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 58.9,
+    "dlugosc_m": 15.7,
+    "poprzecznie_m": 10.7,
+    "szer_w_swietle_m": 1.97,
+    "bbox_m": [
+     82.8,
+     8.0,
+     93.5,
+     23.7
+    ],
+    "nazwa": "inna strefa poza lokalami 3 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 53.4,
+    "dlugosc_m": 15.6,
+    "poprzecznie_m": 7.3,
+    "szer_w_swietle_m": 2.07,
+    "bbox_m": [
+     86.2,
+     30.4,
+     93.5,
+     46.1
+    ],
+    "nazwa": "inna strefa poza lokalami 4 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 46.4,
+    "dlugosc_m": 11.8,
+    "poprzecznie_m": 8.7,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     74.2,
+     35.6,
+     86.0,
+     44.3
+    ],
+    "nazwa": "inna strefa poza lokalami 5 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 43.7,
+    "dlugosc_m": 12.3,
+    "poprzecznie_m": 4.2,
+    "szer_w_swietle_m": 3.26,
+    "bbox_m": [
+     25.1,
+     24.9,
+     37.5,
+     29.1
+    ],
+    "nazwa": "inna strefa poza lokalami 6 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 42.0,
+    "dlugosc_m": 9.6,
+    "poprzecznie_m": 6.7,
+    "szer_w_swietle_m": 3.75,
+    "bbox_m": [
+     71.3,
+     25.9,
+     77.9,
+     35.4
+    ],
+    "nazwa": "inna strefa poza lokalami 7 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 36.9,
+    "dlugosc_m": 9.0,
+    "poprzecznie_m": 4.3,
+    "szer_w_swietle_m": 4.05,
+    "bbox_m": [
+     41.2,
+     8.0,
+     50.2,
+     12.3
+    ],
+    "nazwa": "inna strefa poza lokalami 8 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 35.9,
+    "dlugosc_m": 10.1,
+    "poprzecznie_m": 4.3,
+    "szer_w_swietle_m": 2.57,
+    "bbox_m": [
+     50.4,
+     8.0,
+     60.5,
+     12.3
+    ],
+    "nazwa": "inna strefa poza lokalami 9 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 33.2,
+    "dlugosc_m": 9.4,
+    "poprzecznie_m": 4.3,
+    "szer_w_swietle_m": 3.06,
+    "bbox_m": [
+     31.6,
+     8.0,
+     41.0,
+     12.3
+    ],
+    "nazwa": "inna strefa poza lokalami 10 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 30.9,
+    "dlugosc_m": 8.4,
+    "poprzecznie_m": 4.3,
+    "szer_w_swietle_m": 3.06,
+    "bbox_m": [
+     71.5,
+     8.0,
+     79.9,
+     12.3
+    ],
+    "nazwa": "inna strefa poza lokalami 11 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 30.9,
+    "dlugosc_m": 8.8,
+    "poprzecznie_m": 4.2,
+    "szer_w_swietle_m": 3.06,
+    "bbox_m": [
+     62.3,
+     24.9,
+     71.1,
+     29.1
+    ],
+    "nazwa": "inna strefa poza lokalami 12 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 28.0,
+    "dlugosc_m": 8.9,
+    "poprzecznie_m": 3.3,
+    "szer_w_swietle_m": 3.06,
+    "bbox_m": [
+     37.6,
+     25.9,
+     46.5,
+     29.1
+    ],
+    "nazwa": "inna strefa poza lokalami 13 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 27.3,
+    "dlugosc_m": 7.9,
+    "poprzecznie_m": 4.3,
+    "szer_w_swietle_m": 3.26,
+    "bbox_m": [
+     63.4,
+     8.0,
+     71.3,
+     12.3
+    ],
+    "nazwa": "inna strefa poza lokalami 14 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 24.7,
+    "dlugosc_m": 5.3,
+    "poprzecznie_m": 4.8,
+    "szer_w_swietle_m": 4.64,
+    "bbox_m": [
+     78.5,
+     20.7,
+     83.8,
+     25.5
+    ],
+    "nazwa": "inna strefa poza lokalami 15 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 24.5,
+    "dlugosc_m": 7.8,
+    "poprzecznie_m": 3.3,
+    "szer_w_swietle_m": 3.16,
+    "bbox_m": [
+     54.3,
+     25.9,
+     62.1,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 16 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 23.7,
+    "dlugosc_m": 7.5,
+    "poprzecznie_m": 3.3,
+    "szer_w_swietle_m": 3.06,
+    "bbox_m": [
+     46.7,
+     25.9,
+     54.2,
+     29.2
+    ],
+    "nazwa": "inna strefa poza lokalami 17 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 5.1,
+    "dlugosc_m": 2.3,
+    "poprzecznie_m": 2.3,
+    "szer_w_swietle_m": 2.27,
+    "bbox_m": [
+     60.8,
+     8.3,
+     63.1,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 18 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 5.1,
+    "dlugosc_m": 3.1,
+    "poprzecznie_m": 2.3,
+    "szer_w_swietle_m": 1.28,
+    "bbox_m": [
+     25.1,
+     15.1,
+     28.1,
+     17.4
+    ],
+    "nazwa": "inna strefa poza lokalami 19 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 5.0,
+    "dlugosc_m": 2.3,
+    "poprzecznie_m": 2.2,
+    "szer_w_swietle_m": 2.27,
+    "bbox_m": [
+     80.2,
+     8.3,
+     82.5,
+     10.6
+    ],
+    "nazwa": "inna strefa poza lokalami 20 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 4.6,
+    "dlugosc_m": 2.7,
+    "poprzecznie_m": 1.7,
+    "szer_w_swietle_m": 1.68,
+    "bbox_m": [
+     88.3,
+     23.9,
+     91.0,
+     25.6
+    ],
+    "nazwa": "inna strefa poza lokalami 21 (hol, klatka, taras/balkon lub lokal bez karty)"
+   }
+  ]
+ },
+ {
+  "budynek": "B",
+  "pietro": 0,
+  "obrys_budynku_m": [
+   38.7,
+   28.7
+  ],
+  "pow_zabudowy_kondygnacji_m2": 901,
+  "pow_lokali_brutto_m2": 369,
+  "strefy": [
+   {
+    "pow_m2": 112.9,
+    "dlugosc_m": 25.5,
+    "poprzecznie_m": 17.5,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     14.3,
+     10.7,
+     39.9,
+     28.2
+    ],
+    "nazwa": "korytarz główny (z holami)"
+   },
+   {
+    "pow_m2": 92.0,
+    "dlugosc_m": 13.8,
+    "poprzecznie_m": 12.2,
+    "szer_w_swietle_m": 3.99,
+    "bbox_m": [
+     5.5,
+     18.7,
+     17.7,
+     32.5
+    ],
+    "nazwa": "inna strefa poza lokalami 1 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 79.9,
+    "dlugosc_m": 12.4,
+    "poprzecznie_m": 12.2,
+    "szer_w_swietle_m": 3.29,
+    "bbox_m": [
+     5.5,
+     6.2,
+     17.7,
+     18.6
+    ],
+    "nazwa": "inna strefa poza lokalami 2 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 28.7,
+    "dlugosc_m": 6.5,
+    "poprzecznie_m": 5.2,
+    "szer_w_swietle_m": 3.99,
+    "bbox_m": [
+     17.8,
+     27.3,
+     24.3,
+     32.5
+    ],
+    "nazwa": "inna strefa poza lokalami 3 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 27.0,
+    "dlugosc_m": 7.3,
+    "poprzecznie_m": 4.5,
+    "szer_w_swietle_m": 3.29,
+    "bbox_m": [
+     17.8,
+     6.2,
+     25.1,
+     10.8
+    ],
+    "nazwa": "inna strefa poza lokalami 4 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 25.9,
+    "dlugosc_m": 11.2,
+    "poprzecznie_m": 3.2,
+    "szer_w_swietle_m": 1.89,
+    "bbox_m": [
+     24.4,
+     27.3,
+     35.6,
+     30.5
+    ],
+    "nazwa": "inna strefa poza lokalami 5 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 24.9,
+    "dlugosc_m": 6.6,
+    "poprzecznie_m": 4.5,
+    "szer_w_swietle_m": 3.24,
+    "bbox_m": [
+     36.5,
+     6.3,
+     43.1,
+     10.8
+    ],
+    "nazwa": "inna strefa poza lokalami 6 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 20.8,
+    "dlugosc_m": 6.5,
+    "poprzecznie_m": 3.4,
+    "szer_w_swietle_m": 3.13,
+    "bbox_m": [
+     32.9,
+     10.8,
+     36.3,
+     17.3
+    ],
+    "nazwa": "inna strefa poza lokalami 7 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.1,
+    "dlugosc_m": 3.1,
+    "poprzecznie_m": 2.5,
+    "szer_w_swietle_m": 1.3,
+    "bbox_m": [
+     25.0,
+     13.1,
+     28.1,
+     15.6
+    ],
+    "nazwa": "inna strefa poza lokalami 8 (hol, klatka, taras/balkon lub lokal bez karty)"
+   }
+  ]
+ },
+ {
+  "budynek": "B",
+  "pietro": 1,
+  "obrys_budynku_m": [
+   36.7,
+   22.7
+  ],
+  "pow_zabudowy_kondygnacji_m2": 767,
+  "pow_lokali_brutto_m2": 457,
+  "strefy": [
+   {
+    "pow_m2": 53.7,
+    "dlugosc_m": 25.4,
+    "poprzecznie_m": 4.9,
+    "szer_w_swietle_m": 1.73,
+    "bbox_m": [
+     14.4,
+     14.9,
+     39.8,
+     19.8
+    ],
+    "nazwa": "korytarz główny (z holami)"
+   },
+   {
+    "pow_m2": 17.5,
+    "dlugosc_m": 8.5,
+    "poprzecznie_m": 2.2,
+    "szer_w_swietle_m": 2.0,
+    "bbox_m": [
+     7.6,
+     9.8,
+     9.8,
+     18.3
+    ],
+    "nazwa": "inna strefa poza lokalami 1 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 15.0,
+    "dlugosc_m": 7.2,
+    "poprzecznie_m": 2.7,
+    "szer_w_swietle_m": 1.67,
+    "bbox_m": [
+     17.8,
+     7.9,
+     25.0,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 2 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 14.4,
+    "dlugosc_m": 6.9,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     36.9,
+     7.9,
+     43.8,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 3 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 14.2,
+    "dlugosc_m": 7.0,
+    "poprzecznie_m": 2.2,
+    "szer_w_swietle_m": 2.0,
+    "bbox_m": [
+     7.6,
+     21.2,
+     9.8,
+     28.3
+    ],
+    "nazwa": "inna strefa poza lokalami 4 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 14.2,
+    "dlugosc_m": 6.9,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     36.9,
+     27.3,
+     43.8,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 5 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.5,
+    "dlugosc_m": 6.6,
+    "poprzecznie_m": 2.9,
+    "szer_w_swietle_m": 1.67,
+    "bbox_m": [
+     30.2,
+     7.9,
+     36.7,
+     10.8
+    ],
+    "nazwa": "inna strefa poza lokalami 6 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.2,
+    "dlugosc_m": 6.3,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     17.9,
+     27.3,
+     24.2,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 7 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.1,
+    "dlugosc_m": 6.1,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     24.4,
+     27.3,
+     30.5,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 8 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.9,
+    "dlugosc_m": 6.1,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     30.6,
+     27.5,
+     36.7,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 9 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 8.1,
+    "dlugosc_m": 3.6,
+    "poprzecznie_m": 3.1,
+    "szer_w_swietle_m": 1.3,
+    "bbox_m": [
+     25.0,
+     13.4,
+     28.1,
+     17.0
+    ],
+    "nazwa": "inna strefa poza lokalami 10 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.9,
+    "dlugosc_m": 2.8,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 2.59,
+    "bbox_m": [
+     15.1,
+     27.3,
+     17.7,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 11 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 5.2,
+    "dlugosc_m": 2.7,
+    "poprzecznie_m": 2.1,
+    "szer_w_swietle_m": 2.1,
+    "bbox_m": [
+     15.7,
+     7.9,
+     17.7,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 12 (hol, klatka, taras/balkon lub lokal bez karty)"
+   }
+  ]
+ },
+ {
+  "budynek": "B",
+  "pietro": 2,
+  "obrys_budynku_m": [
+   36.7,
+   22.6
+  ],
+  "pow_zabudowy_kondygnacji_m2": 771,
+  "pow_lokali_brutto_m2": 457,
+  "strefy": [
+   {
+    "pow_m2": 52.0,
+    "dlugosc_m": 25.7,
+    "poprzecznie_m": 3.6,
+    "szer_w_swietle_m": 1.73,
+    "bbox_m": [
+     14.4,
+     16.2,
+     40.1,
+     19.8
+    ],
+    "nazwa": "korytarz główny (z holami)"
+   },
+   {
+    "pow_m2": 19.3,
+    "dlugosc_m": 9.5,
+    "poprzecznie_m": 2.1,
+    "szer_w_swietle_m": 2.0,
+    "bbox_m": [
+     7.6,
+     18.8,
+     9.7,
+     28.3
+    ],
+    "nazwa": "inna strefa poza lokalami 1 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 14.7,
+    "dlugosc_m": 7.1,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     17.8,
+     7.9,
+     24.9,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 2 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 14.3,
+    "dlugosc_m": 6.9,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.89,
+    "bbox_m": [
+     36.9,
+     7.9,
+     43.8,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 3 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.7,
+    "dlugosc_m": 6.9,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     36.9,
+     27.5,
+     43.8,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 4 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.2,
+    "dlugosc_m": 6.6,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.67,
+    "bbox_m": [
+     30.1,
+     7.9,
+     36.7,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 5 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.8,
+    "dlugosc_m": 6.3,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     17.8,
+     27.5,
+     24.2,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 6 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.7,
+    "dlugosc_m": 6.2,
+    "poprzecznie_m": 2.2,
+    "szer_w_swietle_m": 2.0,
+    "bbox_m": [
+     7.6,
+     9.7,
+     9.8,
+     16.0
+    ],
+    "nazwa": "inna strefa poza lokalami 7 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.8,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     30.6,
+     27.5,
+     36.7,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 8 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.7,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     24.4,
+     27.5,
+     30.4,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 9 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.6,
+    "dlugosc_m": 2.6,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 2.64,
+    "bbox_m": [
+     15.1,
+     27.5,
+     17.7,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 10 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.4,
+    "dlugosc_m": 3.1,
+    "poprzecznie_m": 2.4,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     25.0,
+     13.5,
+     28.1,
+     15.9
+    ],
+    "nazwa": "inna strefa poza lokalami 11 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 5.2,
+    "dlugosc_m": 2.6,
+    "poprzecznie_m": 2.1,
+    "szer_w_swietle_m": 2.16,
+    "bbox_m": [
+     15.6,
+     7.9,
+     17.7,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 12 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 3.2,
+    "dlugosc_m": 2.4,
+    "poprzecznie_m": 1.3,
+    "szer_w_swietle_m": 1.35,
+    "bbox_m": [
+     8.1,
+     16.1,
+     9.4,
+     18.6
+    ],
+    "nazwa": "inna strefa poza lokalami 13 (hol, klatka, taras/balkon lub lokal bez karty)"
+   }
+  ]
+ },
+ {
+  "budynek": "B",
+  "pietro": 3,
+  "obrys_budynku_m": [
+   36.7,
+   22.6
+  ],
+  "pow_zabudowy_kondygnacji_m2": 774,
+  "pow_lokali_brutto_m2": 457,
+  "strefy": [
+   {
+    "pow_m2": 50.2,
+    "dlugosc_m": 25.7,
+    "poprzecznie_m": 3.5,
+    "szer_w_swietle_m": 1.73,
+    "bbox_m": [
+     14.4,
+     16.2,
+     40.1,
+     19.8
+    ],
+    "nazwa": "korytarz główny (z holami)"
+   },
+   {
+    "pow_m2": 37.9,
+    "dlugosc_m": 18.5,
+    "poprzecznie_m": 2.1,
+    "szer_w_swietle_m": 1.94,
+    "bbox_m": [
+     7.6,
+     9.8,
+     9.8,
+     28.3
+    ],
+    "nazwa": "inna strefa poza lokalami 1 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 14.3,
+    "dlugosc_m": 7.1,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     17.8,
+     7.9,
+     24.9,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 2 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 14.1,
+    "dlugosc_m": 6.9,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     36.9,
+     7.9,
+     43.8,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 3 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 14.1,
+    "dlugosc_m": 6.9,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     36.9,
+     27.3,
+     43.8,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 4 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.2,
+    "dlugosc_m": 6.3,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     17.9,
+     27.3,
+     24.2,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 5 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 13.0,
+    "dlugosc_m": 6.6,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     30.2,
+     7.9,
+     36.7,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 6 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 12.0,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     24.4,
+     27.3,
+     30.5,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 7 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 11.8,
+    "dlugosc_m": 6.0,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 1.62,
+    "bbox_m": [
+     30.7,
+     27.5,
+     36.7,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 8 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 7.0,
+    "dlugosc_m": 2.8,
+    "poprzecznie_m": 2.6,
+    "szer_w_swietle_m": 2.59,
+    "bbox_m": [
+     15.1,
+     27.3,
+     17.7,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 9 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 6.4,
+    "dlugosc_m": 3.1,
+    "poprzecznie_m": 2.4,
+    "szer_w_swietle_m": 1.78,
+    "bbox_m": [
+     25.0,
+     13.5,
+     28.1,
+     15.9
+    ],
+    "nazwa": "inna strefa poza lokalami 10 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 5.2,
+    "dlugosc_m": 2.6,
+    "poprzecznie_m": 2.1,
+    "szer_w_swietle_m": 2.16,
+    "bbox_m": [
+     15.7,
+     7.9,
+     17.7,
+     10.5
+    ],
+    "nazwa": "inna strefa poza lokalami 11 (hol, klatka, taras/balkon lub lokal bez karty)"
+   }
+  ]
+ },
+ {
+  "budynek": "B",
+  "pietro": 4,
+  "obrys_budynku_m": [
+   36.7,
+   22.7
+  ],
+  "pow_zabudowy_kondygnacji_m2": 766,
+  "pow_lokali_brutto_m2": 313,
+  "strefy": [
+   {
+    "pow_m2": 58.0,
+    "dlugosc_m": 25.2,
+    "poprzecznie_m": 6.2,
+    "szer_w_swietle_m": 1.73,
+    "bbox_m": [
+     16.9,
+     13.5,
+     42.2,
+     19.7
+    ],
+    "nazwa": "korytarz główny (z holami)"
+   },
+   {
+    "pow_m2": 80.5,
+    "dlugosc_m": 16.5,
+    "poprzecznie_m": 10.6,
+    "szer_w_swietle_m": 3.97,
+    "bbox_m": [
+     7.6,
+     19.5,
+     24.1,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 1 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 79.3,
+    "dlugosc_m": 17.3,
+    "poprzecznie_m": 11.4,
+    "szer_w_swietle_m": 2.27,
+    "bbox_m": [
+     7.6,
+     7.9,
+     24.9,
+     19.3
+    ],
+    "nazwa": "inna strefa poza lokalami 2 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 71.2,
+    "dlugosc_m": 13.7,
+    "poprzecznie_m": 9.3,
+    "szer_w_swietle_m": 4.16,
+    "bbox_m": [
+     30.2,
+     7.9,
+     43.9,
+     17.2
+    ],
+    "nazwa": "inna strefa poza lokalami 3 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 32.6,
+    "dlugosc_m": 12.7,
+    "poprzecznie_m": 7.1,
+    "szer_w_swietle_m": 1.35,
+    "bbox_m": [
+     36.8,
+     17.3,
+     43.9,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 4 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 16.5,
+    "dlugosc_m": 6.2,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 2.64,
+    "bbox_m": [
+     24.2,
+     27.2,
+     30.5,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 5 (hol, klatka, taras/balkon lub lokal bez karty)"
+   },
+   {
+    "pow_m2": 16.3,
+    "dlugosc_m": 6.2,
+    "poprzecznie_m": 2.8,
+    "szer_w_swietle_m": 2.64,
+    "bbox_m": [
+     30.6,
+     27.2,
+     36.7,
+     30.1
+    ],
+    "nazwa": "inna strefa poza lokalami 6 (hol, klatka, taras/balkon lub lokal bez karty)"
+   }
+  ]
+ }
+]

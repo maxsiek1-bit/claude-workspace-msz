@@ -1,0 +1,57 @@
+# Marina Hel Apartamenty – plany pięter złożone z kart lokali (budynki A i B)
+
+Projekt dla Maxa (TS Invest). Odpowiadaj po polsku, krótko i konkretnie.
+
+## Co to jest
+
+Plany całych kondygnacji budynków A i B inwestycji Marina Hel Apartamenty (Euro Styl, Hel), złożone automatycznie
+z kart lokali dewelopera, we wspólnym układzie współrzędnych w metrach. Cel: nałożenie płaszczyzn pięter na model 3D
+i pokazywanie wymiarów lokali, pomieszczeń i części wspólnych. Stan danych: 14.11.2026.
+
+## Co jest w paczce
+
+- `out/plany/MarinaHel_{A|B}_pietro{n}.pdf|png` – plan piętra z etykietami (numer, PU, kolor = status), podziałką 10 m.
+- `out/tekstury/MarinaHel_{A|B}_pietro{n}.png|pdf` – czysta płaszczyzna piętra bez opisów, 40 px = 1 m,
+  ten sam rozmiar i to samo położenie dla wszystkich pięter budynku (do nakładania na model 3D).
+- `out/kontrola/` – obrazy kontrolne wydzielenia części wspólnych (pomarańczowy = korytarz, zielony = lokale).
+- `data/lokale.json` / `data/lokale.csv` – 163 lokale: numer, piętro, status, PU, pomieszczenia z powierzchniami,
+  obrys i wymiary w metrach, ścieżka karty i rzutów 3D. Pole `cena` jest puste (patrz niżej).
+- `data/budynki.json` – skala, rozmiar arkusza/tekstury, lista pięter.
+- `data/czesci_wspolne.json` – korytarze i inne strefy poza lokalami: powierzchnia, długość, szerokość w świetle.
+- `data/viewer.json` – surowe dane z makiety 3D dewelopera (wszystkie lokale, statusy, linki do kart i rzutów 3D).
+- `cards/` – 163 karty lokali PDF. `renders/` – 795 rzutów 3D PNG (807 MB, poza repozytorium; odtwarza `fetch.py`).
+
+Numeracja pięter: budynek A – 1xx = piętro 1 (parter to lokale usługowe U1, U2); budynek B – 1xx = parter, 2xx = piętro 1 itd.
+
+## Ceny
+
+Deweloper nie publikuje cen: API listy lokali zwraca dla każdego lokalu „Zapytaj o cenę", a dane makiety 3D nie mają pola ceny.
+Kolumna `cena_PLN` w CSV i pole `cena` w JSON czekają na cennik od dewelopera.
+
+## Dokładność
+
+- Karty nie mają wymiarów liniowych, tylko powierzchnie pomieszczeń. Skala jest wyliczona z tych powierzchni:
+  budynek B 0,2159 m na 1 pt planu piętra (rozrzut 0,7%), budynek A 0,3947 m (rozrzut 1,5%).
+  Wymiary liniowe traktuj jako ±1–3%, nie do wymiarowania wykonawczego.
+- Powierzchnie pomieszczeń i PU pochodzą wprost z kart (suma pomieszczeń = PU dla 159 z 163 lokali).
+- Piętra jednego budynku pokrywają się między sobą z dokładnością ok. 0,1 m.
+- Części wspólne liczone są z małego planu piętra – wartości przybliżone; „inne strefy" obejmują też balkony i tarasy.
+- Braki: A 514 i B 104 nie mają karty (puste miejsce na planie). Karty lokali usługowych (A U1, A U2, B U101) mają inny układ –
+  ich rzuty są wstawione mniej pewnie. Współrzędne nie mają kierunku północy (strzałka jest na kartach, nie została odczytana).
+
+## Jak to działa
+
+1. `node fetch_viewer.js` – otwiera publiczną makietę 3D i zapisuje dane lokali, które strona sama pobiera (`data/viewer.json`).
+2. `python3 fetch.py` – pobiera karty PDF i rzuty 3D.
+3. `python3 register.py` – dopasowuje każdy rzut do zaznaczenia na planie piętra z karty (korelacja FFT, skala K + przesunięcie) → `data/reg.json`. Ok. 10 min na 4 rdzeniach.
+4. `python3 rooms.py` – czyta pomieszczenia i szacuje skalę rzutu z ich powierzchni → `data/rooms.json`.
+5. `python3 scale.py` – skala planu piętra na budynek → `data/scale.json`.
+6. `python3 compose.py A B` – plany, tekstury, `lokale.json`, `budynki.json`.
+7. `python3 commons.py` – części wspólne. 8. `python3 export_csv.py` – tabela CSV.
+
+Wymagania: `pip install pymupdf numpy scipy pillow`, Node z Playwright (krok 1), czcionki DejaVu (Linux).
+Skrypty uruchamiać z katalogu projektu. `legacy/` – pierwsza wersja skryptów (tylko budynek A, tylko lokale dostępne).
+
+## Pliki pomocnicze
+
+- `ROZMOWA.md` – zapis pierwszej rozmowy. `LINKI.md` – źródła i adresy.

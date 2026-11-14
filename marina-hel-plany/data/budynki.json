@@ -1,0 +1,124 @@
+{
+ "A": {
+  "budynek": "A",
+  "m_na_pt_keyplanu": 0.3946678440075311,
+  "px_na_m": 40.0,
+  "arkusz_m": [
+   103.31,
+   54.07
+  ],
+  "tekstura_px": [
+   4132,
+   2163
+  ],
+  "dokladnosc_skali_pct": 3.0,
+  "pietra": [
+   {
+    "budynek": "A",
+    "pietro": 0,
+    "nazwa": "parter",
+    "lokali_na_planie": 2,
+    "tekstura": "out/tekstury/MarinaHel_A_pietro0.png",
+    "plan": "out/plany/MarinaHel_A_pietro0.pdf"
+   },
+   {
+    "budynek": "A",
+    "pietro": 1,
+    "nazwa": "piętro 1",
+    "lokali_na_planie": 19,
+    "tekstura": "out/tekstury/MarinaHel_A_pietro1.png",
+    "plan": "out/plany/MarinaHel_A_pietro1.pdf"
+   },
+   {
+    "budynek": "A",
+    "pietro": 2,
+    "nazwa": "piętro 2",
+    "lokali_na_planie": 28,
+    "tekstura": "out/tekstury/MarinaHel_A_pietro2.png",
+    "plan": "out/plany/MarinaHel_A_pietro2.pdf"
+   },
+   {
+    "budynek": "A",
+    "pietro": 3,
+    "nazwa": "piętro 3",
+    "lokali_na_planie": 28,
+    "tekstura": "out/tekstury/MarinaHel_A_pietro3.png",
+    "plan": "out/plany/MarinaHel_A_pietro3.pdf"
+   },
+   {
+    "budynek": "A",
+    "pietro": 4,
+    "nazwa": "piętro 4",
+    "lokali_na_planie": 28,
+    "tekstura": "out/tekstury/MarinaHel_A_pietro4.png",
+    "plan": "out/plany/MarinaHel_A_pietro4.pdf"
+   },
+   {
+    "budynek": "A",
+    "pietro": 5,
+    "nazwa": "piętro 5",
+    "lokali_na_planie": 17,
+    "tekstura": "out/tekstury/MarinaHel_A_pietro5.png",
+    "plan": "out/plany/MarinaHel_A_pietro5.pdf"
+   }
+  ],
+  "opis": "Współrzędne w metrach: (0,0) = lewy górny róg tekstury, X w prawo, Y w dół; ten sam układ dla wszystkich pięter budynku."
+ },
+ "B": {
+  "budynek": "B",
+  "m_na_pt_keyplanu": 0.21586287617763528,
+  "px_na_m": 40.0,
+  "arkusz_m": [
+   53.59,
+   38.02
+  ],
+  "tekstura_px": [
+   2144,
+   1521
+  ],
+  "dokladnosc_skali_pct": 1.4,
+  "pietra": [
+   {
+    "budynek": "B",
+    "pietro": 0,
+    "nazwa": "parter",
+    "lokali_na_planie": 8,
+    "tekstura": "out/tekstury/MarinaHel_B_pietro0.png",
+    "plan": "out/plany/MarinaHel_B_pietro0.pdf"
+   },
+   {
+    "budynek": "B",
+    "pietro": 1,
+    "nazwa": "piętro 1",
+    "lokali_na_planie": 9,
+    "tekstura": "out/tekstury/MarinaHel_B_pietro1.png",
+    "plan": "out/plany/MarinaHel_B_pietro1.pdf"
+   },
+   {
+    "budynek": "B",
+    "pietro": 2,
+    "nazwa": "piętro 2",
+    "lokali_na_planie": 9,
+    "tekstura": "out/tekstury/MarinaHel_B_pietro2.png",
+    "plan": "out/plany/MarinaHel_B_pietro2.pdf"
+   },
+   {
+    "budynek": "B",
+    "pietro": 3,
+    "nazwa": "piętro 3",
+    "lokali_na_planie": 9,
+    "tekstura": "out/tekstury/MarinaHel_B_pietro3.png",
+    "plan": "out/plany/MarinaHel_B_pietro3.pdf"
+   },
+   {
+    "budynek": "B",
+    "pietro": 4,
+    "nazwa": "piętro 4",
+    "lokali_na_planie": 6,
+    "tekstura": "out/tekstury/MarinaHel_B_pietro4.png",
+    "plan": "out/plany/MarinaHel_B_pietro4.pdf"
+   }
+  ],
+  "opis": "Współrzędne w metrach: (0,0) = lewy górny róg tekstury, X w prawo, Y w dół; ten sam układ dla wszystkich pięter budynku."
+ }
+}
