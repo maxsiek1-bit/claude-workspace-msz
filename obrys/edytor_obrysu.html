@@ -77,11 +77,10 @@ textarea{width:100%;height:160px;font-family:var(--mono);font-size:12px;color:va
   <div class="bar">
     <div class="grp" role="group" aria-label="Widok"><button id="v-2d" aria-pressed="true">Rzut 2D</button><button id="v-3d" aria-pressed="false">Podgląd 3D</button></div>
     <div class="grp" role="group" aria-label="Narzędzie">
-      <button id="t-draw" data-tool="draw" aria-pressed="true">Rysuj</button>
-      <button id="t-pt" data-tool="pt" aria-pressed="false">Punkty</button>
-      <button id="t-move" data-tool="move" aria-pressed="false">Przesuń</button>
+      <button id="t-add" data-tool="add" aria-pressed="true">Dodaj punkt</button>
+      <button id="t-pt" data-tool="pt" aria-pressed="false">Przesuń punkt</button>
+      <button id="t-move" data-tool="move" aria-pressed="false">Przesuń całość</button>
       <button id="t-rot" data-tool="rot" aria-pressed="false">Obróć</button>
-      <button id="t-add" data-tool="add" aria-pressed="false">Dodaj punkt</button>
       <button id="t-del" data-tool="del" aria-pressed="false">Usuń punkt</button>
     </div>
     <div class="grp"><span>Zakres</span><select id="scope" aria-label="Zakres przesuwania i obrotu"><option value="active">Aktywna warstwa</option><option value="all">Wszystko</option></select></div>
@@ -166,14 +165,13 @@ textarea{width:100%;height:160px;font-family:var(--mono);font-size:12px;color:va
 const NS='http://www.w3.org/2000/svg', $=id=>document.getElementById(id), svg=$('map'), PC=window.polygonClipping;
 const KEY='obrys-edytor-v4';
 const KIND={site:{fill:'#1f5a3a',op:.4,stroke:'#ffd23f',ord:0},build:{fill:'#bfe58a',op:.5,stroke:'#eaffc4',ord:1},excl:{fill:'url(#trees)',op:.92,stroke:'#063d18',ord:2}};
-const HINT={draw:'Kliknij na mapie, aby postawić punkt aktywnej warstwy. Pole liczy się od trzech punktów. Punkt można od razu przeciągnąć.',
-  pt:'Przeciągnij niebieski punkt, aby zmienić kształt. Kliknij inną strefę, aby ją wybrać. Przeciągnięcie tła lub strzałki w rogu przesuwają widok.',
+const HINT={  pt:'Przeciągnij niebieski punkt, aby zmienić kształt. Kliknij inną strefę, aby ją wybrać. Przeciągnięcie tła lub strzałki w rogu przesuwają widok.',
   move:'Przeciągnij w dowolnym miejscu mapy, aby przesunąć wybrany zakres.',
   rot:'Przeciągnij wokół środka zakresu, aby go obrócić. Przyciski ±1° i ±5° obracają dokładnie.',
-  add:'Kliknij bok aktywnej warstwy, aby wstawić na nim nowy punkt.',
+  add:'Kliknij lewym przyciskiem w dowolnym miejscu mapy, aby postawić punkt. Kolejne kliknięcia dokładają następne punkty obrysu, kliknięcie na istniejącym boku wstawia punkt w tym boku.',
   del:'Kliknij punkt aktywnej warstwy, aby go usunąć.'};
 const INIT={mpp:MPP,seq:1,active:0,polys:[{kind:'site',name:'Granica terenu',v:[]}]};
-let S=clone(INIT), hist=[], tool='draw', drag=null, view={x:0,y:0,w:IMGW,h:IMGH};
+let S=clone(INIT), hist=[], tool='add', drag=null, view={x:0,y:0,w:IMGW,h:IMGH};
 try{const s=localStorage.getItem(KEY); if(s){const o=JSON.parse(s); if(valid(o)) S=o;}}catch(e){}
 
 function clone(o){return JSON.parse(JSON.stringify(o))}
@@ -261,7 +259,7 @@ function render(){
   A.v.forEach((p,n)=>{
     el('rect',{x:p[0]-4.5*k,y:p[1]-4.5*k,width:9*k,height:9*k,fill:'#2f7df6',stroke:'#ffffff','stroke-width':1.5*k},gP);
     if(names){const t=el('text',{x:p[0]+8*k,y:p[1]-8*k,'font-size':fs*.95,'font-weight':700,'font-family':'system-ui,sans-serif',fill:'#ffffff',stroke:'#000000','stroke-width':3*k,'paint-order':'stroke','pointer-events':'none'},gP);t.textContent=n+1}
-    el('circle',{cx:p[0],cy:p[1],r:15*k,'fill-opacity':0,'pointer-events':'all','data-k':'pt','data-n':n,style:'cursor:'+(tool==='pt'||tool==='draw'?'grab':tool==='del'?'pointer':'inherit')},gP);
+    el('circle',{cx:p[0],cy:p[1],r:15*k,'fill-opacity':0,'pointer-events':'all','data-k':'pt','data-n':n,style:'cursor:'+(tool==='pt'||tool==='add'?'grab':tool==='del'?'pointer':'inherit')},gP);
   });
   if(drag&&drag.type==='rot'){const c=drag.c;el('circle',{cx:c[0],cy:c[1],r:4*k,fill:'#ffd23f',stroke:'#000000','stroke-width':k},gP)}
 
@@ -393,14 +391,14 @@ function rotate(ps,c,ang,orig){const co=Math.cos(ang),si=Math.sin(ang);
   ps.forEach((p,pi)=>{p.v=(orig?orig[pi]:p.v).map(o=>{const dx=o[0]-c[0],dy=o[1]-c[1];return[c[0]+dx*co-dy*si,c[1]+dx*si+dy*co]})})}
 function rotBy(deg){save();const ps=scopePolys();rotate(ps,mean(ps),deg*Math.PI/180);render();persist();say('Obrócono o '+(deg>0?'+':'')+deg+'°.')}
 function addZone(kind){save();const n=S.polys.filter(p=>p.kind===kind).length+1;
-  S.polys.push({kind,name:(kind==='excl'?'Wyłączona ':'Zabudowa ')+n,v:[]});S.active=S.polys.length-1;setTool('draw');persist();
+  S.polys.push({kind,name:(kind==='excl'?'Wyłączona ':'Zabudowa ')+n,v:[]});S.active=S.polys.length-1;setTool('add');persist();
   say('Klikaj na mapie, aby narysować strefę „'+act().name+'”.')}
 
 function pos(e){const r=svg.getBoundingClientRect();return[view.x+(e.clientX-r.left)/r.width*view.w,view.y+(e.clientY-r.top)/r.height*view.h]}
 svg.addEventListener('pointerdown',e=>{
-  if(e.button>0||drag)return;
+  if(e.button>0)return;drag=null;
   const p=pos(e),t=e.target.closest('[data-k]'),kind=t?t.dataset.k:'',A=act();
-  if((tool==='pt'||tool==='draw')&&kind==='pt'){save();const n=+t.dataset.n;drag={type:'pt',n,off:[p[0]-A.v[n][0],p[1]-A.v[n][1]]}}
+  if((tool==='pt'||tool==='add')&&kind==='pt'){save();const n=+t.dataset.n;drag={type:'pt',n,off:[p[0]-A.v[n][0],p[1]-A.v[n][1]]}}
   else if(tool==='move'){save();const ps=scopePolys();drag={type:'move',p0:p,ps,orig:ps.map(q=>clone(q.v))}}
   else if(tool==='rot'){save();const ps=scopePolys(),c=mean(ps);drag={type:'rot',c,ps,orig:ps.map(q=>clone(q.v)),a0:Math.atan2(p[1]-c[1],p[0]-c[0])}}
   else if(tool==='add'&&kind==='seg'){
@@ -408,7 +406,7 @@ svg.addEventListener('pointerdown',e=>{
     let u=((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy||1);u=Math.max(.05,Math.min(.95,u));
     save();A.v.splice(s[0]+1,0,[a[0]+dx*u,a[1]+dy*u]);render();persist();say('Dodano punkt '+(s[0]+2)+'.');return}
   else if(tool==='del'&&kind==='pt'){save();A.v.splice(+t.dataset.n,1);render();persist();say('Usunięto punkt.');return}
-  else drag={type:'pan',click:tool==='draw'?'draw':(kind==='poly'?'sel':''),i:t?+t.dataset.i:-1,cx:e.clientX,cy:e.clientY,vx:view.x,vy:view.y};
+  else drag={type:'pan',click:tool==='add'?'draw':(kind==='poly'?'sel':''),i:t?+t.dataset.i:-1,cx:e.clientX,cy:e.clientY,vx:view.x,vy:view.y};
   try{svg.setPointerCapture(e.pointerId)}catch(_){}
   e.preventDefault();
 });
@@ -424,13 +422,13 @@ svg.addEventListener('pointermove',e=>{
 });
 function end(e){if(!drag)return;const d=drag;drag=null;
   if(d.type!=='pan'){persist();render();return}
-  if(!d.click||e.type!=='pointerup'||Math.hypot(e.clientX-d.cx,e.clientY-d.cy)>=5)return;
+  if(!d.click||e.type!=='pointerup'||Math.hypot(e.clientX-d.cx,e.clientY-d.cy)>=8)return;
   view.x=d.vx;view.y=d.vy;
   if(d.click==='draw'){save();const A=act();A.v.push(pos(e));render();persist();
     say(A.v.length<3?'Punkt '+A.v.length+' postawiony. Do policzenia pola potrzeba jeszcze '+(3-A.v.length)+'.':'Dodano punkt '+A.v.length+' warstwy „'+A.name+'”.')}
   else if(S.polys[d.i]&&d.i!==S.active){S.active=d.i;render();persist();say('Aktywna warstwa: '+act().name+'.')}
 }
-svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);svg.addEventListener('lostpointercapture',()=>{if(drag&&drag.type!=='pan'){drag=null;persist();render()}});
 
 function zoom(f,cx,cy){const r=svg.getBoundingClientRect();if(cx==null){cx=r.left+r.width/2;cy=r.top+r.height/2}
   const nw=Math.max(40,Math.min(EXT*1.5,view.w*f)),g=nw/view.w,fx=(cx-r.left)/r.width,fy=(cy-r.top)/r.height;
@@ -441,12 +439,12 @@ function fit(){const r=svg.getBoundingClientRect();if(!r.width||!r.height)return
   view.x=IMGW/2-view.w/2;view.y=IMGH/2-view.h/2;render()}
 if(window.ResizeObserver)new ResizeObserver(()=>{const r=svg.getBoundingClientRect();if(r.width&&r.height){view.h=view.w*r.height/r.width;render()}}).observe(svg);
 
-function setTool(t){tool=t;document.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t));
-  svg.style.cursor=t==='move'?'move':t==='rot'||t==='draw'?'crosshair':t==='pt'?'grab':'default';say(HINT[t]);render()}
+function setTool(t){tool=t;if(is3)setView('2d');document.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t));
+  svg.style.cursor=t==='move'?'move':t==='rot'||t==='add'?'crosshair':t==='pt'?'grab':'default';say(HINT[t]);render()}
 document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));
 $('r-m5').onclick=()=>rotBy(-5);$('r-m1').onclick=()=>rotBy(-1);$('r-p1').onclick=()=>rotBy(1);$('r-p5').onclick=()=>rotBy(5);
 $('undo').onclick=undo;
-$('reset').onclick=()=>{save();S=clone(INIT);persist();setTool('draw');say('Wyczyszczono wszystko. „Cofnij” przywraca.')};
+$('reset').onclick=()=>{save();S=clone(INIT);persist();setTool('add');say('Wyczyszczono wszystko. „Cofnij” przywraca.')};
 $('add-build').onclick=()=>addZone('build');$('add-excl').onclick=()=>addZone('excl');
 $('layers').addEventListener('click',e=>{const d=e.target.closest('[data-del]'),s=e.target.closest('.pick');
   if(d){const i=+d.dataset.del;save();if(i){S.polys.splice(i,1);if(S.active>=i)S.active=Math.max(0,S.active===i?0:S.active-1)}else S.polys[0].v=[];render();persist();say(i?'Usunięto warstwę.':'Wyczyszczono punkty granicy.')}
@@ -468,6 +466,6 @@ $('copy').onclick=()=>{const ta=$('json');ta.value=JSON.stringify(exportData(),n
 $('load').onclick=()=>{try{importData(JSON.parse($('json').value));say('Wczytano dane z pola.')}
   catch(_){say('Nie udało się wczytać. JSON musi mieć listę polygons z polami kind i vertices_px.',true)}};
 
-say(HINT.draw);fit();render();
+say(HINT.add);fit();render();
 })();
 </script>
