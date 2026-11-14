@@ -1,0 +1,39 @@
+"""Buduje planer/kit.json: obrysy (rzuty z góry) budynków każdej wersji zespołu Marina Hel + liczby lokali,
+oraz kopiuje geometrię brył do planer/geo. Uruchamiać z katalogu projektu po zbudowaniu viewer3d."""
+import json, shutil, numpy as np
+from PIL import Image, ImageDraw
+from scipy import ndimage as ndi
+from skimage import measure
+from shapely.geometry import Polygon
+D = json.load(open('viewer3d/data.json')); R = 5.0
+def load(path):
+    g = json.load(open('viewer3d/' + path)); p = np.array(g['pos'], float).reshape(-1, 3) / 100
+    return np.stack([p[:, 0], -p[:, 2]], 1), p[:, 1], np.array(g['idx']).reshape(-1, 3)
+def outline(path):
+    xy, z, tri = load(path); x0, y0 = xy.min(0) - 3; W, H = ((xy.max(0) - xy.min(0) + 6) * R).astype(int)
+    im = Image.new('L', (W, H), 0); d = ImageDraw.Draw(im)
+    for t in tri: d.polygon([((xy[i, 0] - x0) * R, (xy[i, 1] - y0) * R) for i in t], fill=255)
+    m = ndi.binary_fill_holes(np.array(im) > 0); m = np.pad(m, 2)
+    c = max(measure.find_contours(m.astype(float), 0.5), key=len)
+    poly = Polygon([((q[1] - 2) / R + x0, (q[0] - 2) / R + y0) for q in c]).simplify(0.6)
+    return [[round(x, 2), round(y, 2)] for x, y in list(poly.exterior.coords)[:-1]], round(poly.area, 1), [float(z.min()), float(z.max())]
+# liczby lokali: lista dewelopera (A 123 lok. / 5109,88 m2, B 42 / 1983,13 m2); C brak danych
+A0 = dict(lokale=123, pu=5109.9); B0 = dict(lokale=42, pu=1983.1)
+A2 = dict(lokale=123 - 13, pu=round(5109.9 - D['v2']['pu_mniej'], 1))
+defs = {'A': ('geo/Budynek_A.json', D['buildings']['A']['groups'], A0, 'Budynek A'),
+        'A2': ('geo/Budynek_A_v2.json', D['v2']['building']['groups'], A2, 'Budynek A skrócony'),
+        'B': ('geo/Budynek_B.json', D['buildings']['B']['groups'], B0, 'Budynek B'),
+        'C': ('geo/Budynek_C.json', D['buildings']['C']['groups'], dict(lokale=None, pu=None), 'Budynek C'),
+        'C3': ('geo/Budynek_C_v3.json', D['v3']['building']['groups'], A2, 'Lustrzane A w miejscu C')}
+kit = dict(buildings={}, variants=dict(base=dict(name='Wersja podstawowa', b=['A', 'B', 'C']), v2=dict(name='Po modyfikacji', b=['A2', 'B', 'C']),
+                                       v3=dict(name='Po modyfikacji + lustrzane A w miejscu C', b=['A2', 'B', 'C3'])))
+for k, (path, groups, st, name) in defs.items():
+    o, area, zr = outline(path); shutil.copy('viewer3d/' + path, 'planer/' + path)
+    kit['buildings'][k] = dict(name=name, file=path, groups=groups, outline=o, pow_zabudowy=area, z=zr, **st)
+    print(k, len(o), 'pkt', area, 'm2', st)
+for v in kit['variants'].values():      # środek i prostokąt obejmujący zespołu w jego własnych osiach (obrót 17,12 st = długa elewacja A)
+    pts = np.array([q for k in v['b'] for q in kit['buildings'][k]['outline']]); th = np.radians(17.12)
+    Rm = np.array([[np.cos(th), np.sin(th)], [-np.sin(th), np.cos(th)]]); u = pts @ Rm.T
+    c = Rm.T @ ((u.min(0) + u.max(0)) / 2); v['center'] = c.round(2).tolist(); v['axis_deg'] = 17.12; v['size'] = (u.max(0) - u.min(0)).round(1).tolist()
+    print(v['name'], v['size'], v['center'])
+json.dump(kit, open('planer/kit.json', 'w'), ensure_ascii=False, separators=(',', ':'))

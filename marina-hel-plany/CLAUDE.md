@@ -86,3 +86,19 @@ Wynik: `geo/Budynek_A_v2.json`, `tex/A*_v2.webp`, `data.json` → `v2`. Wersja p
 odbicie względem osi równoległej do długiej elewacji A, potem przesunięcie maksymalizujące pokrycie z obrysem C (`tools/mirror.json`, pokrycie 0,63).
 Lustrzany budynek jest o ok. 23 m dłuższy niż pierwotny C i nie nachodzi na budynek B. Ma 109 lokali / 4557 m² PU (kopie lokali A, numery „C nnn”, status „wariant”).
 Plany są odbite (drobne napisy na rzutach też), etykiety lokali dorysowane na nowo. Wynik: `geo/Budynek_C_v3.json`, `tex/C*_v3.webp`, `data.json` → `v3`.
+
+## Planer zabudowy terenu (`planer/`)
+
+Drugi projekt Maxa połączony z tym: edytor obrysu terenu (granica, strefy pod zabudowę, strefy wyłączone, bilans, podgląd 3D na rzeźbie terenu;
+ortofoto i NMT z Geoportalu, okolice 54°34'53"N 18°12'39"E) + generator, który układa na dostępnym terenie jak najwięcej zespołów budynków Marina Hel.
+Zamysł docelowy i dane techniczne terenu: `planer/src/INSTRUKCJA.md`.
+
+- `src/edytor_obrysu.html` – oryginalny edytor Maxa (jeden plik, zdjęcia w base64). Nie edytować; zmiany idą przez `make_page.py`.
+- `generator.js` – generator: zespół = budynki A+B+C w układzie z modelu, w jednej z trzech wersji (podstawowa / po modyfikacji / + lustrzane A w miejscu C).
+  Szuka kąta (co 6°, potem doszlifowanie) i przesunięcia regularnej siatki dającej najwięcej zespołów; każdy budynek (obrys + odsunięcie) musi leżeć
+  w terenie dostępnym (granica ∩ strefy pod zabudowę − strefy wyłączone). Liczy zespoły, budynki, lokale, PU, powierzchnię zabudowy; porównuje wszystkie wersje.
+  W podglądzie 3D stawia prawdziwe bryły (InstancedMesh) na rzeźbie terenu.
+- `build_kit.py` → `kit.json` (obrysy budynków, liczby lokali: A 123 / 5109,9 m², A skrócony 110 / 4604,5 m², B 42 / 1983,1 m², C brak danych) i kopie brył w `geo/`.
+- `make_page.py` → `index.html` (edytor + generator + niebieski interfejs). Kolejność: `build_kit.py`, `make_page.py`.
+- Teren Maxa „MS zabudowa” jest w pamięci przeglądarki starego edytora; do planera trzeba go wkleić przez „Dane JSON” → „Wczytaj z pola”. Planer startuje z przykładowym obrysem.
+- Uproszczenia: regularna siatka zespołów (bez mieszania obrotów i bez pojedynczych budynków), brak dróg i działek, brak wymogów przepisowych (odległości, nasłonecznienie, MPZP).
