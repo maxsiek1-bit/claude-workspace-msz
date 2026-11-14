@@ -106,7 +106,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
       <div class="row"><label for="speed" style="flex:none">Tempo chodzenia</label><input type="range" id="speed" min="0.2" max="3" step="0.1" value="1"></div>
     </section>
     <div id="blds"></div>
-    <p class="note">Czerwone wymiary: długość i szerokość budynków A i B to obrys kondygnacji z balkonami według kart lokali (dokładność ok. ±3% dla A, ±1% dla B). Wartości z gwiazdką (wysokości oraz cały budynek C) są zmierzone na modelu 3D i są orientacyjne.</p>
+    <p class="note">Czerwone wymiary budynków A i B liczą się z włączonych pięter: po wyłączeniu piętra zmienia się wysokość (i obrys, jeśli piętra się różnią), a bez żadnego piętra wymiary budynku znikają. Długość i szerokość to obrys kondygnacji z balkonami według kart lokali (dokładność ok. ±3% dla A, ±1% dla B). Wartości z gwiazdką (wysokości oraz cały budynek C) są zmierzone na modelu 3D i są orientacyjne.</p>
     <p class="note">Plany są dopasowane do obrysu brył z modelu (pokrycie ok. 94%, skala planów +2% dla A i +3% dla B). Z każdej płaszczyzny wycięto to, co nie należy do budynku ani do żadnego lokalu (schody terenowe, garaż pod dziedzińcem); balkony, tarasy i ogródki lokali zostały w całości.</p>
   </aside>
 </div>
@@ -200,14 +200,16 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     b.mesh.visible = o > 0.005 && b.on !== false; render();
   }
 
-  // ---- wymiary zewnętrzne: czerwone linie odsunięte od brył ----
+  // ---- wymiary zewnętrzne: czerwone linie odsunięte od brył; dla A i B liczone z włączonych pięter ----
   const dims = new THREE.Group(); scene.add(dims);
+  const dimG = { A: new THREE.Group(), B: new THREE.Group(), C: new THREE.Group() }; Object.values(dimG).forEach(g => dims.add(g));
+  let cur = dimG.C;
   const RED = 0xe0201b, redMat = new THREE.MeshBasicMaterial({ color: RED });
   const V = p => new THREE.Vector3(p[0], p[2], -p[1]);
   function bar(p, q, t) {
     const a = V(p), b = V(q), len = a.distanceTo(b); if (len < 0.01) return;
     const m = new THREE.Mesh(new THREE.BoxGeometry(len, t, t), redMat);
-    m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), b.clone().sub(a).normalize()); m.renderOrder = 5; dims.add(m);
+    m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), b.clone().sub(a).normalize()); m.renderOrder = 5; cur.add(m);
   }
   function tag(text, pos) {
     const c = document.createElement('canvas'), x = c.getContext('2d'); x.font = '600 56px Inter, system-ui, sans-serif';
@@ -215,13 +217,32 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     x.font = '600 56px Inter, system-ui, sans-serif'; x.fillStyle = '#ffffff'; x.strokeStyle = '#e0201b'; x.lineWidth = 6;
     x.beginPath(); x.rect(3, 3, w - 6, 78); x.fill(); x.stroke(); x.fillStyle = '#c0140f'; x.textBaseline = 'middle'; x.textAlign = 'center'; x.fillText(text, w / 2, 44);
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false, transparent: true }));
-    s.scale.set(w / 84 * 3.4, 3.4, 1); s.position.copy(pos); s.renderOrder = 6; dims.add(s);
+    s.scale.set(w / 84 * 3.4, 3.4, 1); s.position.copy(pos); s.renderOrder = 6; cur.add(s);
   }
-  (D.dims || []).forEach(d => {
-    bar(d.a, d.c, 0.28); d.ext.forEach(e => bar(e[0], e[1], 0.14));
-    [d.a, d.c].forEach(p => { const k = new THREE.Mesh(new THREE.SphereGeometry(0.45, 12, 8), redMat); k.position.copy(V(p)); k.renderOrder = 5; dims.add(k); });
-    tag(d.label, V(d.a).add(V(d.c)).multiplyScalar(0.5).add(new THREE.Vector3(0, 1.2, 0)));
-  });
+  function drawDim(a, c, label, exts) {
+    bar(a, c, 0.28); exts.forEach(e => bar(e[0], e[1], 0.14));
+    [a, c].forEach(p => { const k = new THREE.Mesh(new THREE.SphereGeometry(0.45, 12, 8), redMat); k.position.copy(V(p)); k.renderOrder = 5; cur.add(k); });
+    tag(label, V(a).add(V(c)).multiplyScalar(0.5).add(new THREE.Vector3(0, 1.2, 0)));
+  }
+  (D.dims || []).filter(d => d.b === 'C').forEach(d => drawDim(d.a, d.c, d.label, d.ext));
+  // Wymiary A i B: obrys i wysokość tylko tych pięter, które są włączone. Bez włączonych pięter wymiary budynku znikają.
+  function rebuildDims(k) {
+    const g = dimG[k];
+    while (g.children.length) { const o = g.children.pop(); if (o.geometry) o.geometry.dispose(); if (o.material && o.material.map) { o.material.map.dispose(); o.material.dispose(); } }
+    const all = floorsBy[k], on = all.filter(f => f.on);
+    if (!on.length) { render(); return; }
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    on.forEach(f => { x0 = Math.min(x0, f.bbox[0]); y0 = Math.min(y0, f.bbox[1]); x1 = Math.max(x1, f.bbox[2]); y1 = Math.max(y1, f.bbox[3]); });
+    const lo = on[0], hi = on[on.length - 1], bb = D.buildings[k];
+    const zb = lo.idx === 0 ? bb.bbmin[2] : lo.z, zt = hi.idx === all.length - 1 ? bb.bbmax[2] : all[hi.idx + 1].z, zg = zb + 0.4, O = 4;
+    const M = (x, y, z) => { const p = inv[k].fwd(x, y); return [p[0], p[1], z]; };
+    const ys = k === 'A' ? y0 : y1, s = k === 'A' ? -1 : 1;
+    cur = g;
+    drawDim(M(x0, ys + s * O, zg), M(x1, ys + s * O, zg), pl(x1 - x0, 1) + ' m', [[M(x0, ys, zg), M(x0, ys + s * (O + 1), zg)], [M(x1, ys, zg), M(x1, ys + s * (O + 1), zg)]]);
+    drawDim(M(x0 - O, y0, zg), M(x0 - O, y1, zg), pl(y1 - y0, 1) + ' m', [[M(x0, y0, zg), M(x0 - O - 1, y0, zg)], [M(x0, y1, zg), M(x0 - O - 1, y1, zg)]]);
+    drawDim(M(x0 - O, ys + s * O, zb), M(x0 - O, ys + s * O, zt), '~' + pl(zt - zb, 1) + ' m*', [[M(x0 - O - 1, ys + s * O, zt), M(x0, ys, zt)]]);
+    cur = dimG.C; render();
+  }
   const dimBtn = $('dimBtn');
   dimBtn.addEventListener('click', () => { dims.visible = !dims.visible; dimBtn.setAttribute('aria-pressed', dims.visible); render(); });
 
@@ -272,7 +293,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     $('op' + k).addEventListener('input', e => { const t = +e.target.value; $('opv' + k).textContent = Math.round(t * 100) + '%'; setOpacity(k, 1 - t); });
   }
   function setTransp(k, t) { $('op' + k).value = t; $('opv' + k).textContent = Math.round(t * 100) + '%'; setOpacity(k, 1 - t); }
-  function setFloor(f, on) { f.on = on; f.mesh.visible = on; $('fl' + f.b + f.fl).checked = on; if (sel && sel.f === f && !on) select(null); render(); }
+  function setFloor(f, on) { const ch = f.on !== on; f.on = on; f.mesh.visible = on; $('fl' + f.b + f.fl).checked = on; if (sel && sel.f === f && !on) select(null); if (ch) rebuildDims(f.b); render(); }
   D.floors.forEach(f => $('fl' + f.b + f.fl).addEventListener('change', e => setFloor(f, e.target.checked)));
   blds.addEventListener('click', e => {
     const t = e.target; if (!(t instanceof HTMLButtonElement)) return;
@@ -336,6 +357,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
   });
 
   // stan początkowy: prześwit + wszystkie piętra
+  rebuildDims('A'); rebuildDims('B');
   setLabels(true); ['A', 'B', 'C'].forEach(k => setTransp(k, 0.82));
   $('status').hidden = true; render();
 })();

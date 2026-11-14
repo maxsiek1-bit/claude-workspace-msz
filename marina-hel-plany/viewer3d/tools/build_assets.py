@@ -44,6 +44,10 @@ for u in lok:
 # ---- wymiary zewnętrzne (czerwone linie) ----
 import math
 cw = json.load(open('data/czesci_wspolne.json')); dims = []
+for f in data['floors']:      # obrys kondygnacji w metrach planu (do wymiarów zależnych od włączonych pięter)
+    own = [r['obrys_bbox_m'] for r in cw if r['budynek'] == f['b'] and r['pietro'] == f['fl']]
+    typ = [r['obrys_bbox_m'] for r in cw if r['budynek'] == f['b'] and (r['pietro'] >= 2 if f['b'] == 'A' else 1 <= r['pietro'] <= 3)]
+    f['bbox'] = own[0] if own and not (f['b'] == 'B' and f['fl'] == 0) else np.median(np.array(typ), 0).round(2).tolist()   # parter B: bez ogródków
 def add(b, p, q, label, exts): dims.append(dict(b=b, a=[round(float(v), 2) for v in p], c=[round(float(v), 2) for v in q], label=label, ext=[[[round(float(v), 2) for v in e] for e in ex] for ex in exts]))
 fmt = lambda v: ('%.1f' % v).replace('.', ',')
 O = 4.0; ZG = 0.4
