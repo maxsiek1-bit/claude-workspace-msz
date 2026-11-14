@@ -29,11 +29,12 @@ kit = dict(buildings={}, variants=dict(base=dict(name='Wersja podstawowa', b=['A
                                        v3=dict(name='Po modyfikacji + lustrzane A w miejscu C', b=['A2', 'B', 'C3'])))
 for k, (path, groups, st, name) in defs.items():
     o, area, zr = outline(path); shutil.copy('viewer3d/' + path, 'planer/' + path)
-    kit['buildings'][k] = dict(name=name, file=path, groups=groups, outline=o, pow_zabudowy=area, z=zr, **st)
+    kit['buildings'][k] = dict(name=name, file=path, groups=groups, outline=o, pow_zabudowy=area, z=zr, kond=5 if k == 'B' else 6, **st)   # kondygnacje nadziemne: A parter+5, B parter+4, C wg wysokości bryły
     print(k, len(o), 'pkt', area, 'm2', st)
 for v in kit['variants'].values():      # środek i prostokąt obejmujący zespołu w jego własnych osiach (obrót 17,12 st = długa elewacja A)
     pts = np.array([q for k in v['b'] for q in kit['buildings'][k]['outline']]); th = np.radians(17.12)
     Rm = np.array([[np.cos(th), np.sin(th)], [-np.sin(th), np.cos(th)]]); u = pts @ Rm.T
     c = Rm.T @ ((u.min(0) + u.max(0)) / 2); v['center'] = c.round(2).tolist(); v['axis_deg'] = 17.12; v['size'] = (u.max(0) - u.min(0)).round(1).tolist()
     print(v['name'], v['size'], v['center'])
+kit['axis_deg'] = 17.12      # kierunek długiej elewacji budynków w układzie modelu
 json.dump(kit, open('planer/kit.json', 'w'), ensure_ascii=False, separators=(',', ':'))

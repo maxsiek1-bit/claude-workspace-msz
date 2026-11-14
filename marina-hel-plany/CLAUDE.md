@@ -94,11 +94,17 @@ ortofoto i NMT z Geoportalu, okolice 54°34'53"N 18°12'39"E) + generator, któr
 Zamysł docelowy i dane techniczne terenu: `planer/src/INSTRUKCJA.md`.
 
 - `src/edytor_obrysu.html` – oryginalny edytor Maxa (jeden plik, zdjęcia w base64). Nie edytować; zmiany idą przez `make_page.py`.
-- `generator.js` – generator: zespół = budynki A+B+C w układzie z modelu, w jednej z trzech wersji (podstawowa / po modyfikacji / + lustrzane A w miejscu C).
-  Szuka kąta (co 6°, potem doszlifowanie) i przesunięcia regularnej siatki dającej najwięcej zespołów; każdy budynek (obrys + odsunięcie) musi leżeć
-  w terenie dostępnym (granica ∩ strefy pod zabudowę − strefy wyłączone). Liczy zespoły, budynki, lokale, PU, powierzchnię zabudowy; porównuje wszystkie wersje.
-  W podglądzie 3D stawia prawdziwe bryły (InstancedMesh) na rzeźbie terenu.
-- `build_kit.py` → `kit.json` (obrysy budynków, liczby lokali: A 123 / 5109,9 m², A skrócony 110 / 4604,5 m², B 42 / 1983,1 m², C brak danych) i kopie brył w `geo/`.
-- `make_page.py` → `index.html` (edytor + generator + niebieski interfejs). Kolejność: `build_kit.py`, `make_page.py`.
+- `gen_core.js` – generator jako czysta funkcja `GenCore.generate(input)` (bez DOM; działa w Node i w Web Workerze): wypełnia teren pojedynczymi budynkami
+  wybranych typów, zachłannie rząd po rzędzie, w czterech obrotach co 90° względem kierunku siatki. Kierunki siatki: boki granicy i obroty co 15°;
+  kolejności typów: duże / gęste / małe najpierw. Szybkie odrzucanie na rastrze zajętości, każde udane ustawienie potwierdzane dokładnym testem na obrysach
+  (granica + odsunięcie, strefy wyłączone + odsunięcie, strefy pod zabudowę, odległość między budynkami, limit udziału zabudowy). Cel: lokale / PU / liczba budynków / zabudowa.
+- `test_gen.js` – `node planer/test_gen.js`: niezależna kontrola (budynek w granicy, poza strefą wyłączoną, odsunięcia, odległości, limit) i czas na terenie 10 ha.
+- `generator.js` – część interfejsu wklejana do edytora: biblioteka typów (A, A skrócony, B, C, lustrzane A; zestawy = trzy wersje), parametry, wybór celu,
+  lista wariantów, wyniki, porównanie z układem „zespoły A+B+C w siatce”, rysunek 2D, bryły w 3D (InstancedMesh), eksport planu w JSON (EPSG:2180) i statystyk CSV.
+  Generator liczy się w Web Workerze: najpierw 2 warianty (szybki wynik), potem wszystkie.
+- `build_kit.py` → `kit.json` (obrysy budynków, kondygnacje, liczby lokali: A 123 / 5109,9 m², A skrócony 110 / 4604,5 m², B 42 / 1983,1 m², C brak danych) i kopie brył w `geo/`.
+- `make_page.py` → `index.html` (edytor + gen_core + generator + niebieski interfejs). Kolejność: `build_kit.py`, `make_page.py`, `node planer/test_gen.js`.
+- Zamówienie na ten etap: prompt Maxa „automatyczne maksymalne wypełnienie terenu zabudową” (etapy 2–4 i część 6 zrobione).
+  Niezrobione: drogi wewnętrzne, wjazdy, parkingi, warunek dojazdu, przypinanie budynków, edycja i dodawanie własnych typów, udziały typów, osobna odległość dla ścian z oknami, DXF/PDF.
 - Teren Maxa „MS zabudowa” jest w pamięci przeglądarki starego edytora; do planera trzeba go wkleić przez „Dane JSON” → „Wczytaj z pola”. Planer startuje z przykładowym obrysem.
-- Uproszczenia: regularna siatka zespołów (bez mieszania obrotów i bez pojedynczych budynków), brak dróg i działek, brak wymogów przepisowych (odległości, nasłonecznienie, MPZP).
+- Wynik to analiza chłonności terenu, nie projekt; parametry domyślne są przykładowe.
