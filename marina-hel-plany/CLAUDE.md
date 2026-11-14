@@ -72,3 +72,10 @@ i płaszczyznami pięter A i B. Opublikowana: https://claude.ai/artifact/Ckzwo1c
 
 Kolejność po zmianie planów: `compose.py` → `commons.py` → `masks.py` → `fit_outline.py` → `build_assets.py` → `verify_fit.py`.
 Poziomy podłóg w modelu: 3,62 / 6,57 / 9,52 / 12,47 / 15,58 m (A: piętra 1–5, B: parter–piętro 4); parter A 0,67 m.
+
+### Wersja po modyfikacji (przełącznik pod tytułem w przeglądarce)
+
+`tools/build_variant.py <katalog z .npz>` (po `build_assets.py`) – budynek A skrócony o pas planu x = 24,9–37,4 m (12,5 m) na wszystkich piętrach:
+znika klatka schodowa od strony szczytu i 12 lokali (A 109, 110, 212, 213, 218, 312, 313, 318, 412, 413, 418, 509), szczyt z A 510 / A 511 jest dosunięty,
+a reszta A 512 (ok. 37%) połączona z A 513 (PU szacunkowe). Lokali A na planach: 122 → 109, suma PU 5062 → 4557 m².
+Wynik: `geo/Budynek_A_v2.json`, `tex/A*_v2.webp`, `data.json` → `v2`. Wersja podstawowa zostaje bez zmian. Ściana między A 512 a A 513 jest nadal narysowana na planie.

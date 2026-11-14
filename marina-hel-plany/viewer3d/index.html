@@ -55,6 +55,10 @@ button { font: 500 12px var(--f-body); color: var(--fg); background: transparent
 button:hover { border-color: var(--accent); }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; margin-top: 10px; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; padding: 8px 6px; font-size: 13px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+#vinfo { margin-top: 8px; }
 .presets { display: flex; flex-wrap: wrap; gap: 6px; }
 .bld { border-top: 1px solid var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 4px; }
 .bld .name { font: 600 15px var(--f-head); }
@@ -87,6 +91,11 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     <div>
       <h1>Marina Hel Apartamenty</h1>
       <p class="sub">Bryły A, B, C z modelu Blender + plany pięter z kart lokali (stan 14.11.2026)</p>
+      <div class="seg" id="variant" role="group" aria-label="Wersja budynku">
+        <button data-v="base" aria-pressed="true">Wersja podstawowa</button>
+        <button data-v="v2" aria-pressed="false">Po modyfikacji</button>
+      </div>
+      <p class="note" id="vinfo" hidden></p>
     </div>
     <section>
       <h3>Widok</h3>
@@ -106,7 +115,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
       <div class="row"><label for="speed" style="flex:none">Tempo chodzenia</label><input type="range" id="speed" min="0.2" max="3" step="0.1" value="1"></div>
     </section>
     <div id="blds"></div>
-    <p class="note">Czerwone wymiary budynków A i B liczą się z włączonych pięter: po wyłączeniu piętra zmienia się wysokość (i obrys, jeśli piętra się różnią), a bez żadnego piętra wymiary budynku znikają. Długość i szerokość to obrys kondygnacji z balkonami według kart lokali (dokładność ok. ±3% dla A, ±1% dla B). Wartości z gwiazdką (wysokości oraz cały budynek C) są zmierzone na modelu 3D i są orientacyjne.</p>
+    <p class="note">Czerwone wymiary budynków A i B liczą się z włączonych pięter: po wyłączeniu piętra zmienia się wysokość (i obrys, jeśli piętra się różnią), a gdy żadne piętro nie jest włączone, pokazują cały budynek. Długość i szerokość to obrys kondygnacji z balkonami według kart lokali (dokładność ok. ±3% dla A, ±1% dla B). Wartości z gwiazdką (wysokości oraz cały budynek C) są zmierzone na modelu 3D i są orientacyjne.</p>
     <p class="note">Plany są dopasowane do obrysu brył z modelu (pokrycie ok. 94%, skala planów +2% dla A i +3% dla B). Z każdej płaszczyzny wycięto to, co nie należy do budynku ani do żadnego lokalu (schody terenowe, garaż pod dziedzińcem); balkony, tarasy i ogródki lokali zostały w całości.</p>
   </aside>
 </div>
@@ -178,8 +187,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
   // ---- bryły budynków ----
   const B = {};
   const srgb = v => Math.pow(Math.max(0, v), 1 / 2.2);
-  for (const k of ['A', 'B', 'C']) {
-    const b = D.buildings[k];
+  async function buildShell(b) {
     const gj = await (await fetch(b.file)).json();
     const pos = new Float32Array(gj.pos.length); for (let i = 0; i < pos.length; i++) pos[i] = gj.pos[i] / 100;
     const g = new THREE.BufferGeometry();
@@ -192,7 +200,11 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     });
     g.computeVertexNormals();
     const mesh = new THREE.Mesh(g, mats); mesh.renderOrder = 2; scene.add(mesh);
-    B[k] = { mesh, mats, opacity: 1, floors: [] };
+    return { mesh, mats, def: b };
+  }
+  for (const k of ['A', 'B', 'C']) {
+    const s = await buildShell(D.buildings[k]);
+    B[k] = { mesh: s.mesh, mats: s.mats, def: s.def, base: s, opacity: 1, floors: [] };
   }
   function setOpacity(k, o) {
     const b = B[k]; b.opacity = o;
@@ -225,15 +237,14 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     tag(label, V(a).add(V(c)).multiplyScalar(0.5).add(new THREE.Vector3(0, 1.2, 0)));
   }
   (D.dims || []).filter(d => d.b === 'C').forEach(d => drawDim(d.a, d.c, d.label, d.ext));
-  // Wymiary A i B: obrys i wysokość tylko tych pięter, które są włączone. Bez włączonych pięter wymiary budynku znikają.
+  // Wymiary A i B: obrys i wysokość tylko tych pięter, które są włączone.
   function rebuildDims(k) {
     const g = dimG[k];
     while (g.children.length) { const o = g.children.pop(); if (o.geometry) o.geometry.dispose(); if (o.material && o.material.map) { o.material.map.dispose(); o.material.dispose(); } }
-    const all = floorsBy[k], on = all.filter(f => f.on);
-    if (!on.length) { render(); return; }
+    const all = floorsBy[k], on0 = all.filter(f => f.on), on = on0.length ? on0 : all;      // bez włączonych pięter: wymiary całego budynku
     let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
     on.forEach(f => { x0 = Math.min(x0, f.bbox[0]); y0 = Math.min(y0, f.bbox[1]); x1 = Math.max(x1, f.bbox[2]); y1 = Math.max(y1, f.bbox[3]); });
-    const lo = on[0], hi = on[on.length - 1], bb = D.buildings[k];
+    const lo = on[0], hi = on[on.length - 1], bb = B[k].def;
     const zb = lo.idx === 0 ? bb.bbmin[2] : lo.z, zt = hi.idx === all.length - 1 ? bb.bbmax[2] : all[hi.idx + 1].z, zg = zb + 0.4, O = 4;
     const M = (x, y, z) => { const p = inv[k].fwd(x, y); return [p[0], p[1], z]; };
     const ys = k === 'A' ? y0 : y1, s = k === 'A' ? -1 : 1;
@@ -246,6 +257,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
   const dimBtn = $('dimBtn');
   dimBtn.addEventListener('click', () => { dims.visible = !dims.visible; dimBtn.setAttribute('aria-pressed', dims.visible); render(); });
 
+  let variant = 'base';
   // ---- płaszczyzny pięter ----
   const loader = new THREE.TextureLoader(); const maxAniso = renderer.capabilities.getMaxAnisotropy();
   function tex(url, cb) { loader.load(url, t => { t.anisotropy = maxAniso; cb(t); render(); }); }
@@ -263,7 +275,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
   });
   function setLabels(on) {
     D.floors.forEach(f => {
-      const key = on ? 'tl' : 'tp';
+      const key = variant + (on ? 'l' : 'p');
       const use = t => { f.mesh.material.map = t; f.mesh.material.visible = true; f.mesh.material.needsUpdate = true; };
       if (f[key]) use(f[key]); else tex(on ? f.texl : f.tex, t => { f[key] = t; if ($('labels').checked === on) use(t); });
     });
@@ -284,7 +296,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     if (floorsBy[k]) {
       h += `<div class="row"><h3 style="flex:1">Plany pięter</h3><button data-all="${k}">Wszystkie</button><button data-none="${k}">Żadne</button></div><div class="floors">`;
       floorsBy[k].slice().reverse().forEach(f => {
-        h += `<label><input type="checkbox" id="fl${k}${f.fl}" checked> ${f.name} <span class="cnt">· ${f.units.length} lok.</span></label><button data-cut="${k}${f.fl}">Przekrój</button>`;
+        h += `<label><input type="checkbox" id="fl${k}${f.fl}" checked> ${f.name} <span class="cnt" id="cnt${k}${f.fl}">· ${f.units.length} lok.</span></label><button data-cut="${k}${f.fl}">Przekrój</button>`;
       });
       h += '</div>';
     } else h += '<p class="note">Sama bryła – nie mam kart lokali tego budynku.</p>';
@@ -336,7 +348,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     box.innerHTML = `<button class="close" id="infoClose" aria-label="Zamknij">×</button><h2>${u.b} ${u.n}</h2>
       <div class="st" style="color:var(${st[1]})">${st[0]}</div>
       <table><tr><td>Budynek ${u.b}, ${f.name}</td><td></td></tr>
-      <tr><td><b>Powierzchnia użytkowa</b></td><td><b>${pl(u.pu)} m²</b></td></tr>
+      <tr><td><b>Powierzchnia użytkowa${u.est ? ' (szacunek)' : ''}</b></td><td><b>${u.est ? '~' : ''}${pl(u.pu)} m²</b></td></tr>
       <tr><td>Obrys lokalu (w przybliżeniu)</td><td>${pl(u.w, 1)} × ${pl(u.d, 1)} m</td></tr>
       ${ins.map(rows).join('')}${out.map(rows).join('')}
       <tr><td>Cena</td><td>brak w danych</td></tr></table>`;
@@ -357,6 +369,33 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
   });
 
   // stan początkowy: prześwit + wszystkie piętra
+  // ---- wersje: podstawowa / po modyfikacji (skrócony budynek A) ----
+  const baseA = floorsBy.A.map(f => ({ tex: f.tex, texl: f.texl, bbox: f.bbox, units: f.units }));
+  async function setVariant(v) {
+    if (v === variant || !D.v2) return;
+    const b = B.A;
+    if (v === 'v2' && !b.v2) { $('status').textContent = 'Wczytywanie wersji po modyfikacji…'; $('status').hidden = false; b.v2 = await buildShell(D.v2.building); $('status').hidden = true; }
+    variant = v; const s = v === 'v2' ? b.v2 : b.base;
+    b.base.mesh.visible = false; if (b.v2) b.v2.mesh.visible = false;
+    b.mesh = s.mesh; b.mats = s.mats; b.def = s.def; setOpacity('A', b.opacity);
+    floorsBy.A.forEach((f, i) => {
+      const o = v === 'v2' ? D.v2.floors.find(x => x.fl === f.fl) : baseA[i];
+      f.tex = o.tex; f.texl = o.texl; f.bbox = o.bbox;
+      f.units = v === 'v2' ? D.v2.units.filter(u => u.fl === f.fl) : baseA[i].units;
+      $('cntA' + f.fl).textContent = '· ' + f.units.length + ' lok.';
+    });
+    select(null); setLabels($('labels').checked); rebuildDims('A');
+    document.querySelectorAll('#variant button').forEach(x => x.setAttribute('aria-pressed', x.dataset.v === v));
+    const info = $('vinfo'), m = D.v2;
+    if (v === 'v2') {
+      info.textContent = 'Budynek A skrócony o ' + pl(m.skrocenie_m, 1) + ' m na wszystkich piętrach: bez klatki schodowej od strony szczytu i bez ' + m.usuniete.length + ' lokali (' + m.usuniete.join(', ') + '). ' +
+        'Lokale A 512 i A 513 połączone w jeden. Lokali w budynku A: ' + m.lokali_przed + ' → ' + m.lokali_po + ', suma PU: ' + pl(m.pu_przed, 0) + ' → ' + pl(m.pu_po, 0) + ' m² (−' + pl(m.pu_mniej, 0) + ' m²). Budynki B i C bez zmian.';
+      info.hidden = false;
+    } else info.hidden = true;
+    render();
+  }
+  document.querySelectorAll('#variant button').forEach(x => x.addEventListener('click', () => setVariant(x.dataset.v)));
+
   rebuildDims('A'); rebuildDims('B');
   setLabels(true); ['A', 'B', 'C'].forEach(k => setTransp(k, 0.82));
   $('status').hidden = true; render();
