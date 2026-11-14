@@ -24,6 +24,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font
 .stage { position: relative; min-width: 0; min-height: 0; background: var(--scene); }
 canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .hint { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); bottom: 12px; color: var(--muted); font-size: 12px; pointer-events: none; }
+.pad { position: absolute; right: 12px; bottom: 40px; display: grid; grid-template-columns: repeat(3, 40px); gap: 4px; }
+.pad button { height: 40px; padding: 0; font-size: 16px; background: var(--panel); touch-action: none; user-select: none; }
+.hint { right: 150px; }
 .status { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: var(--muted); font-size: 14px; }
 .info { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); top: 16px; width: min(300px, calc(100% - 32px)); max-height: calc(100% - 60px); overflow: auto;
   background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
@@ -67,7 +70,11 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
     <canvas id="c"></canvas>
     <div class="status" id="status">Wczytywanie modelu…</div>
     <div class="info" id="info" hidden></div>
-    <div class="hint">Przeciągnij: obrót · kółko / szczypanie: zoom · prawy przycisk: przesuwanie · kliknij lokal na planie</div>
+    <div class="pad" id="pad" aria-label="Poruszanie się po scenie">
+      <button data-k="u" title="W górę (E)">⤒</button><button data-k="f" title="Do przodu (W)">▲</button><button data-k="d" title="W dół (Q)">⤓</button>
+      <button data-k="l" title="W lewo (A)">◀</button><button data-k="b" title="Do tyłu (S)">▼</button><button data-k="r" title="W prawo (D)">▶</button>
+    </div>
+    <div class="hint">Mysz: przeciągnij = obrót, prawy przycisk = przesuwanie, kółko = zoom · Klawisze: W S A D lub strzałki = chodzenie, Q / E = dół / góra, Shift = szybciej · kliknij lokal na planie</div>
   </div>
   <aside class="panel">
     <div>
@@ -89,6 +96,7 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
       <div class="row"><input type="range" id="clipH" min="0" max="21" step="0.05" value="21" aria-label="Wysokość cięcia brył"></div>
       <div class="row"><label for="explode" style="flex:none">Rozsuń piętra</label><input type="range" id="explode" min="0" max="8" step="0.1" value="0"><span class="val" id="explodeVal">0 m</span></div>
       <div class="row"><label><input type="checkbox" id="labels" checked> Numery i metraże lokali</label></div>
+      <div class="row"><label for="speed" style="flex:none">Tempo chodzenia</label><input type="range" id="speed" min="0.2" max="3" step="0.1" value="1"></div>
     </section>
     <div id="blds"></div>
     <p class="note">Model 3D jest schematyczny (głębokość budynków jest w nim większa niż na kartach), więc plany są do niego rozciągnięte. Prawdziwe wymiary lokali pokazuje karta po kliknięciu lokalu.</p>
@@ -114,10 +122,10 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 1, 1, 2000);
   const controls = new THREE.OrbitControls(camera, canvas);
-  controls.maxPolarAngle = Math.PI / 2 - 0.02; controls.minDistance = 15; controls.maxDistance = 600;
+  controls.maxPolarAngle = Math.PI - 0.05; controls.minDistance = 1.5; controls.maxDistance = 700; controls.screenSpacePanning = true; controls.zoomSpeed = 1.2;
   scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f94, 0.95));
   const sun = new THREE.DirectionalLight(0xffffff, 0.55); sun.position.set(-80, 140, 60); scene.add(sun);
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(260, 64), new THREE.MeshBasicMaterial());
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(260, 64), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
   ground.rotation.x = -Math.PI / 2; ground.position.set(5, -0.05, 0); scene.add(ground);
   let need = true; const render = () => { need = true; };
   controls.addEventListener('change', render);
@@ -127,7 +135,28 @@ button.primary { background: var(--accent); color: var(--accent-fg); border-colo
   new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   function resize() { const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); render(); }
   new ResizeObserver(resize).observe(stage); resize();
-  (function loop() { requestAnimationFrame(loop); controls.update(); if (need) { need = false; renderer.render(scene, camera); } })();
+  // ---- chodzenie: klawisze i przyciski na ekranie przesuwają kamerę razem z punktem, wokół którego się obraca ----
+  const keys = {}; const KEYMAP = { KeyW: 'f', ArrowUp: 'f', KeyS: 'b', ArrowDown: 'b', KeyA: 'l', ArrowLeft: 'l', KeyD: 'r', ArrowRight: 'r', KeyE: 'u', PageUp: 'u', KeyQ: 'd', PageDown: 'd' };
+  const typing = e => e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.target instanceof HTMLTextAreaElement;
+  window.addEventListener('keydown', e => { if (typing(e)) return; if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.fast = true; const k = KEYMAP[e.code]; if (k) { keys[k] = true; e.preventDefault(); } });
+  window.addEventListener('keyup', e => { if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.fast = false; const k = KEYMAP[e.code]; if (k) keys[k] = false; });
+  window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
+  document.querySelectorAll('#pad button').forEach(b => {
+    const k = b.dataset.k, on = e => { e.preventDefault(); keys[k] = true; }, off = () => { keys[k] = false; };
+    b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointerleave', off); b.addEventListener('pointercancel', off);
+  });
+  const fwd = new THREE.Vector3(), right = new THREE.Vector3(), mv = new THREE.Vector3(); let last = performance.now();
+  function walk(dt) {
+    const x = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), z = (keys.f ? 1 : 0) - (keys.b ? 1 : 0), y = (keys.u ? 1 : 0) - (keys.d ? 1 : 0);
+    if (!x && !y && !z) return;
+    camera.getWorldDirection(fwd); fwd.y = 0;
+    if (fwd.lengthSq() < 1e-6) fwd.set(0, 0, -1).applyQuaternion(camera.quaternion).setY(0);
+    fwd.normalize(); right.set(-fwd.z, 0, fwd.x);
+    const speed = (keys.fast ? 60 : 18) * +document.getElementById('speed').value;
+    mv.set(0, 0, 0).addScaledVector(fwd, z).addScaledVector(right, x); mv.y = y; mv.multiplyScalar(speed * dt);
+    camera.position.add(mv); controls.target.add(mv); need = true;
+  }
+  (function loop() { requestAnimationFrame(loop); const now = performance.now(), dt = Math.min(0.1, (now - last) / 1000); last = now; walk(dt); controls.update(); if (need) { need = false; renderer.render(scene, camera); } })();
 
   const clip = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);
   const center = new THREE.Vector3(5, 8, 0);
